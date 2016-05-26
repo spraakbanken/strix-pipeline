@@ -96,8 +96,6 @@ def parse_pipeline_xml(file_name, split_document, word_annotations, pre_data={},
 
                 word = element.text + "|" + "|".join(temp_word_annotations.values()) + "||"
                 current_part_tokens.append(word)
-                if trim_whitespace:
-                    current_part_tokens.append(" ")
 
                 if generate_markup:
                     current_markup.append('<span wid="' + str(token_count) + '">' + element.text + '</span>')
@@ -116,13 +114,12 @@ def parse_pipeline_xml(file_name, split_document, word_annotations, pre_data={},
                     current_part[attribute] = element.attrib[attribute]
                 if generate_markup:
                     current_part['markup'] = "".join(current_markup)
-                current_part['text'] = "".join(current_part_tokens)
+                current_part['text'] = " ".join(current_part_tokens)
                 yield current_part
                 token_count = 0
                 current_part_tokens = []
                 current_markup = []
 
-            if not trim_whitespace and element.tail:
-                if generate_markup:
-                    current_markup.append(element.tail)
-                current_part_tokens.append(element.tail)
+            if generate_markup and (not trim_whitespace) and element.tail:
+                current_markup.append(element.tail)
+
