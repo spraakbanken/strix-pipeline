@@ -1,6 +1,7 @@
 from elasticsearch_dsl import analysis, analyzer, tokenizer
 import os
 
+
 def annotation_analyzer(annotation_name, isSet=False):
     """
     create an analyzer for a specific annotation found a token s.a. framtid|wid=12|page=3||
