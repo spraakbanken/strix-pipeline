@@ -163,7 +163,7 @@ def lb_search(query):
             boundary_max_scan=10) \
         .source(exclude=["parts", "text", "sourcedesc" ])
     s.aggs.bucket("authors", "nested", path="authors") \
-        .bucket("authorid", "terms", field="authors.authorid", size=0) \
+        .bucket("author_id", "terms", field="authors.author_id", size=0) \
             .bucket("title", "terms", field="lbworkid")
 
     result = s.execute()
