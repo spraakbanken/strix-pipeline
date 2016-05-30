@@ -1,1 +1,0 @@
-elastic_hosts = [{'host': 'localhost', 'port': 9200}]
