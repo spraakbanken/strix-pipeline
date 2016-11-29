@@ -6,6 +6,8 @@ from elasticsearch.exceptions import RequestError, NotFoundError
 
 from strix import config
 
+ALL_BUCKETS = "2147483647"
+
 es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 
 
@@ -234,3 +236,10 @@ def create_span_query(tokens):
     else:
         query = span_terms[0]
     return query
+
+
+def get_values(corpus, doc_type, field):
+    s = Search(index=corpus, doc_type=doc_type)
+    s.aggs.bucket("values", "terms", field=field, size=ALL_BUCKETS)
+    result = s.execute()
+    return result.aggregations.values.to_dict()["buckets"]

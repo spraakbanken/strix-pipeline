@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import json
+
 from elasticsearch_dsl.connections import connections
 from flask import Flask, request
 from strix.api.flask_util import crossdomain, jsonify_response
@@ -77,6 +79,32 @@ def autocomplete(terms):
     for term in terms.split(","):
         lemgrams.extend(elasticapi.lemgrammify(term))
     return lemgrams
+
+
+@app.route("/field_values/<corpus>/<doc_type>/<field>")
+@crossdomain(origin="*")
+@jsonify_response
+def get_values(corpus, doc_type, field):
+    return elasticapi.get_values(corpus, doc_type, field)
+
+
+@app.route("/config")
+@app.route("/config/<corpora>")
+@crossdomain(origin="*")
+@jsonify_response
+def get_config(corpora=None):
+    if corpora:
+        result = {}
+        for corpus in corpora.split(","):
+            result[corpus] = json.load(open("resources/config/" + corpus + ".json"))["analyze_config"]
+        return result
+    else:
+        result = elasticapi.es.cat.indices(h="index")
+        indices = []
+        for index in result.split("\n"):
+            if not (index == ".kibana" or index.endswith("_search") or index.endswith("_terms") or index == "" or index == "litteraturbanken"):
+                indices.append(index)
+        return indices
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', threaded=True)
