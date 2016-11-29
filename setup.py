@@ -15,7 +15,7 @@ setup(
     author='Språkbanken',
     author_email='sb-strix@svenska.gu.se',
     license='MIT',
-    packages=['strix'],
+    packages=['strix','strix.pipeline', 'strix.api'],
     zip_safe=False,
     install_requires=[
         'click==6.6',
