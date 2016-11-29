@@ -46,7 +46,7 @@ def get_search_query(indices, doc_type, query, includes=(), excludes=(), from_hi
     if highlight:
         s = s.highlight('strix', options={"number_of_fragments": highlight["number_of_fragments"]})
 
-    s = s.source(include=includes, exclude=excludes)
+    s = s.source(includes=includes, excludes=excludes)
     if sort_field:
         s = s.sort(sort_field)
     return s[from_hit:to_hit]
@@ -68,11 +68,13 @@ def get_document_by_id(indices, doc_type, doc_id, includes, excludes):
 
 def get_documents(indices, doc_type, from_hit, to_hit, includes=(), excludes=(), sort_field=None):
     s = Search(index=indices, doc_type=doc_type)
-    s = s.source(include=includes, exclude=excludes)
+    s = s.source(includes=includes, excludes=excludes)
     if sort_field:
         s = s.sort(sort_field)
 
     try:
+        if to_hit - from_hit < 0:
+            raise RuntimeError("From-hit must be smaller than to-hit")
         hits = s[from_hit:to_hit].execute()
     except RequestError as e:
         reason = e.info['error']['root_cause'][0]['reason']
@@ -103,8 +105,8 @@ def process_hit(index, hit, context_size):
     """
     es_id = hit.meta.id
     doc_type = hit.meta.doc_type
-    highlights = hit.meta.highlight.positions
-    highlights = get_highlights(index, es_id, doc_type, highlights, context_size)
+
+    highlights = get_highlights(index, es_id, doc_type, hit.meta.highlight.positions, context_size)
 
     return {
         "highlight": highlights,

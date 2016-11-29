@@ -1,6 +1,6 @@
 import json
 
-from elasticsearch_dsl import String, Index, Object, Integer, Mapping
+from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping
 from strix.pipeline.mapping_util import annotation_analyzer, get_standard_analyzer
 import strix.config as config
 import elasticsearch
@@ -47,8 +47,8 @@ class CreateIndex:
 
         m.field("position", "integer")
         m.field("term", "object", enabled=False)
-        m.field("doc_id", "string", index="not_analyzed")
-        m.field("doc_type", "string", index="not_analyzed")
+        m.field("doc_id", "keyword", index="not_analyzed")
+        m.field("doc_type", "keyword", index="not_analyzed")
         m.save(self.index + "_terms", using=self.es)
 
     def create_text_type(self):
@@ -56,24 +56,24 @@ class CreateIndex:
         m.meta("_all", enabled=False)
         m.meta("_source", excludes=["text"])
 
-        text_field = String(
+        text_field = Text(
             analyzer=get_standard_analyzer(),
             term_vector="with_positions_offsets",
             fields={
-                'wid': String(analyzer=annotation_analyzer('wid'), term_vector="with_positions_offsets")
+                'wid': Text(analyzer=annotation_analyzer('wid'), term_vector="with_positions_offsets")
             }
         )
 
         for attr in self.word_attributes:
             annotation_name = attr["name"]
-            text_field.fields[annotation_name] = String(analyzer=annotation_analyzer(annotation_name, attr["set"]), term_vector="with_positions_offsets")
+            text_field.fields[annotation_name] = Text(analyzer=annotation_analyzer(annotation_name, attr["set"]), term_vector="with_positions_offsets")
 
         m.field('text', text_field)
 
         for attr in self.text_attributes:
-            m.field(attr, String(index="not_analyzed"))
+            m.field(attr, Keyword(index="not_analyzed"))
 
-        m.field('dump', String(index="no"))
+        m.field('dump', Keyword(index="no"))
         m.field('lines', Object(enabled=False))
 
         m.save(self.index, using=self.es)

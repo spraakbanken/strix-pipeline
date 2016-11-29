@@ -43,8 +43,9 @@ class ElasticApiTest(unittest.TestCase):
         assert len(result['data']) == 2
 
     def test_malformed_paging(self):
-        result = api.get_documents("vivill", "text", 28, 27, [], [])
-        assert result['error']
+        with pytest.raises(RuntimeError) as e_info:
+            api.get_documents("vivill", "text", 28, 27, [], [])
+        assert "smaller" in str(e_info.value)
 
     def test_get_document(self):
         result = api.get_documents("vivill", "text", 28, 29, [], [])

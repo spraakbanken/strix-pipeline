@@ -62,7 +62,7 @@ if __name__ == '__main__':
     reset_parser = subparsers.add_parser('reindex',
                                          help='reset the index, recreate type mapping or reindex data.')
 
-    reset_parser.add_argument("--recreate-index", nargs="+",
+    reset_parser.add_argument("--index", nargs="+",
                               help="Deletes index and everything in it, then recreates it.")
 
     reset_parser.set_defaults(func=do_reset)
