@@ -60,7 +60,7 @@ class CreateIndex:
             analyzer=get_standard_analyzer(),
             term_vector="with_positions_offsets",
             fields={
-                'wid': Text(analyzer=annotation_analyzer('wid'), term_vector="with_positions_offsets")
+                "wid": Text(analyzer=annotation_analyzer("wid"), term_vector="with_positions_offsets")
             }
         )
 
@@ -68,12 +68,12 @@ class CreateIndex:
             annotation_name = attr["name"]
             text_field.fields[annotation_name] = Text(analyzer=annotation_analyzer(annotation_name, attr["set"]), term_vector="with_positions_offsets")
 
-        m.field('text', text_field)
+        m.field("text", text_field)
 
         for attr in self.text_attributes:
             m.field(attr, Keyword(index="not_analyzed"))
 
-        m.field('dump', Keyword(index="no"))
-        m.field('lines', Object(enabled=False))
+        m.field("dump", Keyword(index="no"))
+        m.field("lines", Object(enabled=False))
 
         m.save(self.index, using=self.es)

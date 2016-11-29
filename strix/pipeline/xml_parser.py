@@ -9,7 +9,7 @@ os.environ["PYTHONIOENCODING"] = "utf_8"
 logger = logging.getLogger(__name__)
 
 
-namespaces = {'xml': 'http://www.w3.org/XML/1998/namespace'}
+namespaces = {"xml": "http://www.w3.org/XML/1998/namespace"}
 
 
 def xml_to_json(xml_root, parse_as_list=(), parse_as_sublist=(), parse_as_bool=(), parse_as_inner_xml=(),
@@ -121,7 +121,7 @@ def parse_pipeline_xml(file_name,
             for attribute in element.attrib:
                 part_attributes[attribute] = element.attrib[attribute]
         if event == "end":
-            if element.tag == 'w':
+            if element.tag == "w":
                 temp_word_annotations = dict(current_word_annotations)
                 for annotation in word_annotations.get(element.tag, []):
                     annotation_name = annotation["name"]
@@ -134,7 +134,7 @@ def parse_pipeline_xml(file_name,
                     temp_word_annotations[annotation_name] = annotation_value
 
                 if token_count_id:
-                    temp_word_annotations['wid'] = token_count
+                    temp_word_annotations["wid"] = token_count
 
                 process_token(temp_word_annotations)
 
@@ -152,7 +152,7 @@ def parse_pipeline_xml(file_name,
                 current_part_tokens.append(word)
 
                 if generate_token_lookup:
-                    current_token_lookup.append({'word': token, 'attrs': temp_word_annotations, 'position': token_count})
+                    current_token_lookup.append({"word": token, "attrs": temp_word_annotations, "position": token_count})
 
                 token_count += 1
 
@@ -174,11 +174,11 @@ def parse_pipeline_xml(file_name,
                 else:
                     current_part = {}
                 if generate_token_lookup:
-                    current_part['token_lookup'] = current_token_lookup
-                    current_part['dump'] = dump
-                    current_part['lines'] = lines
+                    current_part["token_lookup"] = current_token_lookup
+                    current_part["dump"] = dump
+                    current_part["lines"] = lines
                 current_part["word_count"] = len(current_part_tokens)
-                current_part['text'] = "\u241D".join(current_part_tokens)
+                current_part["text"] = "\u241D".join(current_part_tokens)
                 yield current_part
                 token_count = 0
                 current_part_tokens = []
@@ -190,7 +190,7 @@ def parse_pipeline_xml(file_name,
                 whitespaces = element.tail.splitlines(True)
                 for ws in whitespaces:
                     dump[-1] += ws
-                    if ws[-1] == '\n':
+                    if ws[-1] == "\n":
                         current_token = token_count - 1
                         add_whitespace(dump, lines, current_token)
 

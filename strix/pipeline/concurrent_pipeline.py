@@ -28,13 +28,13 @@ def setup_logger():
     os.makedirs("logs", exist_ok=True)
 
     # Set mode to 'a' to log
-    fh = logging.FileHandler('logs/pipeline.log', mode="w", encoding="UTF-8")
+    fh = logging.FileHandler("logs/pipeline.log", mode="w", encoding="UTF-8")
     fh.setLevel(logging.INFO)
 
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     fh.setFormatter(formatter)
 
-    errh = logging.FileHandler('logs/pipeline.err.log', mode="w", encoding="UTF-8")
+    errh = logging.FileHandler("logs/pipeline.err.log", mode="w", encoding="UTF-8")
     errh.setLevel(logging.ERROR)
 
     # console logger
@@ -123,7 +123,7 @@ def upload_executor(insert_data, queue, tot_size, num_tasks):
     with futures.ThreadPoolExecutor(max_workers=UPLOAD_THREADS) as executor:
 
         def grouper(n, iterable, fillvalue=None):
-            """grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"""
+            """grouper(3, "ABCDEFG", "x") --> ABC DEF Gxx"""
             args = [iter(iterable)] * n
             return itertools.zip_longest(fillvalue=fillvalue, *args)
 

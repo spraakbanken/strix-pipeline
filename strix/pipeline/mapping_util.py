@@ -28,8 +28,8 @@ def get_standard_analyzer():
     """
     uses pattern_capture token filter to change input from FrAmTiD|wid=12|page=3|| to token "framtid"
     """
-    payload_strip = analysis.token_filter('payload_strip', 'pattern_capture', preserve_original=False, patterns=["^(.*?)\u241E.*"])
-    return analyzer('word',  tokenizer=pattern_tokenizer(), filter=['lowercase', payload_strip])
+    payload_strip = analysis.token_filter("payload_strip", "pattern_capture", preserve_original=False, patterns=["^(.*?)\u241E.*"])
+    return analyzer("word",  tokenizer=pattern_tokenizer(), filter=["lowercase", payload_strip])
 
 
 def as_you_type_analyzer():
@@ -46,6 +46,6 @@ def get_swedish_analyzer():
     uses pattern_capture token filter to change input from framtid|wid=12|page=3|| to token "framtid"
     """
     stems_file = config.stems_file
-    payload_strip = analysis.token_filter('payload_strip', 'pattern_capture', preserve_original=False, patterns=["^(.*?)\\|.*"])
+    payload_strip = analysis.token_filter("payload_strip", "pattern_capture", preserve_original=False, patterns=["^(.*?)\\|.*"])
     stemmer = analysis.token_filter("swedish_stemmer", type="stemmer_override", rules_path=stems_file)
-    return analyzer('swedish',  tokenizer=pattern_tokenizer(), filter=['lowercase', payload_strip, stemmer])
+    return analyzer("swedish",  tokenizer=pattern_tokenizer(), filter=["lowercase", payload_strip, stemmer])
