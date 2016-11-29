@@ -207,4 +207,3 @@ def add_whitespace(dump, lines, current_token):
     else:
         lines[-1] = [begin, current_token]
     lines.append([current_token + 1])
-

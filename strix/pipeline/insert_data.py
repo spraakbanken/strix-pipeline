@@ -81,7 +81,7 @@ class InsertData:
                     "_index": self.index + "_terms",
                     "_type": "term",
                     "_op_type": "index",
-                    "position": token["position"]}
-            term["term"] = token
+                    "position": token["position"],
+                    "term": token}
             terms.append(term)
         return terms
