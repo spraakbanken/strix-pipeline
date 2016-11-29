@@ -34,3 +34,12 @@ grant {
 };
 
 This needs to be done for every node in the cluster.
+
+elasticsearch config
+===========
+1. Download and extract Elasticsearch 5.0.1
+2. Install plugin at ../elasticsearch-plugin/strix-elasticsearch-plugin-1.0.zip using
+   ./bin/elastic-plugin install file:///<absolute path to plugin zip>
+3. Set java heap size using:
+   export ES_JAVA_OPTS="-Xms8g -Xmx8g"
+
