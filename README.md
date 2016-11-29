@@ -20,6 +20,10 @@ Tests
 1. Start elasticsearch and insert suitable data (vivill)
 2. Run `python setup.py test`
 
+config.py
+========
+Copy strix/config.py.example to strix/config.py and set up which elastic-instance to use and data directory
+
 Fixing permissions on stems.txt (not used right now)
 ===========
 To be able to create an index using the custom stemmer with rules found in resources/analyzers/stems.txt:
