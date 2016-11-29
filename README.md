@@ -8,7 +8,8 @@ Strix uses pyenv and pyvenv for python version and virtual environment managemen
 2a. Create the virtual environment using `pyvenv virtual_env`. 
 2b. With ubuntu: `apt-get install python3.4-venv` and run with `python -m venv virtual_env`
 3. Activate the virtual environment with `source virtual_env/bin/activate`.
-4. Profit. 
+4. ?????????
+5. Profit
 
 Installation
 ===========
