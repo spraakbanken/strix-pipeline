@@ -1,0 +1,7 @@
+# -*- coding: utf-8 -*-
+from strix.api.web import app
+
+from waitress import serve
+serve(app, host='0.0.0.0', port=8081)
+
+

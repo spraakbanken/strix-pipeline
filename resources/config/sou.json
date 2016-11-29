@@ -1,0 +1,9 @@
+{
+  "corpus_name": "sou",
+  "file_name_pattern": "sou.xml",
+
+  "analyze_config": {
+      "word_attributes": ["wid"],
+      "text_attributes": ["librisid", "datefrom", "dateto", "timefrom", "timeto"]
+  }
+}

@@ -1,0 +1,28 @@
+{
+    "corpus_name": "vivill",
+
+    "analyze_config": {
+        "word_attributes": [
+            {
+                "name": "wid",
+                "set": false
+            },
+            {
+                "name": "pos",
+                "set": false
+            },
+            {
+                "name": "msd",
+                "set": false
+            },
+            {
+                "nodeName": "lex",
+                "name": "lemgram",
+                "set": true
+            }
+        ],
+        "text_attributes": ["party", "type", "year", "datefrom", "dateto", "timefrom", "timeto"]
+    },
+    "document_id": "task"
+}
+

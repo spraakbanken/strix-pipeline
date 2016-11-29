@@ -1,0 +1,28 @@
+{
+  "corpus_name": "wikipedia",
+  "file_name_pattern": "wiki*.xml",
+
+  "analyze_config": {
+    "word_attributes": [
+      {
+          "name": "wid",
+          "set": false
+      },
+      {
+          "name": "pos",
+          "set": false
+      },
+      {
+          "name": "msd",
+          "set": false
+      },
+      {
+          "nodeName": "lex",
+          "name": "lemgram",
+          "set": true
+      }
+    ],
+    "text_attributes": ["title", "url"]
+  },
+  "document_id": "title"
+}

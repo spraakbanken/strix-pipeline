@@ -1,0 +1,40 @@
+{
+  "corpus_name": "rd-flista",
+  "file_name_pattern": "f-lista*.xml",
+
+  "analyze_config": {
+    "word_attributes": [
+      {
+          "name": "wid",
+          "set": false
+      },
+      {
+          "name": "pos",
+          "set": false
+      },
+      {
+          "name": "msd",
+          "set": false
+      },
+      {
+        "name": "lemma",
+        "set": true
+      },
+      {
+        "name": "ref",
+        "set": false
+      },
+      {
+        "name": "deprel",
+        "set": false
+      },
+      {
+          "nodeName": "lex",
+          "name": "lemgram",
+          "set": true
+      }
+    ],
+    "text_attributes": ["datefrom", "dateto", "timefrom", "timeto", "titel", "datum", "publicerad", "hangar_id", "fil_url", "doktyp", "dokument_url_text", "dok_id"]
+  },
+  "document_id": "titel"
+}

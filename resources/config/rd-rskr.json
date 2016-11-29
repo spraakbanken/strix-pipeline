@@ -1,0 +1,40 @@
+{
+  "corpus_name": "rd-rskr",
+  "file_name_pattern": "rskr*.xml",
+
+  "analyze_config": {
+    "word_attributes": [
+      {
+          "name": "wid",
+          "set": false
+      },
+      {
+          "name": "pos",
+          "set": false
+      },
+      {
+          "name": "msd",
+          "set": false
+      },
+      {
+        "name": "lemma",
+        "set": true
+      },
+      {
+        "name": "ref",
+        "set": false
+      },
+      {
+        "name": "deprel",
+        "set": false
+      },
+      {
+          "nodeName": "lex",
+          "name": "lemgram",
+          "set": true
+      }
+    ],
+    "text_attributes": ["datefrom", "dateto", "timefrom", "timeto", "titel", "datum", "publicerad", "hangar_id", "fil_url", "doktyp"]
+  },
+  "document_id": "titel"
+}
