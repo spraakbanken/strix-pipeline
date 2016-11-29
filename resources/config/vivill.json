@@ -19,6 +19,34 @@
                 "nodeName": "lex",
                 "name": "lemgram",
                 "set": true
+            },
+            {
+                "name": "lemma",
+                "set": true
+            },
+            {
+                "name": "saldo",
+                "set": true
+            },
+            {
+                "name": "prefix",
+                "set": true
+            },
+            {
+                "name": "suffix",
+                "set": true
+            },
+            {
+                "name": "ref",
+                "set": false
+            },
+            {
+                "name": "dephead",
+                "set": false
+            },
+            {
+                "name": "deprel",
+                "set": false
             }
         ],
         "text_attributes": ["party", "type", "year", "datefrom", "dateto", "timefrom", "timeto"]
