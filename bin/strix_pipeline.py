@@ -16,8 +16,8 @@ if __name__ == '__main__':
 
 
     def do_reset(args):
-        if args.recreate_index:
-            for index in args.recreate_index:
+        if args.index:
+            for index in args.index:
                 ci = create_index.CreateIndex(index)
                 try:
                     ci.create_index()
