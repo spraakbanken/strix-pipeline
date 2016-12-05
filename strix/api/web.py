@@ -86,6 +86,9 @@ def search_in_document(corpus, doc_type, doc_id, field, value):
     if request.args.get("forward"):
         kwargs["forward"] = request.args.get('forward').lower() == 'true'
 
+    # TODO remove lowercase-filter in mappingutil, then remove this
+    value = value.lower()
+
     return elasticapi.search_in_document(corpus, doc_type, doc_id, field, value, **kwargs)
 
 if __name__ == "__main__":
