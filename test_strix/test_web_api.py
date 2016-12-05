@@ -26,7 +26,7 @@ class WebApiTest(unittest.TestCase):
     host = "http://localhost:5000"
     doc_type = "text"
     corpus_config = json.load(open(os.path.dirname(os.path.realpath(__file__)) + "/../resources/config/" + corpus + ".json"))
-    text_structures = ["dump", "lines", "es_id"]
+    text_structures = ["dump", "lines", "es_id", "word_count"]
 
     def setUp(self):
         self.app = web.app.test_client()
