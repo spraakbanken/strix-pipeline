@@ -11,11 +11,14 @@ ALL_BUCKETS = "2147483647"
 es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 
 
-def search(indices, doc_type, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None):
-    query = analyze_and_create_span_query(search_term)
+def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None):
+    if field:
+        query = Q("span_term", **{"text." + field: search_term})
+    else:
+        query = analyze_and_create_span_query(search_term)
     res = search_query(indices, doc_type, query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight)
-    for document in res["data"]:
-        if "token_lookup" in includes or "token_lookup" not in excludes:
+    if "token_lookup" in includes or "token_lookup" not in excludes:
+        for document in res["data"]:
             document["token_lookup"] = get_terms(indices, doc_type, document["es_id"])
     return res
 

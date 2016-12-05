@@ -38,9 +38,10 @@ def get_documents(corpus, doc_type, from_page, to_page):
 
 
 @app.route("/search/<corpus>/<doc_type>/<search_term>")
+@app.route("/search/<corpus>/<doc_type>/<field>/<search_term>")
 @crossdomain(origin='*')
 @jsonify_response
-def search(corpus, doc_type, search_term):
+def search(corpus, doc_type, search_term, field=None):
     includes, excludes = get_includes_excludes()
 
     kwargs = {
@@ -67,6 +68,7 @@ def search(corpus, doc_type, search_term):
         kwargs["includes"] = includes
     if excludes:
         kwargs["excludes"] = excludes
+    kwargs["field"] = field
 
     return elasticapi.search(corpus, doc_type, **kwargs)
 
