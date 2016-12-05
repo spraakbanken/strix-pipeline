@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 import elasticsearch
-import strix.pipeline.concurrent_pipeline as concurrent_pipeline
-import strix.pipeline.createindex as create_index
+import strix.pipeline.pipeline as pipeline
+import strix.pipeline.createindex as createindex
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
 
@@ -12,20 +12,20 @@ if __name__ == '__main__':
 
     def do_run(args):
         doc_ids = args.doc_ids if args.doc_ids else []
-        concurrent_pipeline.process_corpus(args.index, limit_to=args.limit_to, doc_ids=doc_ids)
+        pipeline.process_corpus(args.index, limit_to=args.limit_to, doc_ids=doc_ids)
 
 
     def do_reset(args):
         if args.index:
             for index in args.index:
-                ci = create_index.CreateIndex(index)
+                ci = createindex.CreateIndex(index)
                 try:
                     ci.create_index()
                 except elasticsearch.exceptions.TransportError as e:
                     print("transporterror", dir(e), e.error, e.info)
                     if e.error == "access_control_exception":
                         import textwrap
-                        concurrent_pipeline.logger.error(textwrap.dedent("""\
+                        pipeline.logger.error(textwrap.dedent("""\
                             Your analyzers/stems.txt file can't be read. 
                             Please add the following to you java.policy file (replace STRIX_PATH
                             with the actual path):
@@ -37,7 +37,6 @@ if __name__ == '__main__':
                             Then restart elasticsearch. 
                             """))
                     raise e
-
 
     # *** Run parser ***
 

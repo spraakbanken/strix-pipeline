@@ -1,7 +1,7 @@
 import json
 
 from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping
-from strix.pipeline.mapping_util import annotation_analyzer, get_standard_analyzer
+from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer
 import strix.config as config
 import elasticsearch
 

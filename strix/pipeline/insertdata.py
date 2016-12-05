@@ -3,7 +3,7 @@ import os
 import logging
 import json
 import itertools
-import strix.pipeline.xml_parser as xml_parser
+import strix.pipeline.xmlparser as xmlparser
 import strix.config as config
 import time
 
@@ -50,7 +50,7 @@ class InsertData:
 
         tasks = []
         terms = []
-        for text in xml_parser.parse_pipeline_xml(file_name, split_document, word_level_annotations, set_text_attributes=True, token_count_id=True, generate_token_lookup=True):
+        for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_level_annotations, set_text_attributes=True, token_count_id=True, generate_token_lookup=True):
             if self.corpus_conf["document_id"] == "task":
                 doc_id = task_id
             else:

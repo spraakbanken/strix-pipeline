@@ -9,7 +9,7 @@ import multiprocessing
 import elasticsearch
 import strix.config as config
 import itertools
-import strix.pipeline.insert_data as insert_data_strix
+import strix.pipeline.insertdata as insert_data_strix
 
 
 elastic_hosts = [config.elastic_hosts]
