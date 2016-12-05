@@ -71,6 +71,27 @@ def search(corpus, doc_type, search_term):
     return elasticapi.search(corpus, doc_type, **kwargs)
 
 
+@app.route("/search/<corpus>/<doc_type>/<doc_id>/<field>/<value>")
+@crossdomain(origin="*")
+@jsonify_response
+def search_in_document(corpus, doc_type, doc_id, field, value):
+    kwargs = {}
+
+    if request.args.get("size"):
+        kwargs["size"] = int(request.args.get("size"))
+
+    if request.args.get("current_position"):
+        kwargs["current_position"] = int(request.args.get("current_position"))
+
+    if request.args.get("forward"):
+        kwargs["forward"] = request.args.get('forward').lower() == 'true'
+
+    return elasticapi.search_in_document(corpus, doc_type, doc_id, field, value, **kwargs)
+
+if __name__ == "__main__":
+    app.run(debug=True, host='0.0.0.0', threaded=True)
+
+
 @app.route("/lemgramify/<terms>")
 @crossdomain(origin='*')
 @jsonify_response
@@ -105,6 +126,3 @@ def get_config(corpora=None):
             if not (index == ".kibana" or index.endswith("_search") or index.endswith("_terms") or index == "" or index == "litteraturbanken"):
                 indices.append(index)
         return indices
-
-if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', threaded=True)

@@ -208,6 +208,50 @@ def lemgrammify(term):
     return lemgrams
 
 
+def get_values(corpus, doc_type, field):
+    s = Search(index=corpus, doc_type=doc_type)
+    s.aggs.bucket("values", "terms", field=field, size=ALL_BUCKETS)
+    result = s.execute()
+    return result.aggregations.values.to_dict()["buckets"]
+
+
+def search_in_document(corpus, doc_type, doc_id, field, value, current_position=-1, size=None, forward=True):
+    s = Search(index=corpus, doc_type=doc_type)
+    id_query = Q("term", _id=doc_id)
+    span_query = Q("span_term", **{"text." + field: value})
+    query = Q("bool", must=[id_query, span_query])
+    s = s.query(query)
+    s = s.source(excludes=["*"])
+    s = s.highlight("strix")
+    result = s.execute()
+    for hit in result:
+        obj = {
+            "doc_id": doc_id,
+            "doc_type": doc_type,
+            "token_lookup": []
+        }
+        count = 0
+        positions = hit.meta.highlight.positions
+        if not forward:
+            positions.reverse()
+        for span_pos in positions:
+            pos = int(span_pos.split("-")[0])
+            if forward and pos > current_position or not forward and pos < current_position:
+                terms = get_terms(corpus, doc_type, doc_id, positions=[pos])
+                obj["token_lookup"].append(list(terms.values())[0])
+                count += 1
+
+            if size and size <= count:
+                break
+
+        if not forward:
+            obj["token_lookup"].reverse()
+
+        return obj
+
+    return {}
+
+
 # TODO support searching in any field and multiple fields per token (extended search style)
 # assumes searching in field text
 def create_span_query(tokens):
@@ -238,8 +282,10 @@ def create_span_query(tokens):
     return query
 
 
-def get_values(corpus, doc_type, field):
-    s = Search(index=corpus, doc_type=doc_type)
-    s.aggs.bucket("values", "terms", field=field, size=ALL_BUCKETS)
-    result = s.execute()
-    return result.aggregations.values.to_dict()["buckets"]
+def span_and(queries):
+    # TODO make this work for all queries in lsit
+    return Q("span_containing", big=queries[0], little=queries[1])
+
+
+def mask_field(query, field="text"):
+    return Q("field_masking_span", query=query, field=field)
