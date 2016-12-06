@@ -54,7 +54,7 @@ def search(corpus, doc_type, search_term, field=None):
         kwargs["to_hit"] = int(request.args.get("to"))
 
     use_highlight = True
-    if request.args.get("highlight") and not bool(request.args.get("highlight")):
+    if request.args.get("highlight") and request.args.get("highlight") == "false":
         use_highlight = False
 
     if use_highlight:

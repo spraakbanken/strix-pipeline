@@ -17,7 +17,7 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
     else:
         query = analyze_and_create_span_query(search_term)
     res = search_query(indices, doc_type, query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight)
-    if "token_lookup" in includes or "token_lookup" not in excludes:
+    if "token_lookup" in includes or ("token_lookup" not in excludes and not includes):
         for document in res["data"]:
             document["token_lookup"] = get_terms(indices, doc_type, document["es_id"])
     return res
