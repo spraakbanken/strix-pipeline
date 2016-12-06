@@ -51,6 +51,35 @@
         ],
         "text_attributes": ["party", "type", "year", "datefrom", "dateto", "timefrom", "timeto"]
     },
-    "document_id": "task"
+    "document_id": "task",
+    "title": {
+        "pattern": "{party} {year} {type}",
+        "keys": ["party", "year", "type"]
+    },
+    "translation": {
+        "party": {
+            "all": "Alliansen",
+            "c": "Centerpartiet",
+            "rg": "De rödgröna",
+            "fi": "Feministiskt initiativ",
+            "fp": "Folkpartiet liberalerna",
+            "jr": "Jordbrukarnas riksförbund",
+            "kd": "Kristdemokraterna",
+            "la": "Lantmannapartiet",
+            "labp": "Lantmanna- och borgarepartiet",
+            "lisp": "Liberala samlingspartiet",
+            "mp": "Miljöpartiet de gröna",
+            "m": "Moderata samlingspartiet",
+            "npf": "Nationella framstegspartiet",
+            "nyd": "Ny demokrati",
+            "pp": "Piratpartiet",
+            "sd": "Sverigedemokraterna",
+            "k_h": "Sveriges kommunistiska parti, Höglundarna",
+            "k_k": "Sverges kommunistiska parti, Kilbommarna",
+            "svp": "Sverges socialdemokratiska vänsterparti",
+            "lp": "Sveriges liberala parti",
+            "s": "Sveriges socialdemokratiska arbetareparti",
+            "v": "Vänsterpartiet"
+        }
+    }
 }
-

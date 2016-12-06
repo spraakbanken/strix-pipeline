@@ -93,8 +93,6 @@ def search_in_document(corpus, doc_type, doc_id, field, value):
 
     return elasticapi.search_in_document(corpus, doc_type, doc_id, field, value, **kwargs)
 
-if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', threaded=True)
 
 
 @app.route("/lemgramify/<terms>")
@@ -131,3 +129,6 @@ def get_config(corpora=None):
             if not (index == ".kibana" or index.endswith("_search") or index.endswith("_terms") or index == "" or index == "litteraturbanken"):
                 indices.append(index)
         return indices
+
+if __name__ == "__main__":
+    app.run(debug=True, host='0.0.0.0', threaded=True)

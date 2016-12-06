@@ -55,6 +55,8 @@ class InsertData:
                 doc_id = task_id
             else:
                 doc_id = text[self.corpus_conf["document_id"]]
+            if "title" not in text:
+                text["title"] = self.generate_title(text)
             task = self.get_doc_task(doc_id, "text", text)
             task_terms = self.create_term_positions(doc_id, text["token_lookup"])
             del text["token_lookup"]
@@ -62,6 +64,18 @@ class InsertData:
             terms.extend(task_terms)
 
         return itertools.chain(tasks, terms or [])
+
+    def generate_title(self, text):
+        title_keys = self.corpus_conf["title"]["keys"]
+        format_params = {}
+        for title_key in title_keys:
+            if title_key in self.corpus_conf["translation"]:
+                format_params[title_key] = self.corpus_conf["translation"][title_key][text[title_key]]
+            else:
+                format_params[title_key] = text[title_key]
+
+        title_pattern = self.corpus_conf["title"]["pattern"]
+        return title_pattern.format(**format_params)
 
     def get_doc_task(self, text_id, doc_type, text):
         if text_id.startswith("_"):
