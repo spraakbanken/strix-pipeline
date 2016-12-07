@@ -25,9 +25,9 @@ in the result. This is done using the `include` and `exclude` query parameters.
 
 ### Get a document
 
-**GET** `/document/<corpus>/<doc_type>/<doc_id>`
+**GET** `/document/<corpus>/<doc_id>`
 
-Returns a document of type `doc_type` from `corpus` with `doc_id` as the document ID
+Returns a document from `corpus` with `doc_id` as the document ID
 
 **Supported query params:**
 
@@ -36,9 +36,9 @@ Returns a document of type `doc_type` from `corpus` with `doc_id` as the documen
 
 ### Get several documents
 
-**GET** `/document/<corpus>/<doc_type>/<from_hit>/<to_hit>`
+**GET** `/document/<corpus>/<from_hit>/<to_hit>`
 
-Returns documents of type `doc_type` from `corpus`. `from_hit` and `to_hit` controls the number of and 
+Returns documents from `corpus`. `from_hit` and `to_hit` controls the number of and 
 which documents to return.
 
 **Supported query params:**
@@ -49,11 +49,11 @@ which documents to return.
 
 ### Search for documents
 
-**GET** `/search/<corpus>/<doc_type>/<search_term>`
+**GET** `/search/<corpus>/<search_term>`
 
 The given `search_term` will be lemmatized and searched for in the text content.
 
-**GET** `/search/<corpus>/<doc_type>/<field>/<search_term>`
+**GET** `/search/<corpus>/<field>/<search_term>`
 
 The given `search_term` will be searched for in the `field` (word attribute). The fields available are
 given by the `/config/<corpora>` call.
@@ -65,11 +65,11 @@ given by the `/config/<corpora>` call.
 * `from` - For pagination through the results (default: 0) 
 * `to` - For pagination through the results (default: 10)
 * `highlight` - boolean, should the matching tokens be returned or not (default: true)
-* `highlight_number_of_fragments` - how many of the matching tokens should be returned (default: all matches)
+* `highlight_number_of_fragments` - how many of the matching tokens should be returned (default: 5)
 
 ### Search in document
 
-**GET** `/search/<corpus>/<doc_type>/<doc_id>/<field>/<value>`
+**GET** `/search/<corpus>/<doc_id>/<field>/<value>`
 
 **Supported query params:**
 
@@ -79,7 +79,7 @@ given by the `/config/<corpora>` call.
 
 ### Get all possible values for a field
 
-**GET** `/field_values/<corpus>/<doc_type>/<field>`
+**GET** `/field_values/<corpus>/<field>`
 
 For any text field (available fields  given by `/config/<corpora>`) return all possible values of that field.
 

@@ -23,27 +23,27 @@ def get_includes_excludes():
     return includes, excludes
 
 
-@app.route("/document/<corpus>/<doc_type>/<doc_id>")
+@app.route("/document/<corpus>/<doc_id>")
 @crossdomain(origin='*')
 @jsonify_response
-def get_document(corpus, doc_type, doc_id):
+def get_document(corpus, doc_id):
     includes, excludes = get_includes_excludes()
-    return elasticapi.get_document_by_id(corpus, doc_type, doc_id, includes, excludes)
+    return elasticapi.get_document_by_id(corpus, "text", doc_id, includes, excludes)
 
 
-@app.route("/document/<corpus>/<doc_type>/<from_hit>/<to_hit>")
+@app.route("/document/<corpus>/<from_hit>/<to_hit>")
 @crossdomain(origin='*')
 @jsonify_response
-def get_documents(corpus, doc_type, from_hit, to_hit):
+def get_documents(corpus, from_hit, to_hit):
     includes, excludes = get_includes_excludes()
-    return elasticapi.get_documents(corpus, doc_type, int(from_hit), int(to_hit), includes, excludes)
+    return elasticapi.get_documents(corpus, "text", int(from_hit), int(to_hit), includes, excludes)
 
 
-@app.route("/search/<corpus>/<doc_type>/<search_term>")
-@app.route("/search/<corpus>/<doc_type>/<field>/<search_term>")
+@app.route("/search/<corpus>/<search_term>")
+@app.route("/search/<corpus>/<field>/<search_term>")
 @crossdomain(origin='*')
 @jsonify_response
-def search(corpus, doc_type, search_term, field=None):
+def search(corpus, search_term, field=None):
     includes, excludes = get_includes_excludes()
 
     kwargs = {
@@ -72,13 +72,13 @@ def search(corpus, doc_type, search_term, field=None):
         kwargs["excludes"] = excludes
     kwargs["field"] = field
 
-    return elasticapi.search(corpus, doc_type, **kwargs)
+    return elasticapi.search(corpus, "text", **kwargs)
 
 
-@app.route("/search/<corpus>/<doc_type>/<doc_id>/<field>/<value>")
+@app.route("/search/<corpus>/<doc_id>/<field>/<value>")
 @crossdomain(origin="*")
 @jsonify_response
-def search_in_document(corpus, doc_type, doc_id, field, value):
+def search_in_document(corpus, doc_id, field, value):
     kwargs = {}
 
     if request.args.get("size"):
@@ -93,7 +93,7 @@ def search_in_document(corpus, doc_type, doc_id, field, value):
     # TODO remove lowercase-filter in mappingutil, then remove this
     value = value.lower()
 
-    return elasticapi.search_in_document(corpus, doc_type, doc_id, field, value, **kwargs)
+    return elasticapi.search_in_document(corpus, "text", doc_id, field, value, **kwargs)
 
 
 
@@ -107,11 +107,11 @@ def autocomplete(terms):
     return lemgrams
 
 
-@app.route("/field_values/<corpus>/<doc_type>/<field>")
+@app.route("/field_values/<corpus>/<field>")
 @crossdomain(origin="*")
 @jsonify_response
-def get_values(corpus, doc_type, field):
-    return elasticapi.get_values(corpus, doc_type, field)
+def get_values(corpus, field):
+    return elasticapi.get_values(corpus, "text", field)
 
 
 @app.route("/config")
