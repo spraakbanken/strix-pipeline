@@ -32,9 +32,10 @@ def search_query(indices, doc_type, query, includes=(), excludes=(), from_hit=0,
     for hit in hits:
         item = hit.to_dict()
         if highlight:
-            item["highlight"] = process_hit(indices, hit, 5)
+            item["highlight"] = process_hit(hit.meta.index, hit, 5)
         item['es_id'] = hit.meta.id
         item['doc_type'] = hit.meta.doc_type
+        item['corpus'] = hit.meta.index
         items.append(item)
 
     output = {"hits": hits.hits.total, "data": items}
