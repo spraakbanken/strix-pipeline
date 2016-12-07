@@ -31,24 +31,19 @@ def get_document(corpus, doc_id):
     return elasticapi.get_document_by_id(corpus, "text", doc_id, includes, excludes)
 
 
-@app.route("/document/<corpus>/<from_hit>/<to_hit>")
-@crossdomain(origin='*')
-@jsonify_response
-def get_documents(corpus, from_hit, to_hit):
-    includes, excludes = get_includes_excludes()
-    return elasticapi.get_documents(corpus, "text", int(from_hit), int(to_hit), includes, excludes)
-
-
+@app.route("/search/<corpus>")
+@app.route("/search/<corpus>/")
 @app.route("/search/<corpus>/<search_term>")
 @app.route("/search/<corpus>/<field>/<search_term>")
 @crossdomain(origin='*')
 @jsonify_response
-def search(corpus, search_term, field=None):
+def search(corpus, search_term=None, field=None):
     includes, excludes = get_includes_excludes()
 
-    kwargs = {
-        "search_term": search_term
-    }
+    kwargs = {}
+
+    if search_term:
+        kwargs["search_term"] = search_term
 
     if request.args.get("from"):
         kwargs["from_hit"] = int(request.args.get("from"))
@@ -139,7 +134,7 @@ def get_documentation():
     input_file = codecs.open("resources/docs/api.md", mode="r", encoding="utf-8")
     text = input_file.read()
     css = '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">'
-    return css + '<div style="margin-left: 20px; width: 750px">' + markdown.markdown(text) + '</div>'
+    return css + '<div style="margin-left: 20px; max-width: 750px">' + markdown.markdown(text) + '</div>'
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', threaded=True)

@@ -34,20 +34,12 @@ Returns a document from `corpus` with `doc_id` as the document ID
 * `include`
 * `exclude`
 
-### Get several documents
-
-**GET** `/document/<corpus>/<from_hit>/<to_hit>`
-
-Returns documents from `corpus`. `from_hit` and `to_hit` controls the number of and 
-which documents to return.
-
-**Supported query params:**
-
-* `include`
-* `exclude`
-
 
 ### Search for documents
+
+**GET** `/search/<corpus>`
+
+Get all documents
 
 **GET** `/search/<corpus>/<search_term>`
 

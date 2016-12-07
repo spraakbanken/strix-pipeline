@@ -12,19 +12,23 @@ es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 
 
 def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None):
-    if field:
-        query = Q("span_term", **{"text." + field: search_term})
+    if search_term:
+        if field:
+            query = Q("span_term", **{"text." + field: search_term})
+        else:
+            query = analyze_and_create_span_query(search_term)
     else:
-        query = analyze_and_create_span_query(search_term)
-    res = search_query(indices, doc_type, query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight)
+        query = None
+        highlight = None
+    res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight)
     if "token_lookup" in includes or ("token_lookup" not in excludes and not includes):
         for document in res["data"]:
             document["token_lookup"] = get_terms(indices, doc_type, document["es_id"])
     return res
 
 
-def search_query(indices, doc_type, query, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_field=None, before_send=None):
-    s = get_search_query(indices, doc_type, query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, sort_field=sort_field)
+def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_field=None, before_send=None):
+    s = get_search_query(indices, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, sort_field=sort_field)
     if before_send:
         s = before_send(s)
     hits = s.execute()
@@ -46,8 +50,10 @@ def search_query(indices, doc_type, query, includes=(), excludes=(), from_hit=0,
     return output
 
 
-def get_search_query(indices, doc_type, query, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_field=None):
-    s = Search(index=indices, doc_type=doc_type).query(query)
+def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_field=None):
+    s = Search(index=indices, doc_type=doc_type)
+    if query:
+        s = s.query(query)
 
     if highlight:
         s = s.highlight('strix', options={"number_of_fragments": highlight["number_of_fragments"]})
@@ -70,32 +76,6 @@ def get_document_by_id(indices, doc_type, doc_id, includes, excludes):
         document["token_lookup"] = get_terms(indices, doc_type, doc_id)
     document['es_id'] = result['_id']
     return {"data": document}
-
-
-def get_documents(indices, doc_type, from_hit, to_hit, includes=(), excludes=(), sort_field=None):
-    s = Search(index=indices, doc_type=doc_type)
-    s = s.source(includes=includes, excludes=excludes)
-    if sort_field:
-        s = s.sort(sort_field)
-
-    try:
-        if to_hit - from_hit < 0:
-            raise RuntimeError("From-hit must be smaller than to-hit")
-        hits = s[from_hit:to_hit].execute()
-    except RequestError as e:
-        reason = e.info['error']['root_cause'][0]['reason']
-        return {"error": reason}
-
-    items = []
-    for hit in hits:
-        hit["es_id"] = hit.meta.id
-        hit_dict = hit.to_dict()
-        if "token_lookup" in includes or "token_lookup" not in excludes:
-            hit_dict["token_lookup"] = get_terms(indices, doc_type, hit.meta.id)
-        if hit_dict.get("meta", False):
-            del hit_dict["meta"]
-        items.append(hit_dict)
-    return {"hits": hits.hits.total, "data": items}
 
 
 def put_document(index, doc_type, doc):

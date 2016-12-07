@@ -40,14 +40,23 @@ class WebApiTest(unittest.TestCase):
         result = self.do_request("/search/" + WebApiTest.corpus + "/" + WebApiTest.search["value"] + "?exclude=text,dump,lines,token_lookup")
         assert result["hits"] == WebApiTest.search["expected_results"]
 
+        for token in result["data"][0]["highlight"]["highlight"][0]["match"]:
+            assert token["word"] in WebApiTest.search["value"].split(" ")
+
         for data in result["data"]:
             with pytest.raises(KeyError):
                 data["dump"]
             with pytest.raises(KeyError):
                 data["lines"]
 
-        for token in result["data"][0]["highlight"]["highlight"][0]["match"]:
-            assert token["word"] in WebApiTest.search["value"].split(" ")
+            data["dump"] = "tmp"
+            data["lines"] = "tmp"
+            assert data["corpus"]
+            del data["corpus"]
+            assert data["doc_type"]
+            del data["doc_type"]
+            del data["highlight"]
+            self.check_doc_text_attributes(data)
 
     def test_get_document1(self):
         for doc_id in WebApiTest.doc_ids:
@@ -69,11 +78,15 @@ class WebApiTest(unittest.TestCase):
     #         self.check_doc_text_attributes(doc)
 
     def test_get_documents(self):
-        result = self.do_request("/document/" + WebApiTest.corpus + "/25/50?exclude=token_lookup")
+        result = self.do_request("/search/" + WebApiTest.corpus + "/?exclude=token_lookup&from=25&to=50")
         assert result["hits"] == WebApiTest.total_num_documents
         hits = result["data"]
         assert len(hits) == 25
         for doc in hits:
+            assert doc["corpus"]
+            del doc["corpus"]
+            assert doc["doc_type"]
+            del doc["doc_type"]
             self.check_doc_text_attributes(doc)
 
     def check_doc_text_attributes(self, doc):

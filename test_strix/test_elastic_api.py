@@ -38,17 +38,16 @@ class ElasticApiTest(unittest.TestCase):
         assert result['hits'] == 0
 
     def test_paging(self):
-        result = api.get_documents("vivill", "text", 25, 27, [], [])
+        result = api.search("vivill", "text", from_hit=25, to_hit=27)
         assert result['hits'] == 243
         assert len(result['data']) == 2
 
     def test_malformed_paging(self):
-        with pytest.raises(RuntimeError) as e_info:
-            api.get_documents("vivill", "text", 28, 27, [], [])
-        assert "smaller" in str(e_info.value)
+        result = api.search("vivill", "text", from_hit=29, to_hit=27)
+        assert len(result["data"]) == 0
 
     def test_get_document(self):
-        result = api.get_documents("vivill", "text", 28, 29, [], [])
+        result = api.search("vivill", "text", from_hit=28, to_hit=29)
         item = result['data'][0]
         id = item['es_id']
         result = api.get_document_by_id("vivill", "text", id, [], [])
