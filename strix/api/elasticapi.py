@@ -263,7 +263,7 @@ def create_span_query(tokens):
         if "lemgram" in token_dict and token_dict["lemgram"]:
             lemgram_terms = []
             for lemgram in token_dict["lemgram"]:
-                lemgram_terms.append(Q("span_term", **{"text.lemgram": lemgram}))
+                lemgram_terms.append(Q("span_term", **{"text.lemgram": lemgram.lower()}))
             if len(lemgram_terms) > 1:
                 query = Q("span_or", clauses=lemgram_terms)
             else:
