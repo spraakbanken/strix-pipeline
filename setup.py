@@ -31,7 +31,8 @@ setup(
         'urllib3 ==1.16',
         'waitress==0.9.0b0',
         'Werkzeug==0.11.10',
-        'requests==2.12.1'
+        'requests==2.12.1',
+        'Markdown==2.6.7'
       ],
     test_suite='setup.my_test_suite',
     tests_require=['pytest==2.9.1']

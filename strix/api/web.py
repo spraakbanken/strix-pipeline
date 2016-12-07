@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import codecs
 import json
 
+import markdown
 from elasticsearch_dsl.connections import connections
 from flask import Flask, request
 from strix.api.flask_util import crossdomain, jsonify_response
@@ -29,12 +31,12 @@ def get_document(corpus, doc_type, doc_id):
     return elasticapi.get_document_by_id(corpus, doc_type, doc_id, includes, excludes)
 
 
-@app.route("/document/<corpus>/<doc_type>/<from_page>/<to_page>")
+@app.route("/document/<corpus>/<doc_type>/<from_hit>/<to_hit>")
 @crossdomain(origin='*')
 @jsonify_response
-def get_documents(corpus, doc_type, from_page, to_page):
+def get_documents(corpus, doc_type, from_hit, to_hit):
     includes, excludes = get_includes_excludes()
-    return elasticapi.get_documents(corpus, doc_type, int(from_page), int(to_page), includes, excludes)
+    return elasticapi.get_documents(corpus, doc_type, int(from_hit), int(to_hit), includes, excludes)
 
 
 @app.route("/search/<corpus>/<doc_type>/<search_term>")
@@ -129,6 +131,15 @@ def get_config(corpora=None):
             if not (index == ".kibana" or index.endswith("_search") or index.endswith("_terms") or index == "" or index == "litteraturbanken"):
                 indices.append(index)
         return indices
+
+
+@app.route("/")
+@crossdomain(origin="*")
+def get_documentation():
+    input_file = codecs.open("resources/docs/api.md", mode="r", encoding="utf-8")
+    text = input_file.read()
+    css = '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">'
+    return css + '<div style="margin-left: 20px; width: 750px">' + markdown.markdown(text) + '</div>'
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', threaded=True)
