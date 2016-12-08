@@ -42,6 +42,9 @@ def search(corpus, search_term=None, field=None):
 
     kwargs = {}
 
+    if "text_filter" in request.args:
+        kwargs["text_filter"] = json.loads(request.args.get("text_filter"))
+
     if search_term:
         kwargs["search_term"] = search_term
 

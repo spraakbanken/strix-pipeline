@@ -89,6 +89,10 @@ class WebApiTest(unittest.TestCase):
             del doc["doc_type"]
             self.check_doc_text_attributes(doc)
 
+    def test_filters(self):
+        result = self.do_request("/search/" + WebApiTest.corpus + '/?exclude=token_lookup&from=25&to=50&text_filter={"party": "m"}')
+        assert result["hits"] == 39
+
     def check_doc_text_attributes(self, doc):
         text_attributes = WebApiTest.corpus_config["analyze_config"]["text_attributes"]
         for text_attribute in text_attributes:

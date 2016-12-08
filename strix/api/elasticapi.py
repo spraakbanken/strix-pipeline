@@ -11,7 +11,7 @@ ALL_BUCKETS = "2147483647"
 es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 
 
-def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None):
+def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None):
     if search_term:
         if field:
             query = Q("span_term", **{"text." + field: search_term})
@@ -20,15 +20,16 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
     else:
         query = None
         highlight = None
-    res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight)
+    res = do_search_query(indices, doc_type, text_filter=text_filter, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight)
     if "token_lookup" in includes or ("token_lookup" not in excludes and not includes):
         for document in res["data"]:
             document["token_lookup"] = get_terms(indices, doc_type, document["es_id"])
     return res
 
 
-def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_field=None, before_send=None):
-    s = get_search_query(indices, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, sort_field=sort_field)
+def do_search_query(indices, doc_type, text_filter=None, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_field=None, before_send=None):
+    query = join_queries(text_filter, search_query)
+    s = get_search_query(indices, doc_type, query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, sort_field=sort_field)
     if before_send:
         s = before_send(s)
     hits = s.execute()
@@ -48,6 +49,21 @@ def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=
     if 'aggregations' in hits:
         output["aggregations"] = list(hits.to_dict()["aggregations"].values())[0]
     return output
+
+
+def join_queries(text_filter, search_query):
+    filter_clauses = []
+    if text_filter:
+        for k, v in text_filter.items():
+            filter_clauses.append(Q("term", **{k: v}))
+
+    if search_query and filter_clauses:
+        filter_clauses.append(search_query)
+
+    if filter_clauses:
+        return Q("bool", must=filter_clauses)
+    else:
+        return search_query
 
 
 def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_field=None):
