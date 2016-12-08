@@ -122,6 +122,7 @@ def get_highlights(index, es_id, doc_type, spans, context_size):
 
     highlights = []
 
+    seen_spans = []
     for span in spans:
         [_from, _to] = span.split('-')
         left = []
@@ -130,6 +131,9 @@ def get_highlights(index, es_id, doc_type, spans, context_size):
 
         from_int = int(_from)
         to_int = int(_to)
+        if from_int in seen_spans:
+            continue
+        seen_spans.append(from_int)
         for pos in range(from_int - context_size, from_int):
             if pos in term_index:
                 left.append(term_index[pos])
