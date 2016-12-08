@@ -1,7 +1,7 @@
 import json
 
 from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping
-from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer
+from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer, get_swedish_analyzer
 import strix.config as config
 import elasticsearch
 
@@ -75,5 +75,7 @@ class CreateIndex:
 
         m.field("dump", Keyword(index="no"))
         m.field("lines", Object(enabled=False))
+
+        m.field("title", Text(analyzer=get_swedish_analyzer()))
 
         m.save(self.index, using=self.es)

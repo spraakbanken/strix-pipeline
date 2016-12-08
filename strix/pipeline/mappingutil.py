@@ -42,10 +42,6 @@ def pattern_tokenizer():
 
 
 def get_swedish_analyzer():
-    """
-    uses pattern_capture token filter to change input from framtid|wid=12|page=3|| to token "framtid"
-    """
     stems_file = config.stems_file
-    payload_strip = analysis.token_filter("payload_strip", "pattern_capture", preserve_original=False, patterns=["^(.*?)\\|.*"])
     stemmer = analysis.token_filter("swedish_stemmer", type="stemmer_override", rules_path=stems_file)
-    return analyzer("swedish",  tokenizer=pattern_tokenizer(), filter=["lowercase", payload_strip, stemmer])
+    return analyzer("swedish",  tokenizer="standard", filter=["lowercase", stemmer])
