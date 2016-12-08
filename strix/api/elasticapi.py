@@ -131,6 +131,7 @@ def get_highlights(index, es_id, doc_type, spans, context_size):
 
         from_int = int(_from)
         to_int = int(_to)
+        # TODO possibly this will create problems due to overlapping spans
         if from_int in seen_spans:
             continue
         seen_spans.append(from_int)
