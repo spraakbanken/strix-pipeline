@@ -20,16 +20,21 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
     else:
         query = None
         highlight = None
-    res = do_search_query(indices, doc_type, text_filter=text_filter, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight)
+
+    query = join_queries(text_filter, query)
+
+    if search_term:
+        query = Q("bool", should=[query, Q("match", title={"query": search_term, "boost": 2})])
+
+    res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight)
     if "token_lookup" in includes or ("token_lookup" not in excludes and not includes):
         for document in res["data"]:
             document["token_lookup"] = get_terms(indices, doc_type, document["es_id"])
     return res
 
 
-def do_search_query(indices, doc_type, text_filter=None, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_field=None, before_send=None):
-    query = join_queries(text_filter, search_query)
-    s = get_search_query(indices, doc_type, query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, sort_field=sort_field)
+def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_field=None, before_send=None):
+    s = get_search_query(indices, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, sort_field=sort_field)
     if before_send:
         s = before_send(s)
     hits = s.execute()
