@@ -1,3 +1,7 @@
+import glob
+import json
+import os
+
 import elasticsearch
 import requests
 
@@ -30,6 +34,7 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
     if "token_lookup" in includes or ("token_lookup" not in excludes and not includes):
         for document in res["data"]:
             document["token_lookup"] = get_terms(indices, doc_type, document["es_id"])
+
     return res
 
 
@@ -43,9 +48,13 @@ def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=
         item = hit.to_dict()
         if highlight:
             item["highlight"] = process_hit(hit.meta.index, hit, 5)
-        item['es_id'] = hit.meta.id
-        item['doc_type'] = hit.meta.doc_type
-        item['corpus'] = hit.meta.index
+        item["es_id"] = hit.meta.id
+        item["doc_type"] = hit.meta.doc_type
+        item["corpus"] = hit.meta.index
+        item["text_attributes"] = {}
+        for text_attribute in text_attributes[hit.meta.index]:
+            item["text_attributes"][text_attribute] = item[text_attribute]
+            del item[text_attribute]
         items.append(item)
 
     output = {"hits": hits.hits.total, "data": items}
@@ -113,7 +122,10 @@ def process_hit(index, hit, context_size):
     es_id = hit.meta.id
     doc_type = hit.meta.doc_type
 
-    highlights = get_highlights(index, es_id, doc_type, hit.meta.highlight.positions, context_size)
+    if hasattr(hit.meta, "highlight"):
+        highlights = get_highlights(index, es_id, doc_type, hit.meta.highlight.positions, context_size)
+    else:
+        highlights = []
 
     return {
         "highlight": highlights,
@@ -299,3 +311,19 @@ def span_and(queries):
 
 def mask_field(query, field="text"):
     return Q("field_masking_span", query=query, field=field)
+
+
+def get_text_attributes():
+    text_attributes = {}
+
+    for file in glob.glob("resources/config/*.json"):
+        key = os.path.splitext(os.path.basename(file))[0]
+        text_attributes[key] = json.load(open(file, "r"))["analyze_config"]["text_attributes"]
+        if "title" in text_attributes[key]:
+            text_attributes[key].remove("title")
+
+    text_attributes["litteraturbanken"] = []
+
+    return text_attributes
+
+text_attributes = get_text_attributes()
