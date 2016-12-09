@@ -24,7 +24,7 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
     query = join_queries(text_filter, query)
 
     if search_term:
-        query = Q("bool", should=[query, Q("match", title={"query": search_term, "boost": 2})])
+        query = Q("bool", should=[query, Q("fuzzy", title={"value": search_term, "boost": 50})])
 
     res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight)
     if "token_lookup" in includes or ("token_lookup" not in excludes and not includes):
