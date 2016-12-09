@@ -2,7 +2,7 @@ import elasticsearch
 import requests
 
 from elasticsearch_dsl import Search, Q
-from elasticsearch.exceptions import RequestError, NotFoundError
+from elasticsearch.exceptions import NotFoundError
 
 from strix import config
 
