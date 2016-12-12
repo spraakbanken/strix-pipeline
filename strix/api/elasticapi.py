@@ -51,11 +51,7 @@ def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=
         item["es_id"] = hit.meta.id
         item["doc_type"] = hit.meta.doc_type
         item["corpus"] = hit.meta.index
-        item["text_attributes"] = {}
-        for text_attribute in text_attributes[hit.meta.index]:
-            if text_attribute in item:
-                item["text_attributes"][text_attribute] = item[text_attribute]
-                del item[text_attribute]
+        move_text_attributes(hit.meta.index, item)
         items.append(item)
 
     output = {"hits": hits.hits.total, "data": items}
@@ -105,8 +101,18 @@ def get_document_by_id(indices, doc_type, doc_id, includes, excludes):
     document = result['_source']
     if "token_lookup" in includes or "token_lookup" not in excludes:
         document["token_lookup"] = get_terms(indices, doc_type, doc_id)
-    document['es_id'] = result['_id']
+    document["es_id"] = result["_id"]
+    document["corpus"] = result["_index"]
+    move_text_attributes(result["_index"], document)
     return {"data": document}
+
+
+def move_text_attributes(corpus, item):
+    item["text_attributes"] = {}
+    for text_attribute in text_attributes[corpus]:
+        if text_attribute in item:
+            item["text_attributes"][text_attribute] = item[text_attribute]
+            del item[text_attribute]
 
 
 def put_document(index, doc_type, doc):
