@@ -53,8 +53,9 @@ def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=
         item["corpus"] = hit.meta.index
         item["text_attributes"] = {}
         for text_attribute in text_attributes[hit.meta.index]:
-            item["text_attributes"][text_attribute] = item[text_attribute]
-            del item[text_attribute]
+            if text_attribute in item:
+                item["text_attributes"][text_attribute] = item[text_attribute]
+                del item[text_attribute]
         items.append(item)
 
     output = {"hits": hits.hits.total, "data": items}
