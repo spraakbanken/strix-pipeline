@@ -60,10 +60,11 @@ def partition_tasks(queue, num_tasks):
     # for task in task_data:
     while True:
         if num_tasks < 1:
+            logger.info("Processing complete")
             break
         try:
             print("queue.get size", queue.qsize())
-            (task_data, process_time, work_size) = queue.get(timeout=20)
+            (task_data, process_time, work_size) = queue.get()
             work_size_accu += work_size
             num_tasks -= 1
         except Exception as e:  # queue.Empty
