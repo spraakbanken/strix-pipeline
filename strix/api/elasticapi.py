@@ -290,7 +290,7 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
     if field:
         span_query = Q("span_term", **{"text." + field: value})
     else:
-        span_query = analyze_and_create_span_query(value)
+        span_query, _ = analyze_and_create_span_query(value)
     query = Q("bool", must=[id_query, span_query])
     s = s.query(query)
     s = s.source(excludes=["*"])
