@@ -51,7 +51,8 @@ def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=
         item["es_id"] = hit.meta.id
         item["doc_type"] = hit.meta.doc_type
         item["corpus"] = hit.meta.index
-        move_text_attributes(hit.meta.index, item)
+        if hit.meta.index in text_attributes:
+            move_text_attributes(hit.meta.index, item)
         items.append(item)
 
     output = {"hits": hits.hits.total, "data": items}
@@ -233,7 +234,7 @@ def lemgrammify(term):
     for hit in result["hits"]["hits"]:
         lemgram = hit["_source"]["FormRepresentations"][0]["lemgram"]
         if "_" not in lemgram:
-            lemgrams.append(lemgram)
+            lemgrams.append(lemgram.lower()) # .lower() here is because we accidentally have lowercase active in the mapping
     return lemgrams
 
 
@@ -328,7 +329,10 @@ def get_text_attributes():
 
     for file in glob.glob("resources/config/*.json"):
         key = os.path.splitext(os.path.basename(file))[0]
-        text_attributes[key] = json.load(open(file, "r"))["analyze_config"]["text_attributes"]
+        try:
+            text_attributes[key] = json.load(open(file, "r"))["analyze_config"]["text_attributes"]
+        except:
+            continue
         if "title" in text_attributes[key]:
             text_attributes[key].remove("title")
 
