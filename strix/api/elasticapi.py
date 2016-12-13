@@ -316,8 +316,12 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
             positions = hit.meta.highlight.positions
             if not forward:
                 positions.reverse()
+            seen = []
             for span_pos in positions:
                 pos = int(span_pos.split("-")[0])
+                if pos in seen:
+                    continue
+                seen.append(pos)
                 if forward and pos > current_position or not forward and pos < current_position:
                     terms = get_terms(corpus, doc_type, doc_id, positions=[pos])
                     obj["highlight"].append(list(terms.values())[0])
