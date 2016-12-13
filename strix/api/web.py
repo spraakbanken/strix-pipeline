@@ -73,10 +73,11 @@ def search(corpus, search_term=None, field=None):
     return elasticapi.search(corpus, "text", **kwargs)
 
 
-@app.route("/search/<corpus>/<doc_id>/<field>/<value>")
+@app.route("/search/<corpus>/doc_id/<doc_id>/<search_term>")
+@app.route("/search/<corpus>/doc_id/<doc_id>/<field>/<search_term>")
 @crossdomain(origin="*")
 @jsonify_response
-def search_in_document(corpus, doc_id, field, value):
+def search_in_document(corpus, doc_id, search_term, field=None):
     kwargs = {}
 
     if request.args.get("size"):
@@ -88,10 +89,12 @@ def search_in_document(corpus, doc_id, field, value):
     if request.args.get("forward"):
         kwargs["forward"] = request.args.get('forward').lower() == 'true'
 
-    # TODO remove lowercase-filter in mappingutil, then remove this
-    value = value.lower()
+    kwargs["field"] = field
 
-    return elasticapi.search_in_document(corpus, "text", doc_id, field, value, **kwargs)
+    # TODO remove lowercase-filter in mappingutil, then remove this
+    value = search_term.lower()
+
+    return elasticapi.search_in_document(corpus, "text", doc_id, value, **kwargs)
 
 
 

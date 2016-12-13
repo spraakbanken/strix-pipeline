@@ -63,7 +63,14 @@ given by the `/config/<corpora>` call.
 
 ### Search in document
 
-**GET** `/search/<corpus>/<doc_id>/<field>/<value>`
+**GET** `/search/<corpus>/doc_id/<doc_id>/<search_term>`
+
+The given `search_term` will be lemmatized and searched for in the text content of the given `doc_id`.
+
+**GET** `/search/<corpus>/doc_id/<doc_id>/<field>/<search_term>`
+
+The given `search_term` will be searched for in the `field` (word attribute) of the given `doc_id`. The fields available are
+given by the `/config/<corpora>` call.
 
 **Supported query params:**
 

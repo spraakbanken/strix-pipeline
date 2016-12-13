@@ -244,10 +244,13 @@ def get_values(corpus, doc_type, field):
     return result.aggregations.values.to_dict()["buckets"]
 
 
-def search_in_document(corpus, doc_type, doc_id, field, value, current_position=-1, size=None, forward=True):
+def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, size=None, forward=True, field=None):
     s = Search(index=corpus, doc_type=doc_type)
     id_query = Q("term", _id=doc_id)
-    span_query = Q("span_term", **{"text." + field: value})
+    if field:
+        span_query = Q("span_term", **{"text." + field: value})
+    else:
+        span_query = analyze_and_create_span_query(value)
     query = Q("bool", must=[id_query, span_query])
     s = s.query(query)
     s = s.source(excludes=["*"])
