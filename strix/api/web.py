@@ -84,6 +84,12 @@ def search(corpus, search_term=None, field=None):
 def search_in_document(corpus, doc_id, search_term, field=None):
     kwargs = {}
 
+    includes, excludes = get_includes_excludes()
+    if includes:
+        kwargs["includes"] = includes
+    if excludes:
+        kwargs["excludes"] = excludes
+
     if request.args.get("size"):
         kwargs["size"] = int(request.args.get("size"))
 

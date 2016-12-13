@@ -284,7 +284,7 @@ def get_values(corpus, doc_type, field):
     return result.aggregations.values.to_dict()["buckets"]
 
 
-def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, size=None, forward=True, field=None):
+def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, size=None, forward=True, field=None, includes=(), excludes=()):
     s = Search(index=corpus, doc_type=doc_type)
     id_query = Q("term", _id=doc_id)
     if field:
@@ -293,31 +293,44 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
         span_query, _ = analyze_and_create_span_query(value)
     query = Q("bool", must=[id_query, span_query])
     s = s.query(query)
-    s = s.source(excludes=["*"])
+
+    if isinstance(excludes, list):
+        excludes.append("text")
+    else:
+        excludes = (excludes + ("text",))
+
+    s = s.source(includes=includes, excludes=excludes)
     s = s.highlight("strix")
     result = s.execute()
     for hit in result:
-        obj = {
-            "doc_id": doc_id,
-            "doc_type": doc_type,
-            "token_lookup": []
-        }
-        count = 0
-        positions = hit.meta.highlight.positions
-        if not forward:
-            positions.reverse()
-        for span_pos in positions:
-            pos = int(span_pos.split("-")[0])
-            if forward and pos > current_position or not forward and pos < current_position:
-                terms = get_terms(corpus, doc_type, doc_id, positions=[pos])
-                obj["token_lookup"].append(list(terms.values())[0])
-                count += 1
+        obj = hit.to_dict()
+        obj["doc_id"] = hit.meta.id
+        obj["doc_type"] = hit.meta.doc_type
+        obj["corpus"] = hit.meta.index
+        obj["highlight"] = []
 
-            if size and size <= count:
-                break
+        move_text_attributes(hit.meta.index, obj)
+
+        if size != 0:
+            count = 0
+            positions = hit.meta.highlight.positions
+            if not forward:
+                positions.reverse()
+            for span_pos in positions:
+                pos = int(span_pos.split("-")[0])
+                if forward and pos > current_position or not forward and pos < current_position:
+                    terms = get_terms(corpus, doc_type, doc_id, positions=[pos])
+                    obj["highlight"].append(list(terms.values())[0])
+                    count += 1
+
+                if size and size <= count:
+                    break
 
         if not forward:
-            obj["token_lookup"].reverse()
+            obj["highlight"].reverse()
+
+        if "token_lookup" in includes or ("token_lookup" not in excludes and not includes) and "*" not in excludes:
+            obj["token_lookup"] = get_terms(corpus, doc_type, obj["doc_id"])
 
         return obj
 
