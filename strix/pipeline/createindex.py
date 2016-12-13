@@ -54,7 +54,6 @@ class CreateIndex:
     def create_text_type(self):
         m = Mapping("text")
         m.meta("_all", enabled=False)
-        m.meta("_source", excludes=["text"])
 
         text_field = Text(
             analyzer=get_standard_analyzer(),

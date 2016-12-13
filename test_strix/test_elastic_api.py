@@ -22,7 +22,7 @@ class ElasticApiTest(unittest.TestCase):
         result = api.search("vivill", "text", search_term="hund", highlight={'number_of_fragments': 1})
         assert result['hits'] == 1
         item = result['data'][0]
-        assert item['party'] != ''
+        assert item["text_attributes"]['party'] != ''
         assert "hund" in item['highlight']['highlight'][0]['match'][0]['word']
 
     def test_simple_search_excludes(self):
@@ -30,7 +30,7 @@ class ElasticApiTest(unittest.TestCase):
         assert result['hits'] == 1
         item = result['data'][0]
         with pytest.raises(KeyError):
-            item['dump']
+            item["text_attributes"]['dump']
 
     def test_search_wrong_doc_type(self):
         doc_type = "asdf"

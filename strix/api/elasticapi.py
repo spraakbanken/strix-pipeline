@@ -15,22 +15,23 @@ ALL_BUCKETS = "2147483647"
 es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 
 
-def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None):
+def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None, simple_highlight=False):
     if search_term:
         if field:
             query = Q("span_term", **{"text." + field: search_term})
         else:
-            query = analyze_and_create_span_query(search_term)
+            query, simple_highlight_type = analyze_and_create_span_query(search_term, term_query=simple_highlight)
     else:
         query = None
         highlight = None
+        simple_highlight_type = None
 
     query = join_queries(text_filter, query)
 
     if search_term:
         query = Q("bool", should=[query, Q("fuzzy", title={"value": search_term, "boost": 50})])
 
-    res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight)
+    res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type)
     if "token_lookup" in includes or ("token_lookup" not in excludes and not includes):
         for document in res["data"]:
             document["token_lookup"] = get_terms(indices, doc_type, document["es_id"])
@@ -38,16 +39,19 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
     return res
 
 
-def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_field=None, before_send=None):
-    s = get_search_query(indices, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, sort_field=sort_field)
+def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_field=None, before_send=None):
+    s = get_search_query(indices, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, sort_field=sort_field)
     if before_send:
         s = before_send(s)
     hits = s.execute()
     items = []
     for hit in hits:
         item = hit.to_dict()
-        if highlight:
+        if simple_highlight:
+            item["highlight"] = process_simple_highlight(hit.meta.highlight)
+        elif highlight:
             item["highlight"] = process_hit(hit.meta.index, hit, 5)
+
         item["es_id"] = hit.meta.id
         item["doc_type"] = hit.meta.doc_type
         item["corpus"] = hit.meta.index
@@ -78,13 +82,21 @@ def join_queries(text_filter, search_query):
         return search_query
 
 
-def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_field=None):
+def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_field=None):
     s = Search(index=indices, doc_type=doc_type)
     if query:
         s = s.query(query)
 
     if highlight:
         s = s.highlight('strix', options={"number_of_fragments": highlight["number_of_fragments"]})
+
+    if simple_highlight:
+        s = s.highlight("text.lemgram", type=simple_highlight_type, fragment_size=2500)
+
+    if isinstance(excludes, list):
+        excludes.append("text")
+    else:
+        excludes = (excludes + ("text",))
 
     s = s.source(includes=includes, excludes=excludes)
     if sort_field:
@@ -95,6 +107,7 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
 def get_document_by_id(indices, doc_type, doc_id, includes, excludes):
     # TODO possible to fetch with document ID with DSL?
     try:
+        excludes.append("text")
         result = es.get(index=indices, doc_type=doc_type, id=doc_id, _source_include=includes, _source_exclude=excludes)
     except NotFoundError:
         return None
@@ -139,6 +152,23 @@ def process_hit(index, hit, context_size):
         "highlight": highlights,
         "total_doc_highlights": len(highlights),
         "es_id": es_id
+    }
+
+
+def process_simple_highlight(highlights):
+    result = []
+    highlights = highlights["text.lemgram"]
+    for highlight in highlights:
+        sub_result = []
+        for token in highlight.split("\u241D")[1:-1]:
+            if token.startswith("<em>"):
+                sub_result.append("<em>" + token[4:-5].split("\u241E")[0] + "</em>")
+            else:
+                sub_result.append(token.split("\u241E")[0])
+
+        result.append(" ".join(sub_result))
+    return {
+        "highlight": result
     }
 
 
@@ -212,19 +242,27 @@ def get_terms(index, doc_type, es_id, positions=(), from_pos=None, size=10):
     return term_index
 
 
-def analyze_and_create_span_query(search_term, word_form_only=False):
+def analyze_and_create_span_query(search_term, word_form_only=False, term_query=False):
     tokens = []
-    for term in search_term.split(" "):
-        words = []
-        lemgrams = []
-        if word_form_only or ("*" in term):
-            words.append(term)
-        else:
-            lemgrams.extend(lemgrammify(term))
-            if not lemgrams:
+    terms = search_term.split(" ")
+    if not term_query or len(terms) > 1:
+        for term in terms:
+            words = []
+            lemgrams = []
+            if word_form_only or ("*" in term):
                 words.append(term)
-        tokens.append({"lemgram": lemgrams, "word": words})
-    return create_span_query(tokens)
+            else:
+                lemgrams.extend(lemgrammify(term))
+                if not lemgrams:
+                    words.append(term)
+            tokens.append({"lemgram": lemgrams, "word": words})
+        return create_span_query(tokens), "plain"
+    else:
+        term = terms[0]
+        should = []
+        for lemgram in lemgrammify(term):
+            should.append(Q("term", **{"text.lemgram": lemgram}))
+        return Q("bool", should=should), "fvh"
 
 
 def lemgrammify(term):

@@ -57,6 +57,10 @@ def search(corpus, search_term=None, field=None):
     if request.args.get("highlight") and request.args.get("highlight") == "false":
         use_highlight = False
 
+    if request.args.get("simple_highlight") and request.args.get("simple_highlight") == "true":
+        use_highlight = False
+        kwargs["simple_highlight"] = True
+
     if use_highlight:
         if request.args.get("highlight_number_of_fragments"):
             number_of_fragments = int(request.args.get("highlight_number_of_fragments"))

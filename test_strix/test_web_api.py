@@ -24,7 +24,7 @@ class WebApiTest(unittest.TestCase):
 
     host = "http://localhost:5000"
     corpus_config = json.load(open(os.path.dirname(os.path.realpath(__file__)) + "/../resources/config/" + corpus + ".json"))
-    text_structures = ["dump", "lines", "es_id", "word_count", "title"]
+    text_structures = ["dump", "lines", "es_id", "word_count", "title", "text_attributes", "corpus"]
 
     def setUp(self):
         self.app = web.app.test_client()
@@ -32,9 +32,6 @@ class WebApiTest(unittest.TestCase):
     def do_request(self, resource):
         rv = self.app.get(resource)
         return json.loads(rv.data.decode())
-        # response = requests.get(WebApiTest.host + resource)
-        # result = response.json()
-        # return result
 
     def test_search(self):
         result = self.do_request("/search/" + WebApiTest.corpus + "/" + WebApiTest.search["value"] + "?exclude=text,dump,lines,token_lookup")
@@ -51,8 +48,6 @@ class WebApiTest(unittest.TestCase):
 
             data["dump"] = "tmp"
             data["lines"] = "tmp"
-            assert data["corpus"]
-            del data["corpus"]
             assert data["doc_type"]
             del data["doc_type"]
             del data["highlight"]
@@ -83,8 +78,6 @@ class WebApiTest(unittest.TestCase):
         hits = result["data"]
         assert len(hits) == 25
         for doc in hits:
-            assert doc["corpus"]
-            del doc["corpus"]
             assert doc["doc_type"]
             del doc["doc_type"]
             self.check_doc_text_attributes(doc)
@@ -96,10 +89,13 @@ class WebApiTest(unittest.TestCase):
     def check_doc_text_attributes(self, doc):
         text_attributes = WebApiTest.corpus_config["analyze_config"]["text_attributes"]
         for text_attribute in text_attributes:
-            assert doc[text_attribute]
+            assert doc["text_attributes"][text_attribute]
 
         for text_attribute in WebApiTest.text_structures:
             assert doc[text_attribute]
 
-        for text_attribute in doc.keys():
-            assert text_attribute in text_attributes or text_attribute in WebApiTest.text_structures
+        for text_field in doc.keys():
+            assert text_field in WebApiTest.text_structures
+
+        for text_attribute in doc["text_attributes"].keys():
+            assert text_attribute in text_attributes
