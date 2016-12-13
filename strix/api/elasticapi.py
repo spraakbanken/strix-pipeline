@@ -48,7 +48,8 @@ def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=
     for hit in hits:
         item = hit.to_dict()
         if simple_highlight:
-            item["highlight"] = process_simple_highlight(hit.meta.highlight)
+            if hasattr(hit.meta, "highlight"):
+                item["highlight"] = process_simple_highlight(hit.meta.highlight)
         elif highlight:
             item["highlight"] = process_hit(hit.meta.index, hit, 5)
 
