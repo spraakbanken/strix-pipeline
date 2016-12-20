@@ -64,7 +64,7 @@ def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=
     if 'suggest' in hits:
         output['suggest'] = list(hits.to_dict()['suggest'].values())[0][0]["options"]
     if 'aggregations' in hits:
-        output["aggregations"] = list(hits.to_dict()["aggregations"].values())[0]
+        output["aggregations"] = hits.to_dict()["aggregations"]
     return output
 
 

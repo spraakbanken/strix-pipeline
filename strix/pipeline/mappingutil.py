@@ -34,7 +34,7 @@ def get_standard_analyzer():
 
 def as_you_type_analyzer():
     as_you_type_filter = analysis.token_filter("as_you_type_filter", "edge_ngram", min_gram=1, max_gram=20)
-    return analysis.analyzer("as_you_type_analyzer", tokenizer="whitespace", filter=["lowercase", as_you_type_filter])
+    return analysis.analyzer("as_you_type_analyzer", tokenizer="standard", filter=["lowercase", as_you_type_filter])
 
 
 def pattern_tokenizer():
