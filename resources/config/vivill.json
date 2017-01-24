@@ -49,6 +49,14 @@
                 "set": false
             }
         ],
+        "struct_attributes": {
+            "sentence": [
+                {
+                    "name": "id",
+                    "set": false
+                }
+            ]
+        },
         "text_attributes": ["party", "type", "year", "datefrom", "dateto", "timefrom", "timeto"]
     },
     "document_id": "task",

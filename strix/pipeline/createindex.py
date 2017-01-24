@@ -16,7 +16,14 @@ class CreateIndex:
         self.es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
         self.index = index
         corpus_config = json.load(open("resources/config/" + index + ".json"))
-        self.word_attributes = corpus_config["analyze_config"]["word_attributes"]
+        self.word_attributes = []
+        for attr in corpus_config["analyze_config"]["word_attributes"]:
+            self.word_attributes.append(attr)
+        for nodeName, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
+            for attr in attributes:
+                attr["name"] = nodeName + "_" + attr["name"]
+                self.word_attributes.append(attr)
+
         self.text_attributes = corpus_config["analyze_config"]["text_attributes"]
 
     def create_index(self):

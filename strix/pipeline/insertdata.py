@@ -42,15 +42,15 @@ class InsertData:
         return tasks, time.time() - process_t
 
     def process_work(self, task_id, task, corpus_data):
-        word_level_annotations = {
-            "w":  self.corpus_conf["analyze_config"]["word_attributes"]
-        }
+        word_annotations = {"w": self.corpus_conf["analyze_config"]["word_attributes"]}
+        struct_annotations = self.corpus_conf["analyze_config"]["struct_attributes"]
+
         split_document = "text"
         file_name = task["text"]
 
         tasks = []
         terms = []
-        for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_level_annotations, set_text_attributes=True, token_count_id=True, generate_token_lookup=True):
+        for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations, struct_annotations=struct_annotations, set_text_attributes=True, token_count_id=True):
             if self.corpus_conf["document_id"] == "task":
                 doc_id = task_id
             else:

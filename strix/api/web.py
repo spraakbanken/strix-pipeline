@@ -99,6 +99,9 @@ def search_in_document(corpus, doc_id, search_term, field=None):
     if request.args.get("forward"):
         kwargs["forward"] = request.args.get('forward').lower() == 'true'
 
+    if field and "." in field:
+        field = field.replace(".", "_")
+
     kwargs["field"] = field
 
     # TODO remove lowercase-filter in mappingutil, then remove this

@@ -85,31 +85,27 @@ def xml_to_json(xml_root, parse_as_list=(), parse_as_sublist=(), parse_as_bool=(
 def parse_pipeline_xml(file_name,
                        split_document,
                        word_annotations,
+                       struct_annotations=(),
                        token_count_id=False,
                        set_text_attributes=False,
-                       generate_token_lookup=False,
-                       pb_callback=lambda x: None,
-                       w_callback=lambda x: None,
                        process_token=lambda x: None):
     """
     split_document: everything under this node will go into separate documents
     word_annotations: a map of tag names and the attributes of those tags that
               will be included in annotation on word
-    pre_data: if each segment (from split_document param) needs extra data,
-              the split_document-tag currently needs an attribute called "id"
     """
 
     book_iter = etree.iterparse(file_name, events=("start", "end"))
 
     current_part_tokens = []
     current_word_annotations = {}
+    current_struct_annotations = {}
 
     current_token_lookup = []
     dump = [""]
     token_count = 0
-    lines = [[token_count]]
+    lines = [[0]]
 
-    # book_iter = iter(book_iter)
     _, root = next(book_iter)
     if root.tag == split_document:
         part_attributes = {}
@@ -122,8 +118,8 @@ def parse_pipeline_xml(file_name,
                 part_attributes[attribute] = element.attrib[attribute]
         if event == "end":
             if element.tag == "w":
-                temp_word_annotations = dict(current_word_annotations)
-                for annotation in word_annotations.get(element.tag, []):
+                token_data = dict(current_word_annotations)
+                for annotation in word_annotations.get("w", []):
                     annotation_name = annotation["name"]
                     if "nodeName" in annotation:
                         annotation_value = element.get(annotation["nodeName"])
@@ -131,52 +127,55 @@ def parse_pipeline_xml(file_name,
                         annotation_value = element.get(annotation_name)
                     if annotation["set"]:
                         annotation_value = list(filter(bool, annotation_value.split("|")))
-                    temp_word_annotations[annotation_name] = annotation_value
+                    token_data[annotation_name] = annotation_value
 
                 if token_count_id:
-                    temp_word_annotations["wid"] = token_count
+                    token_data["wid"] = token_count
 
-                process_token(temp_word_annotations)
+                struct_data = {}
+                for tag_name, annotations in current_struct_annotations.items():
+                    if "length" not in annotations:
+                        annotations["length"] = 1
+                    else:
+                        offset = -annotations["length"]
+                        start_token_data = current_token_lookup[offset]["attrs"]
+                        start_token_data[tag_name]["length"] += 1
+                        current_struct_annotations[tag_name]["start_wid"] = start_token_data["wid"]
+
+                    for k, attr in annotations.items():
+                        if k == "attrs":
+                            for annotation_name, v in attr.items():
+                                struct_data[tag_name + "_" + annotation_name] = v
+
+                all_data = dict(token_data)
+                all_data.update(struct_data)
+                process_token(all_data)
 
                 str_attrs = []
-                for annotation in word_annotations.get(element.tag, []):
-                    annotation_name = annotation["name"]
-                    v = temp_word_annotations[annotation_name]
+                for attr, v in all_data.items():
                     if isinstance(v, list):
                         v = "\u241F" + "\u241F".join(v) + "\u241F" if len(v) > 0 else "\u241F"
-                    str_attrs.append(annotation_name + "=" + str(v))
+                    str_attrs.append(attr + "=" + str(v))
 
                 token = element.text.strip()
                 dump[-1] += element.text.strip()
                 word = token + "\u241E" + "\u241E".join(str_attrs) + "\u241E"
                 current_part_tokens.append(word)
 
-                if generate_token_lookup:
-                    current_token_lookup.append({"word": token, "attrs": temp_word_annotations, "position": token_count})
+                token_lookup_data = dict(token_data)
+                token_lookup_data.update(current_struct_annotations)
+                current_token_lookup.append({"word": token, "attrs": token_lookup_data, "position": token_count})
 
                 token_count += 1
-
-                w_callback(element)
-
-            elif element.tag in word_annotations:
-                annotations = word_annotations[element.tag]
-                for annotation in annotations:
-                    annotation_name = annotation["name"]
-                    if "nodeName" in annotation:
-                        a_value = element.get(annotation["nodeName"])
-                    else:
-                        a_value = element.get(annotation_name)
-                    current_word_annotations[annotation_name] = a_value
 
             elif element.tag == split_document:
                 if set_text_attributes:
                     current_part = part_attributes
                 else:
                     current_part = {}
-                if generate_token_lookup:
-                    current_part["token_lookup"] = current_token_lookup
-                    current_part["dump"] = dump
-                    current_part["lines"] = lines
+                current_part["token_lookup"] = current_token_lookup
+                current_part["dump"] = dump
+                current_part["lines"] = lines
                 current_part["word_count"] = len(current_part_tokens)
                 current_part["text"] = "\u241D".join(current_part_tokens)
                 yield current_part
@@ -194,9 +193,33 @@ def parse_pipeline_xml(file_name,
                         current_token = token_count - 1
                         add_whitespace(dump, lines, current_token)
 
-            if element.tag == "pb":
-                pb_callback(element)
             root.clear()
+
+        if event == "start":
+            if element.tag in struct_annotations:
+                current_struct_annotations[element.tag] = {"attrs": {}}
+                annotations = struct_annotations[element.tag]
+
+                for annotation in annotations:
+                    annotation_name = annotation["name"]
+                    if "nodeName" in annotation:
+                        a_value = element.get(annotation["nodeName"])
+                    else:
+                        a_value = element.get(annotation_name)
+
+                    current_struct_annotations[element.tag]["attrs"][annotation_name] = a_value
+
+            if element.tag != "w" and element.tag in word_annotations:
+                annotations = word_annotations[element.tag]
+
+                for annotation in annotations:
+                    annotation_name = annotation["name"]
+                    if "nodeName" in annotation:
+                        a_value = element.get(annotation["nodeName"])
+                    else:
+                        a_value = element.get(annotation_name)
+
+                    current_word_annotations[annotation_name] = a_value
 
 
 def add_whitespace(dump, lines, current_token):
