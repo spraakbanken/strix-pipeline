@@ -5,8 +5,8 @@ Strix uses pyenv and pyvenv for python version and virtual environment managemen
 
 1a. Install [pyenv](https://github.com/yyuu/pyenv). Don't forget to add `eval "$(pyenv init -)"` to your bash profile and source it. 
 1b. You can also just install the required python version using your OS. Check the `.python-version` to find which version to install. 
-2a. Create the virtual environment using `pyvenv virtual_env`. 
-2b. With ubuntu: `apt-get install python3.4-venv` and run with `python -m venv virtual_env`
+2. Create the virtual environment using `python3 -m venv virtual_env`. 
+   With Ubuntu, first install venv: `apt-get install python3.4-venv`
 3. Activate the virtual environment with `source virtual_env/bin/activate`.
 4. ?????????
 5. Profit
@@ -40,7 +40,7 @@ elasticsearch config
 ===========
 1. Download and extract Elasticsearch 5.0.1
 2. Install plugin at ../elasticsearch-plugin/strix-elasticsearch-plugin-1.0.zip using
-   ./bin/elastic-plugin install file:///<absolute path to plugin zip>
+   ./bin/elasticsearch-plugin install file:///<absolute path to plugin zip>
 3. Set java heap size using:
    export ES_JAVA_OPTS="-Xms8g -Xmx8g"
 
