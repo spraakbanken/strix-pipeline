@@ -147,9 +147,9 @@ def parse_pipeline_xml(file_name,
                             for annotation_name, v in attr.items():
                                 struct_data[tag_name + "_" + annotation_name] = v
 
+                process_token(token_data)
                 all_data = dict(token_data)
                 all_data.update(struct_data)
-                process_token(all_data)
 
                 str_attrs = []
                 for attr, v in all_data.items():
