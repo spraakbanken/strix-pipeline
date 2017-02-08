@@ -152,7 +152,7 @@ def parse_pipeline_xml(file_name,
                 all_data.update(struct_data)
 
                 str_attrs = []
-                for attr, v in all_data.items():
+                for attr, v in sorted(all_data.items()):
                     if isinstance(v, list):
                         v = "\u241F" + "\u241F".join(v) + "\u241F" if len(v) > 0 else "\u241F"
                     str_attrs.append(attr + "=" + str(v))
