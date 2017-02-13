@@ -20,6 +20,19 @@ QUEUE_SIZE = 60
 GROUP_SIZE = 20
 
 
+class MsgCounterHandler(logging.Handler):
+    levelcount = None
+
+    def __init__(self, *args, **kwargs):
+        super(MsgCounterHandler, self).__init__(*args, **kwargs)
+        self.levelcount = {}
+
+    def emit(self, record):
+        l = record.levelname
+        self.levelcount.setdefault(l, 0)
+        self.levelcount[l] += 1
+
+
 def setup_logger():
     logger = logging.getLogger("strix.pipeline")
     # Show all message levels from 'debug' to 'critical'
@@ -44,9 +57,11 @@ def setup_logger():
     logger.addHandler(ch)
     logger.addHandler(fh)
     logger.addHandler(errh)
+    logger.addHandler(logcounter)
 
     return logger
 
+logcounter = MsgCounterHandler()
 logger = setup_logger()
 
 
@@ -64,7 +79,7 @@ def partition_tasks(queue, num_tasks):
             break
         try:
             print("queue.get size", queue.qsize())
-            (task_data, process_time, work_size) = queue.get()
+            (task_type, task_id, task_data, process_time, work_size) = queue.get()
             work_size_accu += work_size
             num_tasks -= 1
         except Exception as e:  # queue.Empty
@@ -81,25 +96,25 @@ def partition_tasks(queue, num_tasks):
             current_size += task_size
 
             if current_size >= THRESHOLD:
-                yield (current_tasks, work_size_accu)
+                yield (task_type, task_id, current_tasks, work_size_accu)
                 current_size = 0
                 current_tasks = []
     if current_tasks:
-        yield (current_tasks, work_size_accu)
+        yield (task_type, task_id, current_tasks, work_size_accu)
 
 
 def process_task(insert_data, queue, size, process_args):
-    lbworkid = process_args[1]
+    _task_id = process_args[1]
 
     try:
-        (tasks, delta_t) = insert_data.process(*process_args)
-
+        (task_type, task_id, tasks, delta_t) = insert_data.process(*process_args)
     except Exception as e:
-        logger.exception("Failed to process %s" % lbworkid)
+        logger.exception("Failed to process %s" % _task_id)
         raise
+
     try:
-        queue.put((tasks, delta_t, size), block=True)
-        logger.info("Processed id: %s, took %0.1fs" % (lbworkid, delta_t))
+        queue.put((task_type, task_id, tasks, delta_t, size), block=True)
+        logger.info("Processed id: %s, took %0.1fs" % (_task_id, delta_t))
     except Exception:  # queue.Full
         logger.exception("queue.put exception")
         raise
@@ -112,7 +127,7 @@ def process(queue, insert_data, task_data, corpus_data, tot_size, limit_to=None)
         task_data = task_data[:limit_to]
     assert len(task_data)
     logger.info("Scheduling %s tasks..." % len(task_data))
-    for (task_id, task_type, size, task) in task_data:
+    for (task_type, task_id, size, task) in task_data:
         task_args = (task_type, task_id, task, corpus_data)
         executor.submit(process_task, insert_data, queue, size, task_args)
     return queue
@@ -135,23 +150,23 @@ def upload_executor(insert_data, queue, tot_size, num_tasks):
         for chunks in grouped_chunks:
             future_map = {}
             chunks = filter(bool, chunks)
-            # print(len(chunks))
-            for (task_chunk, size) in chunks:
+
+            for (task_type, task_id, task_chunk, size) in chunks:
                 if not task_chunk:
                     continue
                 # TODO: this bulk_insert should be replaced with 
                 # elasticsearch.helpers.streaming_bulk which should allow for getting
                 # rid of the rather complex bulk packet size calculations in this method. 
                 future = executor.submit(bulk_insert, task_chunk)
-                future_map[future] = (task_chunk, size)
+                future_map[future] = (task_type, task_id, task_chunk, size)
             for future in futures.as_completed(future_map):
                 # TODO: use task_chunk for logging extra exception data.
-                task_chunk, size_accu = future_map.pop(future)
+                task_type, task_id, task_chunk, size_accu = future_map.pop(future)
                 if future.exception() is not None:
                     try:
                         raise future.exception()
                     except:
-                        logger.exception("Bulk upload error")
+                        logger.exception("Bulk upload error: %s:%s" % (task_type, task_id))
                 else:
                     chunk, t = future.result()
                     logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (len(chunk), t))
@@ -171,11 +186,11 @@ def process_corpus(index, limit_to=None, doc_ids=()):
     t = time.time()
     insert_data = insert_data_strix.InsertData(index)
 
-    tasks, tot_size = insert_data.prepare_urls(doc_ids)
+    task_data, tot_size = insert_data.prepare_urls(doc_ids)
     from multiprocessing import Manager
     with Manager() as manager:
         queue = manager.Queue(maxsize=QUEUE_SIZE)
-        process(queue, insert_data, tasks, {}, tot_size, limit_to)
-        upload_executor(insert_data, queue, tot_size, len(tasks))
+        process(queue, insert_data, task_data, {}, tot_size, limit_to)
+        upload_executor(insert_data, queue, tot_size, len(task_data))
 
     logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))

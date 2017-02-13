@@ -32,14 +32,14 @@ class InsertData:
                 f = open(text)
                 size = os.fstat(f.fileno()).st_size
                 tot_size += size
-                urls.append((text_id, "text", size, {"text": text}))
+                urls.append(("text", text_id, size, {"text": text}))
                 print(text)
         return urls, tot_size
 
     def process(self, task_type, task_id, task_data, corpus_data):
         process_t = time.time()
         tasks = self.process_work(task_id, task_data, corpus_data)
-        return tasks, time.time() - process_t
+        return task_type, task_id, tasks, time.time() - process_t
 
     def process_work(self, task_id, task, corpus_data):
         word_annotations = {"w": self.corpus_conf["analyze_config"]["word_attributes"]}
