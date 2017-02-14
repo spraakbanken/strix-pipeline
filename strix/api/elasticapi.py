@@ -17,18 +17,20 @@ es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 
 def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None, simple_highlight=False):
     simple_highlight_type = None
+    add_fuzzy_query = False
     if search_term:
         if field:
             query = Q("span_term", **{"text." + field: search_term})
         else:
             query, simple_highlight_type = analyze_and_create_span_query(search_term, term_query=simple_highlight)
+            add_fuzzy_query = True
     else:
         query = None
         highlight = None
 
     query = join_queries(text_filter, query)
 
-    if search_term:
+    if add_fuzzy_query:
         query = Q("bool", should=[query, Q("fuzzy", title={"value": search_term, "boost": 50})])
 
     res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type)
