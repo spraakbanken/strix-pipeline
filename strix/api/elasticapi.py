@@ -16,6 +16,7 @@ es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 
 
 def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None, simple_highlight=False):
+    simple_highlight_type = None
     if search_term:
         if field:
             query = Q("span_term", **{"text." + field: search_term})
@@ -24,7 +25,6 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
     else:
         query = None
         highlight = None
-        simple_highlight_type = None
 
     query = join_queries(text_filter, query)
 

@@ -72,7 +72,9 @@ def search(corpus, search_term=None, field=None):
         kwargs["includes"] = includes
     if excludes:
         kwargs["excludes"] = excludes
-    kwargs["field"] = field
+
+    if field:
+        kwargs["field"] = field.replace(".", "_")
 
     return elasticapi.search(corpus, "text", **kwargs)
 

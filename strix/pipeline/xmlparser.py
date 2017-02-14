@@ -179,11 +179,17 @@ def parse_pipeline_xml(file_name,
                 current_part["word_count"] = len(current_part_tokens)
                 current_part["text"] = "\u241D".join(current_part_tokens)
                 yield current_part
+
                 token_count = 0
                 current_part_tokens = []
                 current_token_lookup = []
+                current_word_annotations = {}
+                current_struct_annotations = {}
                 dump = [""]
-                lines = [[token_count]]
+                lines = [[0]]
+
+            elif element.tag in struct_annotations:
+                del current_struct_annotations[element.tag]
 
             if element.tail:
                 whitespaces = element.tail.splitlines(True)

@@ -1,6 +1,6 @@
 {
   "corpus_name": "wikipedia",
-  "file_name_pattern": "wiki*.xml",
+  "file_name_pattern": "*wiki*.xml",
 
   "analyze_config": {
     "word_attributes": [
@@ -22,6 +22,44 @@
           "set": true
       }
     ],
+    "struct_attributes": {
+      "paragraph": [
+        {
+          "name": "geocontext",
+          "nodeName": "_geocontext",
+          "set": true
+        }
+      ],
+      "sentence": [
+        {
+          "name": "id",
+          "set": false
+        },
+        {
+          "name": "geocontext",
+          "nodeName": "_geocontext",
+          "set": true
+        }
+      ],
+      "ne": [
+        {
+          "name": "ex",
+          "set": false
+        },
+        {
+          "name": "type",
+          "set": false
+        },
+        {
+          "name": "subtype",
+          "set": false
+        },
+        {
+          "name": "name",
+          "set": false
+        }
+      ]
+    },
     "text_attributes": ["title", "url"]
   },
   "document_id": "title"
