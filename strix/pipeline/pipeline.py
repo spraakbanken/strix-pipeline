@@ -7,7 +7,7 @@ from concurrent import futures
 import multiprocessing
 
 import elasticsearch
-import strix.config as config
+from strix.config import config
 import itertools
 import strix.pipeline.insertdata as insert_data_strix
 

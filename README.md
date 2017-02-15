@@ -44,3 +44,7 @@ elasticsearch config
 3. Set java heap size using:
    export ES_JAVA_OPTS="-Xms8g -Xmx8g"
 
+config file
+=========== 
+See config.yml.example in root folder. Create your own file in the same place called "config.yml" or use 
+command-line parameter "--config <file>" if file is located somewhere else.

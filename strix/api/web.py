@@ -7,7 +7,7 @@ from elasticsearch_dsl.connections import connections
 from flask import Flask, request
 from strix.api.flask_util import crossdomain, jsonify_response
 import strix.api.elasticapi as elasticapi
-import strix.config as config
+from strix.config import config
 app = Flask(__name__)
 
 connections.create_connection(hosts=config.elastic_hosts, timeout=120)

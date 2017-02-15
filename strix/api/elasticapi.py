@@ -8,7 +8,7 @@ import requests
 from elasticsearch_dsl import Search, Q
 from elasticsearch.exceptions import NotFoundError
 
-from strix import config
+from strix.config import config
 
 ALL_BUCKETS = "2147483647"
 

@@ -4,7 +4,7 @@ import logging
 import json
 import itertools
 import strix.pipeline.xmlparser as xmlparser
-import strix.config as config
+from strix.config import config
 import time
 
 

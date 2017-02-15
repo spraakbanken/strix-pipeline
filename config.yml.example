@@ -1,0 +1,3 @@
+elastic_hosts: [{host: localhost, port: 9200}]
+stems_file: /home/strix/trunk/strix/resources/analyzers/stems.txt
+texts_dir: /home/strix/texts
