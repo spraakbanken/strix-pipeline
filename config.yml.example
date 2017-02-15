@@ -1,3 +1,7 @@
 elastic_hosts: [{host: localhost, port: 9200}]
 stems_file: /home/strix/trunk/strix/resources/analyzers/stems.txt
 texts_dir: /home/strix/texts
+
+concurrency_upload_threads: 40
+concurrency_queue_size: 60
+concurrency_group_size: 20

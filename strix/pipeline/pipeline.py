@@ -15,10 +15,6 @@ import strix.pipeline.insertdata as insert_data_strix
 elastic_hosts = [config.elastic_hosts]
 es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 
-UPLOAD_THREADS = 40
-QUEUE_SIZE = 60
-GROUP_SIZE = 20
-
 
 class MsgCounterHandler(logging.Handler):
     levelcount = None
@@ -136,7 +132,7 @@ def process(queue, insert_data, task_data, corpus_data, tot_size, limit_to=None)
 def upload_executor(insert_data, queue, tot_size, num_tasks):
     tot_uploaded = 0
 
-    with futures.ThreadPoolExecutor(max_workers=UPLOAD_THREADS) as executor:
+    with futures.ThreadPoolExecutor(max_workers=config.concurrency_upload_threads) as executor:
 
         def grouper(n, iterable, fillvalue=None):
             """grouper(3, "ABCDEFG", "x") --> ABC DEF Gxx"""
@@ -145,7 +141,7 @@ def upload_executor(insert_data, queue, tot_size, num_tasks):
 
         chunk_iter = partition_tasks(queue, num_tasks)
 
-        grouped_chunks = grouper(GROUP_SIZE, chunk_iter)
+        grouped_chunks = grouper(config.concurrency_group_size, chunk_iter)
 
         for chunks in grouped_chunks:
             future_map = {}
@@ -189,7 +185,7 @@ def process_corpus(index, limit_to=None, doc_ids=()):
     task_data, tot_size = insert_data.prepare_urls(doc_ids)
     from multiprocessing import Manager
     with Manager() as manager:
-        queue = manager.Queue(maxsize=QUEUE_SIZE)
+        queue = manager.Queue(maxsize=config.concurrency_queue_size)
         process(queue, insert_data, task_data, {}, tot_size, limit_to)
         upload_executor(insert_data, queue, tot_size, len(task_data))
 
