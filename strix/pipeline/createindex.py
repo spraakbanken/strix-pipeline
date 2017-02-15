@@ -7,10 +7,10 @@ import elasticsearch
 
 
 class CreateIndex:
-    number_of_shards = 1
-    number_of_replicas = 0
-    terms_number_of_shards = 1
-    terms_number_of_replicas = 0
+    number_of_shards = config.number_of_shards
+    number_of_replicas = config.number_of_replicas
+    terms_number_of_shards = config.terms_number_of_shards
+    terms_number_of_replicas = config.terms_number_of_replicas
 
     def __init__(self, index):
         self.es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
