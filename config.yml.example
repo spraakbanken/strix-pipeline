@@ -12,3 +12,6 @@ concurrency_group_size: 20
 # number_of_replicas: 0
 # terms_number_of_shards: 1
 # terms_number_of_replicas: 0
+
+# log settings
+# log_level = INFO # choose between DEBUG, INFO, WARN, ERROR

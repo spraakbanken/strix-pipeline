@@ -7,10 +7,9 @@ import strix.pipeline.xmlparser as xmlparser
 from strix.config import config
 import time
 
+_logger = logging.getLogger(__name__)
 
 class InsertData:
-
-    logger = logging.getLogger(__name__)
 
     def __init__(self, index):
         self.index = index
@@ -33,7 +32,7 @@ class InsertData:
                 size = os.fstat(f.fileno()).st_size
                 tot_size += size
                 urls.append(("text", text_id, size, {"text": text}))
-                print(text)
+                _logger.info(text)
         return urls, tot_size
 
     def process(self, task_type, task_id, task_data, corpus_data):
@@ -79,7 +78,7 @@ class InsertData:
 
     def get_doc_task(self, text_id, doc_type, text):
         if text_id.startswith("_"):
-            InsertData.logger.warning("id starts with '_': %s" % text_id)
+            _logger.warning("id starts with '_': %s" % text_id)
         return {
             "_index": self.index,
             "_type": doc_type,

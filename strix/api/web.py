@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import codecs
 import json
+import logging
 
 import markdown
 from elasticsearch_dsl.connections import connections
@@ -8,9 +9,11 @@ from flask import Flask, request
 from strix.api.flask_util import crossdomain, jsonify_response
 import strix.api.elasticapi as elasticapi
 from strix.config import config
+import strix.loghelper
 app = Flask(__name__)
 
 connections.create_connection(hosts=config.elastic_hosts, timeout=120)
+_logger = logging.getLogger("strix.api.web")
 
 
 def get_includes_excludes():
@@ -112,7 +115,6 @@ def search_in_document(corpus, doc_id, search_term, field=None):
     return elasticapi.search_in_document(corpus, "text", doc_id, value, **kwargs)
 
 
-
 @app.route("/lemgramify/<terms>")
 @crossdomain(origin='*')
 @jsonify_response
@@ -157,5 +159,7 @@ def get_documentation():
     css = '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">'
     return css + '<div style="margin-left: 20px; max-width: 750px">' + markdown.markdown(text) + '</div>'
 
+
 if __name__ == "__main__":
+    strix.loghelper.setup_console_logging()
     app.run(debug=True, host='0.0.0.0', threaded=True)

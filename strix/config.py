@@ -26,5 +26,8 @@ class StrixConfig:
             self.logger.error("Key: \"%s\" missing from config-file", item)
             raise RuntimeError("Key: \"" + item + "\" missing from config-file")
 
+    def has_attr(self, item):
+        return item in self.config
+
 
 config = StrixConfig()

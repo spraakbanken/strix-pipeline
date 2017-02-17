@@ -1,6 +1,7 @@
 import glob
 import json
 import os
+import logging
 
 import elasticsearch
 import requests
@@ -13,6 +14,7 @@ from strix.config import config
 ALL_BUCKETS = "2147483647"
 
 es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
+_logger = logging.getLogger(__name__)
 
 
 def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None, simple_highlight=False):
@@ -271,6 +273,11 @@ def analyze_and_create_span_query(search_term, word_form_only=False, term_query=
 def lemgrammify(term):
     lemgrams = []
     response = requests.get("https://ws.spraakbanken.gu.se/ws/karp/v2/autocomplete?q=" + term + "&resource=saldom")
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError:
+        _logger.exception("Unable to use Karp autocomplete service")
+        raise RuntimeError("Unable to use Karp autocomplete service")
     result = response.json()
     for hit in result["hits"]["hits"]:
         lemgram = hit["_source"]["FormRepresentations"][0]["lemgram"]
