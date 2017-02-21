@@ -4,11 +4,17 @@ from concurrent import futures
 import multiprocessing
 
 import elasticsearch
+import elasticsearch.helpers
+import elasticsearch.exceptions
 from strix.config import config
 import itertools
 import strix.pipeline.insertdata as insert_data_strix
 import logging
-from multiprocessing import Queue
+import queue
+
+QUEUE_SIZE = config.concurrency_queue_size
+MAX_UPLOAD_WORKERS = config.concurrency_upload_threads
+GROUP_SIZE = config.concurrency_group_size
 
 elastic_hosts = [config.elastic_hosts]
 es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
@@ -16,37 +22,32 @@ es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 _logger = logging.getLogger(__name__)
 
 
-def partition_tasks(queue, num_tasks):
+def partition_tasks(task_queue, num_tasks):
 
-    THRESHOLD = 10000  # KB
+    threshold = 10000  # KB
     current_size = 0
     current_tasks = []
     work_size_accu = 0
 
-    # for task in task_data:
     while True:
         if num_tasks < 1:
             _logger.info("Processing complete")
             break
-        try:
-            _logger.info("queue.get size %s", queue.qsize())
-            (task_type, task_id, task_data, process_time, work_size) = queue.get()
-            work_size_accu += work_size
-            num_tasks -= 1
-        except Queue.Empty:
-            _logger.exception("queue.get exception")
-            break
+
+        (task_type, task_id, task_data, process_time, work_size) = task_queue.get()
+        work_size_accu += work_size
+        num_tasks -= 1
 
         for task in task_data:
-            try:
+            if "_source" in task:
                 task_size = len(task["_source"]["text"]) / 1024.0  # B to KB
-            except:
+            else:
                 task_size = 0.5
 
             current_tasks.append(task)
             current_size += task_size
 
-            if current_size >= THRESHOLD:
+            if current_size >= threshold:
                 yield (task_type, task_id, current_tasks, work_size_accu)
                 current_size = 0
                 current_tasks = []
@@ -54,24 +55,24 @@ def partition_tasks(queue, num_tasks):
         yield (task_type, task_id, current_tasks, work_size_accu)
 
 
-def process_task(insert_data, queue, size, process_args):
+def process_task(insert_data, task_queue, size, process_args):
     _task_id = process_args[1]
 
     try:
         (task_type, task_id, tasks, delta_t) = insert_data.process(*process_args)
-    except Exception as e:
+    except Exception:
         _logger.exception("Failed to process %s" % _task_id)
         raise
 
     try:
-        queue.put((task_type, task_id, tasks, delta_t, size), block=True)
+        task_queue.put((task_type, task_id, tasks, delta_t, size), block=True)
         _logger.info("Processed id: %s, took %0.1fs" % (_task_id, delta_t))
-    except Exception:  # queue.Full
+    except queue.Full:
         _logger.exception("queue.put exception")
         raise
 
 
-def process(queue, insert_data, task_data, corpus_data, tot_size, limit_to=None):
+def process(task_queue, insert_data, task_data, corpus_data, limit_to=None):
     executor = futures.ProcessPoolExecutor(max_workers=min(multiprocessing.cpu_count(), 16))
 
     if limit_to:
@@ -80,23 +81,22 @@ def process(queue, insert_data, task_data, corpus_data, tot_size, limit_to=None)
     _logger.info("Scheduling %s tasks..." % len(task_data))
     for (task_type, task_id, size, task) in task_data:
         task_args = (task_type, task_id, task, corpus_data)
-        executor.submit(process_task, insert_data, queue, size, task_args)
-    return queue
+        executor.submit(process_task, insert_data, task_queue, size, task_args)
+    return task_queue
 
 
-def upload_executor(insert_data, queue, tot_size, num_tasks):
-    tot_uploaded = 0
+def upload_executor(task_queue, tot_size, num_tasks):
 
-    with futures.ThreadPoolExecutor(max_workers=config.concurrency_upload_threads) as executor:
+    with futures.ThreadPoolExecutor(max_workers=MAX_UPLOAD_WORKERS) as executor:
 
-        def grouper(n, iterable, fillvalue=None):
+        def grouper(n, iterable):
             """grouper(3, "ABCDEFG", "x") --> ABC DEF Gxx"""
             args = [iter(iterable)] * n
-            return itertools.zip_longest(fillvalue=fillvalue, *args)
+            return itertools.zip_longest(*args)
 
-        chunk_iter = partition_tasks(queue, num_tasks)
+        chunk_iter = partition_tasks(task_queue, num_tasks)
 
-        grouped_chunks = grouper(config.concurrency_group_size, chunk_iter)
+        grouped_chunks = grouper(GROUP_SIZE, chunk_iter)
 
         for chunks in grouped_chunks:
             future_map = {}
@@ -121,7 +121,7 @@ def upload_executor(insert_data, queue, tot_size, num_tasks):
                 else:
                     chunk, t = future.result()
                     _logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (len(chunk), t))
-                    # tot_uploaded += size
+
                     if tot_size > 0:
                         _logger.info("%.1f%%" % (100 * (size_accu / tot_size)))
                         _logger.info("------------------")
@@ -140,8 +140,8 @@ def process_corpus(index, limit_to=None, doc_ids=()):
     task_data, tot_size = insert_data.prepare_urls(doc_ids)
     from multiprocessing import Manager
     with Manager() as manager:
-        queue = manager.Queue(maxsize=config.concurrency_queue_size)
-        process(queue, insert_data, task_data, {}, tot_size, limit_to)
-        upload_executor(insert_data, queue, tot_size, len(task_data))
+        task_queue = manager.Queue(maxsize=QUEUE_SIZE)
+        process(task_queue, insert_data, task_data, {}, limit_to)
+        upload_executor(task_queue, tot_size, len(task_data))
 
     _logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))
