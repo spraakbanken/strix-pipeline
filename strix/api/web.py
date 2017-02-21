@@ -16,22 +16,32 @@ connections.create_connection(hosts=config.elastic_hosts, timeout=120)
 _logger = logging.getLogger("strix.api.web")
 
 
-def get_includes_excludes():
-    includes = []
-    excludes = []
+def get_includes_excludes(request_obj):
     if request.args.get("include"):
-        includes = request.args.get("include").split(",")
+        request_obj["includes"] = request.args.get("include").split(",")
     if request.args.get("exclude"):
-        excludes = request.args.get("exclude").split(",")
-    return includes, excludes
+        request_obj["excludes"] = request.args.get("exclude").split(",")
+
+
+def get_token_lookup_sizes(request_obj):
+    token_lookup_from = request.args.get("token_lookup_from")
+    token_lookup_to = request.args.get("token_lookup_to")
+    if token_lookup_from:
+        token_lookup_from = int(token_lookup_from)
+    if token_lookup_to:
+        token_lookup_to = int(token_lookup_to)
+    request_obj["token_lookup_from"] = token_lookup_from
+    request_obj["token_lookup_to"] = token_lookup_to
 
 
 @app.route("/document/<corpus>/<doc_id>")
 @crossdomain(origin='*')
 @jsonify_response
 def get_document(corpus, doc_id):
-    includes, excludes = get_includes_excludes()
-    return elasticapi.get_document_by_id(corpus, "text", doc_id, includes, excludes)
+    kwargs = {}
+    get_includes_excludes(kwargs)
+    get_token_lookup_sizes(kwargs)
+    return elasticapi.get_document_by_id(corpus, "text", doc_id, **kwargs)
 
 
 @app.route("/search/<corpus>")
@@ -41,9 +51,9 @@ def get_document(corpus, doc_id):
 @crossdomain(origin='*')
 @jsonify_response
 def search(corpus, search_term=None, field=None):
-    includes, excludes = get_includes_excludes()
-
     kwargs = {}
+    get_includes_excludes(kwargs)
+    get_token_lookup_sizes(kwargs)
 
     if "text_filter" in request.args:
         kwargs["text_filter"] = json.loads(request.args.get("text_filter"))
@@ -71,11 +81,6 @@ def search(corpus, search_term=None, field=None):
             number_of_fragments = 5
         kwargs["highlight"] = {"number_of_fragments": number_of_fragments}
 
-    if includes:
-        kwargs["includes"] = includes
-    if excludes:
-        kwargs["excludes"] = excludes
-
     if field:
         kwargs["field"] = field.replace(".", "_")
 
@@ -89,11 +94,8 @@ def search(corpus, search_term=None, field=None):
 def search_in_document(corpus, doc_id, search_term, field=None):
     kwargs = {}
 
-    includes, excludes = get_includes_excludes()
-    if includes:
-        kwargs["includes"] = includes
-    if excludes:
-        kwargs["excludes"] = excludes
+    get_includes_excludes(kwargs)
+    get_token_lookup_sizes(kwargs)
 
     if request.args.get("size"):
         kwargs["size"] = int(request.args.get("size"))

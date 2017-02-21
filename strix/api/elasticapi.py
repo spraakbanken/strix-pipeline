@@ -17,7 +17,7 @@ es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 _logger = logging.getLogger(__name__)
 
 
-def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None, simple_highlight=False):
+def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None, simple_highlight=False, token_lookup_from=None, token_lookup_to=None):
     simple_highlight_type = None
     add_fuzzy_query = False
     if search_term:
@@ -36,9 +36,8 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
         query = Q("bool", should=[query, Q("fuzzy", title={"value": search_term, "boost": 50})])
 
     res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type)
-    if "token_lookup" in includes or ("token_lookup" not in excludes and not includes):
-        for document in res["data"]:
-            document["token_lookup"] = get_terms(indices, doc_type, document["es_id"])
+    for document in res["data"]:
+        get_token_lookup(document, indices, doc_type, includes, excludes, token_lookup_from, token_lookup_to)
 
     return res
 
@@ -60,8 +59,7 @@ def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=
         item["es_id"] = hit.meta.id
         item["doc_type"] = hit.meta.doc_type
         item["corpus"] = hit.meta.index
-        if hit.meta.index in text_attributes:
-            move_text_attributes(hit.meta.index, item)
+        move_text_attributes(hit.meta.index, item, includes, excludes)
         items.append(item)
 
     output = {"hits": hits.hits.total, "data": items}
@@ -109,24 +107,32 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
     return s[from_hit:to_hit]
 
 
-def get_document_by_id(indices, doc_type, doc_id, includes, excludes):
+def get_document_by_id(indices, doc_type, doc_id, includes=(), excludes=(), token_lookup_from=None, token_lookup_to=None):
     # TODO possible to fetch with document ID with DSL?
     try:
+        if not excludes:
+            excludes = []
         excludes.append("text")
         result = es.get(index=indices, doc_type=doc_type, id=doc_id, _source_include=includes, _source_exclude=excludes)
     except NotFoundError:
         return None
 
     document = result['_source']
-    if "token_lookup" in includes or "token_lookup" not in excludes:
-        document["token_lookup"] = get_terms(indices, doc_type, doc_id)
     document["es_id"] = result["_id"]
+    get_token_lookup(document, indices, doc_type, includes, excludes, token_lookup_from, token_lookup_to)
     document["corpus"] = result["_index"]
-    move_text_attributes(result["_index"], document)
+
+    move_text_attributes(result["_index"], document, includes, excludes)
     return {"data": document}
 
 
-def move_text_attributes(corpus, item):
+def move_text_attributes(corpus, item, includes, excludes):
+    if not should_include("text_attributes", includes, excludes):
+        return
+    if corpus not in text_attributes:
+        _logger.warn("Corpus %s has no configured text attributes", corpus)
+        return
+
     item["text_attributes"] = {}
     for text_attribute in text_attributes[corpus]:
         if text_attribute in item:
@@ -223,14 +229,19 @@ def get_term_index(index, es_id, doc_type, spans, context_size):
     return get_terms(index, doc_type, es_id, positions=list(positions))
 
 
-def get_terms(index, doc_type, es_id, positions=(), from_pos=None, size=10):
+def get_terms(index, doc_type, es_id, positions=(), from_pos=None, size=None):
     term_index = {}
 
     must_clauses = []
     if positions:
         must_clauses.append(Q('constant_score', filter=Q('terms', position=positions)))
-    elif from_pos is not None:
-        must_clauses.append(Q('constant_score', filter=Q('range', position={"gte": from_pos, "lte": from_pos + size - 1})))
+    elif from_pos or size:
+        if not from_pos:
+            from_pos = 0
+        position_range = {"gte": from_pos}
+        if size:
+            position_range["lte"] = from_pos + size - 1
+        must_clauses.append(Q('constant_score', filter=Q('range', position=position_range)))
 
     must_clauses.append(Q('term', doc_id=es_id))
     must_clauses.append(Q('term', doc_type=doc_type))
@@ -293,7 +304,7 @@ def get_values(corpus, doc_type, field):
     return result.aggregations.values.to_dict()["buckets"]
 
 
-def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, size=None, forward=True, field=None, includes=(), excludes=()):
+def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, size=None, forward=True, field=None, includes=(), excludes=(), token_lookup_from=None, token_lookup_to=None):
     s = Search(index=corpus, doc_type=doc_type)
     id_query = Q("term", _id=doc_id)
     if field:
@@ -318,7 +329,7 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
         obj["corpus"] = hit.meta.index
         obj["highlight"] = []
 
-        move_text_attributes(hit.meta.index, obj)
+        move_text_attributes(hit.meta.index, obj, includes, excludes)
 
         if size != 0:
             count = 0
@@ -342,8 +353,7 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
         if not forward:
             obj["highlight"].reverse()
 
-        if "token_lookup" in includes or ("token_lookup" not in excludes and not includes) and "*" not in excludes:
-            obj["token_lookup"] = get_terms(corpus, doc_type, obj["doc_id"])
+        get_token_lookup(obj, corpus, doc_type, includes, excludes, token_lookup_from, token_lookup_to)
 
         return obj
 
@@ -387,6 +397,23 @@ def span_and(queries):
 
 def mask_field(query, field="text"):
     return Q("field_masking_span", query=query, field=field)
+
+
+def get_token_lookup(document, indices, doc_type, includes, excludes, token_lookup_from, token_lookup_to):
+    if should_include("token_lookup", includes, excludes):
+        kwargs = {}
+        if token_lookup_from:
+            kwargs["from_pos"] = token_lookup_from
+        if token_lookup_to:
+            kwargs["size"] = token_lookup_to - token_lookup_from
+        document["token_lookup"] = get_terms(indices, doc_type, document["es_id"], **kwargs)
+
+
+def should_include(attribute, includes, excludes):
+    if includes:
+        return attribute in includes
+    else:
+        return attribute not in excludes and "*" not in excludes
 
 
 def get_text_attributes():

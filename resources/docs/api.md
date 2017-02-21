@@ -11,15 +11,21 @@ Each document have the following fields in common:
 * **dump** - The whole text as an array with whitespace preserved and each line as an element in the array
 * **word_count** - The number of tokens in the text
 * **lines** - For each line, the position of the first and last token on the line
-* **title** - The title of the document 
+* **title** - The title of the document
+* **text_attributes** - The text attributes of the document
 * **token_lookup** - Each token of the document along with word attributes
 * All text attributes that are available for the selected corpus, given by the `/config/<corpora>` call.
 
 For every API call returning a document it is possible to control which of these fields should be included 
-in the result. This is done using the `include` and `exclude` query parameters. 
+in the result. This is done using the `include` and `exclude` query parameters.
 
-`include` - Comma-separated list of fields. Only the given fields will be returned.  
-`exclude` - Comma-separated list of fields. All fields except the given fields will be returned.
+`include` - Comma-separated list of fields. Only the given fields will be returned. Possible values are the common fields.  
+`exclude` - Comma-separated list of fields. All fields except the given fields will be returned. Possible values are the common fields.
+
+For every API call returning a document it is possible to control the size of the `token_lookup`:
+
+`token_lookup_from` - Position / WID  
+`token_lookup_to` - Position / WID
 
 ## Requests
 

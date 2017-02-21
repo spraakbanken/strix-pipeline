@@ -51,6 +51,7 @@ class CreateIndex:
 
         m = Mapping("term")
         m.meta("_all", enabled=False)
+        m.meta("dynamic", "strict")
 
         m.field("position", "integer")
         m.field("term", "object", enabled=False)
@@ -61,6 +62,7 @@ class CreateIndex:
     def create_text_type(self):
         m = Mapping("text")
         m.meta("_all", enabled=False)
+        m.meta("dynamic", "strict")
 
         text_field = Text(
             analyzer=get_standard_analyzer(),
@@ -81,6 +83,7 @@ class CreateIndex:
 
         m.field("dump", Keyword(index="no"))
         m.field("lines", Object(enabled=False))
+        m.field("word_count", Integer())
 
         m.field("title", Text(analyzer=get_swedish_analyzer()))
 
