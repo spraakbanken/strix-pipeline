@@ -37,7 +37,7 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
 
     res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type)
     for document in res["data"]:
-        get_token_lookup(document, indices, doc_type, includes, excludes, token_lookup_from, token_lookup_to)
+        get_token_lookup(document, indices, doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
 
     return res
 
@@ -119,7 +119,7 @@ def get_document_by_id(indices, doc_type, doc_id, includes=(), excludes=(), toke
 
     document = result['_source']
     document["es_id"] = result["_id"]
-    get_token_lookup(document, indices, doc_type, includes, excludes, token_lookup_from, token_lookup_to)
+    get_token_lookup(document, indices, doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
     document["corpus"] = result["_index"]
 
     move_text_attributes(result["_index"], document, includes, excludes)
@@ -353,7 +353,7 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
         if not forward:
             obj["highlight"].reverse()
 
-        get_token_lookup(obj, corpus, doc_type, includes, excludes, token_lookup_from, token_lookup_to)
+        get_token_lookup(obj, corpus, doc_type, obj["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
 
         return obj
 
@@ -399,14 +399,14 @@ def mask_field(query, field="text"):
     return Q("field_masking_span", query=query, field=field)
 
 
-def get_token_lookup(document, indices, doc_type, includes, excludes, token_lookup_from, token_lookup_to):
+def get_token_lookup(document, indices, doc_type, doc_id, includes, excludes, token_lookup_from, token_lookup_to):
     if should_include("token_lookup", includes, excludes):
         kwargs = {}
         if token_lookup_from:
             kwargs["from_pos"] = token_lookup_from
         if token_lookup_to:
             kwargs["size"] = token_lookup_to - token_lookup_from
-        document["token_lookup"] = get_terms(indices, doc_type, document["es_id"], **kwargs)
+        document["token_lookup"] = get_terms(indices, doc_type, doc_id, **kwargs)
 
 
 def should_include(attribute, includes, excludes):
