@@ -39,7 +39,7 @@ def partition_tasks(task_queue, num_tasks):
         num_tasks -= 1
 
         for task in task_data:
-            if "_source" in task:
+            if "_source" in task and "text" in task["_source"]:
                 task_size = len(task["_source"]["text"]) / 1024.0  # B to KB
             else:
                 task_size = 0.5
