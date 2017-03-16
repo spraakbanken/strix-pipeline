@@ -93,7 +93,7 @@ def setup_pipeline_logging(task_name):
 
 def setup_file_logging():
     log_level = get_log_level()
-    fh = logging.handlers.RotatingFileHandler("logs/web.log", mode="a", encoding="UTF-8", maxBytes=2000, backupCount=5)
+    fh = logging.handlers.RotatingFileHandler("logs/web.log", mode="a", encoding="UTF-8", maxBytes=5000000, backupCount=5)
     fh.setLevel(log_level)
     fh.setFormatter(logging.Formatter(FORMAT))
     logging.root.setLevel(log_level)
