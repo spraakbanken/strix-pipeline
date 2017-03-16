@@ -188,7 +188,6 @@ def get_highlights(index, es_id, doc_type, spans, context_size):
 
     highlights = []
 
-    seen_spans = []
     for span in spans:
         [_from, _to] = span.split('-')
         left = []
@@ -197,10 +196,7 @@ def get_highlights(index, es_id, doc_type, spans, context_size):
 
         from_int = int(_from)
         to_int = int(_to)
-        # TODO possibly this will create problems due to overlapping spans
-        if from_int in seen_spans:
-            continue
-        seen_spans.append(from_int)
+
         for pos in range(from_int - context_size, from_int):
             if pos in term_index:
                 left.append(term_index[pos])
@@ -336,12 +332,9 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
             positions = hit.meta.highlight.positions
             if not forward:
                 positions.reverse()
-            seen = []
+
             for span_pos in positions:
                 pos = int(span_pos.split("-")[0])
-                if pos in seen:
-                    continue
-                seen.append(pos)
                 if forward and pos > current_position or not forward and pos < current_position:
                     terms = get_terms(corpus, doc_type, doc_id, positions=[pos])
                     obj["highlight"].append(list(terms.values())[0])
