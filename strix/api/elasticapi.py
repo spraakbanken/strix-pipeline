@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import glob
 import json
 import os
@@ -130,7 +131,6 @@ def move_text_attributes(corpus, item, includes, excludes):
     if not should_include("text_attributes", includes, excludes):
         return
     if corpus not in text_attributes:
-        _logger.warn("Corpus %s has no configured text attributes", corpus)
         return
 
     item["text_attributes"] = {}
@@ -289,7 +289,7 @@ def lemgrammify(term):
     for hit in result["hits"]["hits"]:
         lemgram = hit["_source"]["FormRepresentations"][0]["lemgram"]
         if "_" not in lemgram:
-            lemgrams.append(lemgram.lower()) # .lower() here is because we accidentally have lowercase active in the mapping
+            lemgrams.append(lemgram.lower())  # .lower() here is because we accidentally have lowercase active in the mapping
     return lemgrams
 
 
@@ -368,7 +368,7 @@ def create_span_query(tokens):
                 query = lemgram_terms[0]
             span_terms.append(query)
         elif "word" in token_dict and token_dict["word"]:
-            word = token_dict["word"][0] # assume one word for now
+            word = token_dict["word"][0]  # Assume one word for now
             if '*' in word:
                 span_terms.append(Q("span_multi", match={"wildcard": {"text": {"value": word}}}))
             else:
