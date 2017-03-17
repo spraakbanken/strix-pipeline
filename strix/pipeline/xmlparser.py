@@ -97,6 +97,17 @@ def parse_pipeline_xml(file_name,
 
     book_iter = etree.iterparse(file_name, events=("start", "end"))
 
+    # solution from http://infix.se/2009/05/10/text-safe-xml-processing-with-iterparse
+    def delayediter(iterable):
+        iterable = iter(iterable)
+        prev = next(iterable)
+        for item in iterable:
+            yield prev
+            prev = item
+        yield prev
+
+    book_iter = delayediter(book_iter)
+
     current_part_tokens = []
     current_word_annotations = {}
     current_struct_annotations = {}
