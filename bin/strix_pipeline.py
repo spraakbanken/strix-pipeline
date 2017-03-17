@@ -42,13 +42,13 @@ if __name__ == '__main__':
                             """))
                     raise e
 
-    # *** Run parser ***
+    # Parse command line arguments
 
     parser = argparse.ArgumentParser(description='Run the pipeline.')
+    subparsers = parser.add_subparsers()
 
-    subparsers = parser.add_subparsers(help="Run the pipeline with input files.")
-
-    run_parser = subparsers.add_parser("run", help="Run the pipeline.")
+    # *** Run parser ***
+    run_parser = subparsers.add_parser("run", help="Run the pipeline with input files.")
     run_parser.add_argument('--index', required=True,
                             help='Index to run files on')
 
@@ -61,7 +61,6 @@ if __name__ == '__main__':
     run_parser.set_defaults(func=do_run)
 
     # *** Reset parser ***
-
     reset_parser = subparsers.add_parser('reindex',
                                          help='reset the index, recreate type mapping or reindex data.')
 
@@ -71,4 +70,8 @@ if __name__ == '__main__':
     reset_parser.set_defaults(func=do_reset)
 
     args = parser.parse_args()
-    args.func(args)
+
+    try:
+        args.func(args)
+    except AttributeError:
+        parser.print_help()
