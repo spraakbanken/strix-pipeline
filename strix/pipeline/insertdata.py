@@ -56,6 +56,7 @@ class InsertData:
                 doc_id = text[self.corpus_conf["document_id"]]
             if "title" not in text:
                 text["title"] = self.generate_title(text)
+            text["original_file"] = os.path.basename(file_name)
             task = self.get_doc_task(doc_id, "text", text)
             task_terms = self.create_term_positions(doc_id, text["token_lookup"])
             del text["token_lookup"]

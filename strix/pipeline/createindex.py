@@ -87,4 +87,6 @@ class CreateIndex:
 
         m.field("title", Text(analyzer=get_swedish_analyzer()))
 
+        m.field("original_file", Keyword())
+
         m.save(self.index, using=self.es)

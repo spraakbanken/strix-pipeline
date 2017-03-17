@@ -98,9 +98,9 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
         s = s.highlight("text.lemgram", type=simple_highlight_type, fragment_size=2500)
 
     if isinstance(excludes, list):
-        excludes.append("text")
+        excludes.append("text","original_file")
     else:
-        excludes = (excludes + ("text",))
+        excludes = (excludes + ("text","original_file",))
 
     s = s.source(includes=includes, excludes=excludes)
     if sort_field:
@@ -113,7 +113,7 @@ def get_document_by_id(indices, doc_type, doc_id, includes=(), excludes=(), toke
     try:
         if not excludes:
             excludes = []
-        excludes.append("text")
+        excludes.append("text","original_file")
         result = es.get(index=indices, doc_type=doc_type, id=doc_id, _source_include=includes, _source_exclude=excludes)
     except NotFoundError:
         return None
@@ -311,9 +311,9 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
     s = s.query(query)
 
     if isinstance(excludes, list):
-        excludes.append("text")
+        excludes.append("text", "original_file")
     else:
-        excludes = (excludes + ("text",))
+        excludes = (excludes + ("text","original_file",))
 
     s = s.source(includes=includes, excludes=excludes)
     s = s.highlight("strix")
