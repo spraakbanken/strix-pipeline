@@ -100,7 +100,7 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
     if isinstance(excludes, list):
         excludes += ("text", "original_file")
     else:
-        excludes = (excludes,) + ("text", "original_file")
+        excludes = excludes + ("text", "original_file")
 
     s = s.source(includes=includes, excludes=excludes)
     if sort_field:
