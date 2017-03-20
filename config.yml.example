@@ -14,4 +14,4 @@ concurrency_group_size: 20
 # terms_number_of_replicas: 0
 
 # log settings
-# log_level = INFO # choose between DEBUG, INFO, WARN, ERROR
+# log_level: INFO # choose between DEBUG, INFO, WARN, ERROR
