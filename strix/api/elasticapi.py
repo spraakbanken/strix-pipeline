@@ -97,10 +97,7 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
     if simple_highlight:
         s = s.highlight("text.lemgram", type=simple_highlight_type, fragment_size=2500)
 
-    if isinstance(excludes, list):
-        excludes += ("text", "original_file")
-    else:
-        excludes = excludes + ("text", "original_file")
+    excludes += ("text", "original_file")
 
     s = s.source(includes=includes, excludes=excludes)
     if sort_field:
@@ -310,10 +307,7 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
     query = Q("bool", must=[id_query], should=[span_query])
     s = s.query(query)
 
-    if isinstance(excludes, list):
-        excludes += ("text", "original_file")
-    else:
-        excludes = (excludes,) + ("text", "original_file")
+    excludes += ("text", "original_file")
 
     s = s.source(includes=includes, excludes=excludes)
     s = s.highlight("strix")
