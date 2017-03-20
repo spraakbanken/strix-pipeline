@@ -307,7 +307,7 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
         span_query = Q("span_term", **{"text." + field: value})
     else:
         span_query, _ = analyze_and_create_span_query(value)
-    query = Q("bool", must=[id_query, span_query])
+    query = Q("bool", must=[id_query], should=[span_query])
     s = s.query(query)
 
     if isinstance(excludes, list):
@@ -327,7 +327,7 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
 
         move_text_attributes(hit.meta.index, obj, includes, excludes)
 
-        if size != 0:
+        if size != 0 and hasattr(hit.meta, "highlight"):
             count = 0
             positions = hit.meta.highlight.positions
             if not forward:
