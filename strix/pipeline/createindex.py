@@ -95,11 +95,6 @@ class CreateIndex:
         self.es.indices.put_settings(index=self.index + "," + self.index + "_terms", body={
             "index.refresh_interval": -1,
         })
-        self.es.cluster.put_settings(body={
-            "transient": {
-                "indices.store.throttle.type": "none"
-            }
-        })
 
     def enable_postinsert_settings(self):
         self.es.indices.put_settings(index=self.index, body={
@@ -110,9 +105,3 @@ class CreateIndex:
             "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
             "index.refresh_interval": "30s"
         })
-        self.es.cluster.put_settings(body={
-            "transient": {
-                "indices.store.throttle.type": "merge"
-            }
-        })
-
