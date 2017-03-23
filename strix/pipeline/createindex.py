@@ -30,7 +30,7 @@ class CreateIndex:
         base_index = Index(self.index, using=self.es)
         base_index.settings(
             number_of_shards=CreateIndex.number_of_shards,
-            number_of_replicas=CreateIndex.number_of_replicas
+            number_of_replicas=0
         )
         base_index.delete(ignore=404)
         base_index.create()
@@ -44,7 +44,7 @@ class CreateIndex:
         terms = Index(self.index + "_terms", using=self.es)
         terms.settings(
             number_of_shards=CreateIndex.terms_number_of_shards,
-            number_of_replicas=CreateIndex.terms_number_of_replicas
+            number_of_replicas=0
         )
         terms.delete(ignore=404)
         terms.create()
@@ -90,3 +90,29 @@ class CreateIndex:
         m.field("original_file", Keyword())
 
         m.save(self.index, using=self.es)
+
+    def enable_insert_settings(self):
+        self.es.indices.put_settings(index=self.index + "," + self.index + "_terms", body={
+            "index.refresh_interval": -1,
+        })
+        self.es.cluster.put_settings(body={
+            "transient": {
+                "indices.store.throttle.type": "none"
+            }
+        })
+
+    def enable_postinsert_settings(self):
+        self.es.indices.put_settings(index=self.index, body={
+            "index.number_of_replicas": CreateIndex.number_of_replicas,
+            "index.refresh_interval": "30s"
+        })
+        self.es.indices.put_settings(index=self.index + "_terms", body={
+            "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
+            "index.refresh_interval": "30s"
+        })
+        self.es.cluster.put_settings(body={
+            "transient": {
+                "indices.store.throttle.type": "merge"
+            }
+        })
+

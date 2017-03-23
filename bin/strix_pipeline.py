@@ -16,7 +16,10 @@ if __name__ == '__main__':
     def do_run(args):
         doc_ids = args.doc_ids if args.doc_ids else []
         strix.loghelper.setup_pipeline_logging(args.index + "-run")
+        ci = createindex.CreateIndex(args.index)
+        ci.enable_insert_settings()
         pipeline.process_corpus(args.index, limit_to=args.limit_to, doc_ids=doc_ids)
+        ci.enable_postinsert_settings()
 
     def do_reset(args):
         if args.index:
