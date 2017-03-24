@@ -85,6 +85,34 @@ def process(task_queue, insert_data, task_data, corpus_data, limit_to=None):
     return task_queue
 
 
+def format_content_of_bulk(task_chunk):
+    terms = {}
+    docs = {}
+    for chunk in task_chunk:
+        if chunk["_index"].endswith("_terms"):
+            doc_type = chunk["doc_type"]
+            doc_id = chunk["doc_id"]
+            if doc_type not in terms:
+                terms[doc_type] = []
+            if doc_id not in terms[doc_type]:
+                terms[doc_type].append(doc_id)
+        else:
+            doc_type = chunk["_type"]
+            doc_id = chunk["_id"]
+            if doc_type not in docs:
+                docs[doc_type] = []
+            if doc_id not in docs[doc_type]:
+                docs[doc_type].append(doc_id)
+    bulk_summary = "\nFrom the \"_terms\"-index:\n"
+    for doc_type, doc_ids in terms.items():
+        bulk_summary += "- From doc type \"" + doc_type + "\": " + ", ".join(doc_ids) + "\n"
+    bulk_summary += "\nFailed documents:\n"
+    for doc_type, doc_ids in docs.items():
+        bulk_summary += "- From doc type \"" + doc_type + "\": " + ", ".join(doc_ids) + "\n"
+    bulk_summary += "\n"
+    return bulk_summary
+
+
 def upload_executor(task_queue, tot_size, num_tasks):
 
     with futures.ThreadPoolExecutor(max_workers=MAX_UPLOAD_WORKERS) as executor:
@@ -117,7 +145,7 @@ def upload_executor(task_queue, tot_size, num_tasks):
                     try:
                         raise future.exception()
                     except:
-                        _logger.exception("Bulk upload error: %s:%s")
+                        _logger.exception("Bulk upload error. Bulk contained:\n%s" % format_content_of_bulk(task_chunk))
                 else:
                     chunk, t = future.result()
                     _logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (len(chunk), t))
