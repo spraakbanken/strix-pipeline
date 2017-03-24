@@ -23,7 +23,6 @@ _logger = logging.getLogger(__name__)
 
 
 def partition_tasks(task_queue, num_tasks):
-
     threshold = 10000  # KB
     current_size = 0
     current_tasks = []
@@ -62,11 +61,17 @@ def process_task(insert_data, task_queue, size, process_args):
         (tasks, delta_t) = insert_data.process(*process_args)
     except Exception:
         _logger.exception("Failed to process %s" % _task_id)
-        raise
+        tasks = []
+        delta_t = -1
+
 
     try:
         task_queue.put((tasks, delta_t, size), block=True)
-        _logger.info("Processed id: %s, took %0.1fs" % (_task_id, delta_t))
+
+        if tasks:
+            _logger.info("Processed id: %s, took %0.1fs" % (_task_id, delta_t))
+        else:
+            _logger.error("Did not process id: %s" % _task_id)
     except queue.Full:
         _logger.exception("queue.put exception")
         raise
@@ -82,7 +87,6 @@ def process(task_queue, insert_data, task_data, corpus_data, limit_to=None):
     for (task_type, task_id, size, task) in task_data:
         task_args = (task_type, task_id, task, corpus_data)
         executor.submit(process_task, insert_data, task_queue, size, task_args)
-    return task_queue
 
 
 def format_content_of_bulk(task_chunk):
