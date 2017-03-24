@@ -105,3 +105,4 @@ class CreateIndex:
             "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
             "index.refresh_interval": "30s"
         })
+        self.es.indices.forcemerge(index=self.index + "," + self.index + "_terms")
