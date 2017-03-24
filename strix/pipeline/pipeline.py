@@ -34,7 +34,7 @@ def partition_tasks(task_queue, num_tasks):
             _logger.info("Processing complete")
             break
 
-        (task_type, task_id, task_data, process_time, work_size) = task_queue.get()
+        (task_data, process_time, work_size) = task_queue.get()
         work_size_accu += work_size
         num_tasks -= 1
 
@@ -48,24 +48,24 @@ def partition_tasks(task_queue, num_tasks):
             current_size += task_size
 
             if current_size >= threshold:
-                yield (task_type, task_id, current_tasks, work_size_accu)
+                yield (current_tasks, work_size_accu)
                 current_size = 0
                 current_tasks = []
     if current_tasks:
-        yield (task_type, task_id, current_tasks, work_size_accu)
+        yield (current_tasks, work_size_accu)
 
 
 def process_task(insert_data, task_queue, size, process_args):
     _task_id = process_args[1]
 
     try:
-        (task_type, task_id, tasks, delta_t) = insert_data.process(*process_args)
+        (tasks, delta_t) = insert_data.process(*process_args)
     except Exception:
         _logger.exception("Failed to process %s" % _task_id)
         raise
 
     try:
-        task_queue.put((task_type, task_id, tasks, delta_t, size), block=True)
+        task_queue.put((tasks, delta_t, size), block=True)
         _logger.info("Processed id: %s, took %0.1fs" % (_task_id, delta_t))
     except queue.Full:
         _logger.exception("queue.put exception")
@@ -102,22 +102,22 @@ def upload_executor(task_queue, tot_size, num_tasks):
             future_map = {}
             chunks = filter(bool, chunks)
 
-            for (task_type, task_id, task_chunk, size) in chunks:
+            for (task_chunk, size) in chunks:
                 if not task_chunk:
                     continue
                 # TODO: this bulk_insert should be replaced with 
                 # elasticsearch.helpers.streaming_bulk which should allow for getting
                 # rid of the rather complex bulk packet size calculations in this method. 
                 future = executor.submit(bulk_insert, task_chunk)
-                future_map[future] = (task_type, task_id, task_chunk, size)
+                future_map[future] = (task_chunk, size)
             for future in futures.as_completed(future_map):
                 # TODO: use task_chunk for logging extra exception data.
-                task_type, task_id, task_chunk, size_accu = future_map.pop(future)
+                task_chunk, size_accu = future_map.pop(future)
                 if future.exception() is not None:
                     try:
                         raise future.exception()
                     except:
-                        _logger.exception("Bulk upload error: %s:%s" % (task_type, task_id))
+                        _logger.exception("Bulk upload error: %s:%s")
                 else:
                     chunk, t = future.result()
                     _logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (len(chunk), t))

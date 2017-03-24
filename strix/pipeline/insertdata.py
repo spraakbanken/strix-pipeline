@@ -38,7 +38,7 @@ class InsertData:
     def process(self, task_type, task_id, task_data, corpus_data):
         process_t = time.time()
         tasks = self.process_work(task_id, task_data, corpus_data)
-        return task_type, task_id, tasks, time.time() - process_t
+        return tasks, time.time() - process_t
 
     def process_work(self, task_id, task, corpus_data):
         word_annotations = {"w": self.corpus_conf["analyze_config"]["word_attributes"]}
