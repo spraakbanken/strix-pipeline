@@ -137,22 +137,17 @@ def upload_executor(task_queue, tot_size, num_tasks):
             for (task_chunk, size) in chunks:
                 if not task_chunk:
                     continue
-                # TODO: this bulk_insert should be replaced with 
+                # TODO: this bulk_insert should be replaced with
                 # elasticsearch.helpers.streaming_bulk which should allow for getting
-                # rid of the rather complex bulk packet size calculations in this method. 
+                # rid of the rather complex bulk packet size calculations in this method.
                 future = executor.submit(bulk_insert, task_chunk)
-                future_map[future] = (task_chunk, size)
+                future_map[future] = size
             for future in futures.as_completed(future_map):
                 # TODO: use task_chunk for logging extra exception data.
-                task_chunk, size_accu = future_map.pop(future)
-                if future.exception() is not None:
-                    try:
-                        raise future.exception()
-                    except:
-                        _logger.exception("Bulk upload error. Bulk contained:\n%s" % format_content_of_bulk(task_chunk))
-                else:
-                    chunk, t = future.result()
-                    _logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (len(chunk), t))
+                size_accu = future_map.pop(future)
+                if future.exception() is None:
+                    chunk_len, t = future.result()
+                    _logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (chunk_len, t))
 
                     if tot_size > 0:
                         _logger.info("%.1f%%" % (100 * (size_accu / tot_size)))
@@ -161,8 +156,12 @@ def upload_executor(task_queue, tot_size, num_tasks):
 
 def bulk_insert(tasks):
     insert_t = time.time()
-    elasticsearch.helpers.bulk(es, tasks)
-    return tasks, time.time() - insert_t
+    try:
+        elasticsearch.helpers.bulk(es, tasks)
+        return len(tasks), time.time() - insert_t
+    except:
+        _logger.exception("Bulk upload error. Bulk contained:\n%s" % format_content_of_bulk(tasks))
+        raise
 
 
 def process_corpus(index, limit_to=None, doc_ids=()):
