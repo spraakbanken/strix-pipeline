@@ -42,6 +42,5 @@ def pattern_tokenizer():
 
 
 def get_swedish_analyzer():
-    stems_file = config.stems_file
-    stemmer = analysis.token_filter("swedish_stemmer", type="stemmer_override", rules_path=stems_file)
+    stemmer = analysis.token_filter("swedish_stemmer", type="stemmer_override", rules_path="stems.txt")
     return analyzer("swedish",  tokenizer="standard", filter=["lowercase", stemmer])

@@ -15,18 +15,6 @@ Tests
 1. Start Elasticsearch and insert suitable data (vivill)
 2. Run `python setup.py test`
 
-Fixing permissions on stems.txt (not used right now)
-====================================================
-To be able to create an index using the custom stemmer with rules found in resources/analyzers/stems.txt:
-Add the following lines (or create file) to $HOME/.java.policy in the $HOME for user running Elasticsearch, then restart
-Elasticsearch:
-
-grant {
-    permission java.io.FilePermission "<path_to_your_strix_repository>/resources/analyzers/stems.txt", "read";
-};
-
-This needs to be done for every node in the cluster.
-
 Elasticsearch config
 ====================
 1. Download and extract Elasticsearch 5.0.1
@@ -34,6 +22,7 @@ Elasticsearch config
    ./bin/elasticsearch-plugin install file:///<absolute path to plugin zip>
 3. Set java heap size using:
    export ES_JAVA_OPTS="-Xms8g -Xmx8g"
+4. Copy `stems.txt` from `strix/resources/analyzers/` to Elasticsearch's `config`-directory
 
 Config file
 =========== 
