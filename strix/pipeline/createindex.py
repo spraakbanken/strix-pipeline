@@ -1,7 +1,7 @@
 import json
 
 from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping
-from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer, get_swedish_analyzer
+from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer, get_swedish_analyzer, similarity_tags_analyzer
 from strix.config import config
 import elasticsearch
 
@@ -68,7 +68,7 @@ class CreateIndex:
             analyzer=get_standard_analyzer(),
             term_vector="with_positions_offsets",
             fields={
-                "wid": Text(analyzer=annotation_analyzer("wid"), term_vector="with_positions_offsets")
+                "wid": Text(analyzer=annotation_analyzer("wid"), term_vector="with_positions_offsets"),
             }
         )
 
@@ -84,6 +84,7 @@ class CreateIndex:
         m.field("dump", Keyword(index="no"))
         m.field("lines", Object(enabled=False))
         m.field("word_count", Integer())
+        m.field("similarity_tags", Text(analyzer=similarity_tags_analyzer()))
 
         m.field("title", Text(analyzer=get_swedish_analyzer()))
 

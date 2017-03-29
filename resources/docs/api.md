@@ -99,3 +99,23 @@ Returns the available corpora.
 **GET** `/config/<corpora>`
 
 `corpora` is a comma-separated list. Returns the configuration for all given corpora.
+
+### Get related documents
+
+**GET** `/related/<corpus>/doc_id/<doc_id>`
+
+Get a list of documents that are related to the given document.
+
+For information about the `more_like_this` functionality, see:
+https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-mlt-query.html
+
+**Supported query params:**
+
+* `include`
+* `exclude`
+* `from` - For pagination through the results (default: 0) 
+* `to` - For pagination through the results (default: 10)
+* `search_corpora` - List of corpora to search for related documents in (default: same corpus as query document)
+* `relevance_function` - Possible values are: `more_like_this`, `disjunctive_query` (default: `more_like_this`)
+* `max_query_terms` - Only applicable for `more_like_this`, see elasticsearch documentation (default: 30)
+* `min_term_freq` - Only applicable for `more_like_this`, see elasticsearch documentation (default: 1)

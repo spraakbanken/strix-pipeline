@@ -44,3 +44,7 @@ def pattern_tokenizer():
 def get_swedish_analyzer():
     stemmer = analysis.token_filter("swedish_stemmer", type="stemmer_override", rules_path="stems.txt")
     return analyzer("swedish",  tokenizer="standard", filter=["lowercase", stemmer])
+
+
+def similarity_tags_analyzer():
+    return analysis.analyzer("similarity_tags", tokenizer="whitespace", filter=["lowercase"])

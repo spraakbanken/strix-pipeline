@@ -88,7 +88,8 @@ def parse_pipeline_xml(file_name,
                        struct_annotations=(),
                        token_count_id=False,
                        set_text_attributes=False,
-                       process_token=lambda x: None):
+                       process_token=lambda x: None,
+                       add_similarity_tags=False):
     """
     split_document: everything under this node will go into separate documents
     word_annotations: a map of tag names and the attributes of those tags that
@@ -116,6 +117,7 @@ def parse_pipeline_xml(file_name,
     dump = [""]
     token_count = 0
     lines = [[0]]
+    similarity_tags = []
 
     _, root = next(book_iter)
     if root.tag == split_document:
@@ -179,6 +181,15 @@ def parse_pipeline_xml(file_name,
 
                 token_count += 1
 
+                if add_similarity_tags and token_data["pos"] == "NN":
+                    if "lemma" in token_data:
+                        annotation_value = token_data["lemma"]
+                    else:
+                        annotation_value = [lemma for lemma in element.get("lemma").split("|") if lemma and ":" not in lemma]
+                    if not annotation_value:
+                        annotation_value = [element.text.strip()]
+                    similarity_tags.extend(annotation_value)
+
             elif element.tag == split_document:
                 if set_text_attributes:
                     current_part = part_attributes
@@ -189,6 +200,8 @@ def parse_pipeline_xml(file_name,
                 current_part["lines"] = lines
                 current_part["word_count"] = len(current_part_tokens)
                 current_part["text"] = "\u241D".join(current_part_tokens)
+                if add_similarity_tags:
+                    current_part["similarity_tags"] = " ".join(similarity_tags)
                 yield current_part
 
                 token_count = 0
@@ -198,6 +211,7 @@ def parse_pipeline_xml(file_name,
                 current_struct_annotations = {}
                 dump = [""]
                 lines = [[0]]
+                similarity_tags = []
 
             elif element.tag in struct_annotations:
                 del current_struct_annotations[element.tag]

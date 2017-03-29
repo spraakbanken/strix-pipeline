@@ -43,6 +43,36 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
     return res
 
 
+def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), from_hit=0, to_hit=10, token_lookup_from=None, token_lookup_to=None):
+    if relevance_function == "more_like_this":
+        query = Q("more_like_this",
+                  fields=["similarity_tags"],
+                  like=[{"_index": corpus, "_type": doc_type, "_id": doc_id}],
+                  min_term_freq=min_term_freq,
+                  max_query_terms=max_query_terms)
+    else:
+        s = Search(index=corpus, doc_type=doc_type)
+        s = s.query(Q("term", _id=doc_id))
+        s = s.source(includes="similarity_tags")
+        hits = s.execute()
+        if hits:
+            for hit in s.execute():
+                similarity_tags = hit.similarity_tags
+                break
+        else:
+            raise RuntimeError("No document with ID " + doc_id)
+        shoulds = []
+        for tag in similarity_tags.split(" "):
+            shoulds.append(Q("term", similarity_tags=tag))
+        query = Q("bool", should=shoulds, must_not=Q("term", _id=doc_id))
+
+    res = do_search_query(search_corpora if search_corpora else corpus, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit)
+    for document in res["data"]:
+        get_token_lookup(document, corpus, doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
+
+    return res
+
+
 def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_field=None, before_send=None):
     s = get_search_query(indices, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, sort_field=sort_field)
     if before_send:
@@ -97,7 +127,7 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
     if simple_highlight:
         s = s.highlight("text.lemgram", type=simple_highlight_type, fragment_size=2500)
 
-    excludes += ("text", "original_file")
+    excludes += ("text", "original_file", "similarity_tags")
 
     s = s.source(includes=includes, excludes=excludes)
     if sort_field:
@@ -110,7 +140,7 @@ def get_document_by_id(indices, doc_type, doc_id, includes=(), excludes=(), toke
     try:
         if not excludes:
             excludes = []
-        excludes += ("text", "original_file")
+        excludes += ("text", "original_file", "similarity_tags")
         result = es.get(index=indices, doc_type=doc_type, id=doc_id, _source_include=includes, _source_exclude=excludes)
     except NotFoundError:
         return None
@@ -307,7 +337,7 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
     query = Q("bool", must=[id_query], should=[span_query])
     s = s.query(query)
 
-    excludes += ("text", "original_file")
+    excludes += ("text", "original_file", "similarity_tags")
 
     s = s.source(includes=includes, excludes=excludes)
     s = s.highlight("strix")
@@ -345,6 +375,10 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
         return obj
 
     return {}
+
+
+
+
 
 
 # TODO support searching in any field and multiple fields per token (extended search style)

@@ -49,7 +49,9 @@ class InsertData:
 
         tasks = []
         terms = []
-        for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations, struct_annotations=struct_annotations, set_text_attributes=True, token_count_id=True):
+        for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations,
+                                                 struct_annotations=struct_annotations, set_text_attributes=True,
+                                                 token_count_id=True, add_similarity_tags=True):
             if self.corpus_conf["document_id"] == "task":
                 doc_id = task_id
             else:

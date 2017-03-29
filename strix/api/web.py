@@ -117,6 +117,36 @@ def search_in_document(corpus, doc_id, search_term, field=None):
     return elasticapi.search_in_document(corpus, "text", doc_id, value, **kwargs)
 
 
+@app.route("/related/<corpus>/<doc_type>/<doc_id>")
+@crossdomain(origin='*')
+@jsonify_response
+def get_related_documents(corpus, doc_type, doc_id):
+    kwargs = {}
+
+    if request.args.get("search_corpora"):
+        kwargs["search_corpora"] = request.args.get("search_corpora")
+
+    if request.args.get("relevance_function"):
+        # possible_values: "more_like_this", "disjunctive_query"
+        kwargs["relevance_function"] = request.args.get("relevance_function")
+
+    # only applicable for more_like_this
+    if request.args.get("min_term_freq"):
+        kwargs["min_term_freq"] = request.args.get("min_term_freq")
+
+    # only applicable for more_like_this
+    if request.args.get("max_query_terms"):
+        kwargs["max_query_terms"] = request.args.get("max_query_terms")
+
+    get_includes_excludes(kwargs)
+    get_token_lookup_sizes(kwargs)
+    if request.args.get("from"):
+        kwargs["from_hit"] = int(request.args.get("from"))
+    if request.args.get("to"):
+        kwargs["to_hit"] = int(request.args.get("to"))
+    return elasticapi.get_related_documents(corpus, doc_type, doc_id, **kwargs)
+
+
 @app.route("/lemgramify/<terms>")
 @crossdomain(origin='*')
 @jsonify_response
