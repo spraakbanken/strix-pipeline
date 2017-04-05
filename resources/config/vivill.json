@@ -18,7 +18,8 @@
             {
                 "nodeName": "lex",
                 "name": "lemgram",
-                "set": true
+                "set": true,
+                "type": "lemgram"
             },
             {
                 "name": "lemma",
@@ -26,15 +27,18 @@
             },
             {
                 "name": "saldo",
-                "set": true
+                "set": true,
+                "type": "sense"
             },
             {
                 "name": "prefix",
-                "set": true
+                "set": true,
+                "type": "lemgram"
             },
             {
                 "name": "suffix",
-                "set": true
+                "set": true,
+                "type": "lemgram"
             },
             {
                 "name": "ref",

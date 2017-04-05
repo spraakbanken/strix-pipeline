@@ -1,45 +1,178 @@
 {
-  "corpus_name": "rd-flista",
-  "file_name_pattern": "f-lista*.xml",
-
-  "analyze_config": {
-    "word_attributes": [
-      {
-          "name": "wid",
-          "set": false
-      },
-      {
-          "name": "pos",
-          "set": false
-      },
-      {
-          "name": "msd",
-          "set": false
-      },
-      {
-        "name": "lemma",
-        "set": true
-      },
-      {
-        "name": "ref",
-        "set": false
-      },
-      {
-        "name": "deprel",
-        "set": false
-      },
-      {
-          "nodeName": "lex",
-          "name": "lemgram",
-          "set": true
-      }
-    ],
-    "struct_attributes": {},
-    "text_attributes": ["datefrom", "dateto", "timefrom", "timeto", "titel", "datum",
-      "publicerad", "hangar_id", "fil_url", "doktyp", "dokument_url_text", "dok_id",
-      "typ", "systemdatum", "slutnummer", "rm", "nummer", "filtyp", "filstorlek",
-      "filnamn", "dokumentstatus_url_xml", "dokument_url_html", "beteckning",
-      "htmlformat", "dokument_url_text", "rm", "source", "status", "debattnamn"]
-  },
-  "document_id": "titel"
+    "title": {
+        "pattern": "{titel}",
+        "keys": [
+            "titel"
+        ]
+    },
+    "corpus_name": "rd-flista",
+    "document_id": "titel",
+    "translation": {},
+    "parser": "htmlparser",
+    "analyze_config": {
+        "struct_attributes": {
+            "sentence": [
+                {
+                    "name": "id",
+                    "set": false
+                },
+                {
+                    "name": "geocontext",
+                    "set": false,
+                    "nodeName": "_geocontext"
+                }
+            ],
+            "paragraph": [
+                {
+                    "name": "geocontext",
+                    "set": false,
+                    "nodeName": "_geocontext"
+                }
+            ],
+            "dokument": [
+                {
+                    "name": "dokumentstatus_url_xml",
+                    "set": false
+                },
+                {
+                    "name": "dok_id",
+                    "set": false
+                }
+            ],
+            "ne": [
+                {
+                    "name": "ex",
+                    "set": false
+                },
+                {
+                    "name": "type",
+                    "set": false
+                },
+                {
+                    "name": "subtype",
+                    "set": false
+                },
+                {
+                    "name": "name",
+                    "set": false
+                }
+            ]
+        },
+        "text_attributes": [
+            "datefrom",
+            "dateto",
+            "timefrom",
+            "timeto",
+            "vinnare",
+            "datum",
+            "subtitel",
+            "tumnagel",
+            "typ",
+            "anf_typ",
+            "anf_rm",
+            "motforslag_partier",
+            "forslag",
+            "anf_hangar_id",
+            "datatyp",
+            "startpos",
+            "anf_sekunder",
+            "punkt",
+            "datumtid",
+            "anf_video_id",
+            "anf_nummer",
+            "anf_klockslag",
+            "doktyp",
+            "tumnagel_stor",
+            "organ",
+            "subtyp",
+            "debattnamn",
+            "tempbeteckning",
+            "votering_ledamot_url_xml",
+            "relaterat_id",
+            "slutnummer",
+            "anf_beteckning",
+            "source",
+            "beteckning",
+            "rubrik",
+            "rm",
+            "video_url",
+            "publicerad",
+            "sourceid",
+            "video_id",
+            "anf_datum",
+            "titel",
+            "nummer",
+            "systemdatum",
+            "pretext",
+            "bet",
+            "rubriker",
+            "utskottsforslag_url_xml",
+            "intressent_id",
+            "talare",
+            "motforslag_nummer",
+            "htmlformat",
+            "votering_id",
+            "beslutstyp",
+            "status",
+            "hangar_id",
+            "dokument_url_html",
+            "parti",
+            "dokument_url_text"
+        ],
+        "word_attributes": [
+            {
+                "name": "pos",
+                "set": false
+            },
+            {
+                "name": "msd",
+                "set": false
+            },
+            {
+                "name": "lemma",
+                "set": true
+            },
+            {
+                "type": "lemgram",
+                "name": "lemgram",
+                "set": true,
+                "nodeName": "lex"
+            },
+            {
+                "name": "sense",
+                "set": true
+            },
+            {
+                "type": "lemgram",
+                "name": "prefix",
+                "set": true
+            },
+            {
+                "type": "lemgram",
+                "name": "suffix",
+                "set": true
+            },
+            {
+                "name": "compwf",
+                "set": true
+            },
+            {
+                "name": "complemgram",
+                "set": true
+            },
+            {
+                "name": "ref",
+                "set": false
+            },
+            {
+                "name": "dephead",
+                "set": false
+            },
+            {
+                "name": "deprel",
+                "set": false
+            }
+        ]
+    },
+    "file_name_pattern": "*.xml"
 }

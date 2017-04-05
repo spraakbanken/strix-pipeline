@@ -5,7 +5,7 @@
             "titel"
         ]
     },
-    "corpus_name": "rd-rskr",
+    "corpus_name": "rd-fpm",
     "document_id": "titel",
     "translation": {},
     "parser": "htmlparser",
@@ -69,7 +69,6 @@
             "tumnagel",
             "typ",
             "anf_typ",
-            "behandlas_i",
             "anf_rm",
             "motforslag_partier",
             "forslag",
@@ -77,7 +76,6 @@
             "datatyp",
             "startpos",
             "anf_sekunder",
-            "intressent",
             "punkt",
             "datumtid",
             "anf_video_id",
@@ -93,9 +91,7 @@
             "relaterat_id",
             "slutnummer",
             "anf_beteckning",
-            "kammarbeslutstyp",
             "source",
-            "utskottet",
             "beteckning",
             "rubrik",
             "rm",
@@ -109,10 +105,8 @@
             "systemdatum",
             "pretext",
             "bet",
-            "lydelse",
             "rubriker",
             "utskottsforslag_url_xml",
-            "lydelse2",
             "intressent_id",
             "talare",
             "motforslag_nummer",
@@ -124,8 +118,7 @@
             "hangar_id",
             "dokument_url_html",
             "parti",
-            "dokument_url_text",
-            "kammaren"
+            "dokument_url_text"
         ],
         "word_attributes": [
             {

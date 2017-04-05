@@ -1,40 +1,186 @@
 {
-  "corpus_name": "rd-kammakt",
-  "file_name_pattern": "kammakt*.xml",
-
-  "analyze_config": {
-    "word_attributes": [
-      {
-          "name": "wid",
-          "set": false
-      },
-      {
-          "name": "pos",
-          "set": false
-      },
-      {
-          "name": "msd",
-          "set": false
-      },
-      {
-        "name": "lemma",
-        "set": true
-      },
-      {
-        "name": "ref",
-        "set": false
-      },
-      {
-        "name": "deprel",
-        "set": false
-      },
-      {
-          "nodeName": "lex",
-          "name": "lemgram",
-          "set": true
-      }
-    ],
-    "text_attributes": ["datefrom", "dateto", "timefrom", "timeto", "titel", "datum", "publicerad", "hangar_id"]
-  },
-  "document_id": "titel"
+    "title": {
+        "pattern": "{titel}",
+        "keys": [
+            "titel"
+        ]
+    },
+    "corpus_name": "rd-kammakt",
+    "document_id": "titel",
+    "translation": {},
+    "parser": "htmlparser",
+    "analyze_config": {
+        "struct_attributes": {
+            "sentence": [
+                {
+                    "name": "id",
+                    "set": false
+                },
+                {
+                    "name": "geocontext",
+                    "set": false,
+                    "nodeName": "_geocontext"
+                }
+            ],
+            "paragraph": [
+                {
+                    "name": "geocontext",
+                    "set": false,
+                    "nodeName": "_geocontext"
+                }
+            ],
+            "dokument": [
+                {
+                    "name": "dokumentstatus_url_xml",
+                    "set": false
+                },
+                {
+                    "name": "dok_id",
+                    "set": false
+                }
+            ],
+            "ne": [
+                {
+                    "name": "ex",
+                    "set": false
+                },
+                {
+                    "name": "type",
+                    "set": false
+                },
+                {
+                    "name": "subtype",
+                    "set": false
+                },
+                {
+                    "name": "name",
+                    "set": false
+                }
+            ]
+        },
+        "text_attributes": [
+            "datefrom",
+            "dateto",
+            "timefrom",
+            "timeto",
+            "vinnare",
+            "datum",
+            "subtitel",
+            "tumnagel",
+            "typ",
+            "anf_typ",
+            "behandlas_i",
+            "anf_rm",
+            "motforslag_partier",
+            "forslag",
+            "anf_hangar_id",
+            "datatyp",
+            "startpos",
+            "anf_sekunder",
+            "intressent",
+            "punkt",
+            "datumtid",
+            "anf_video_id",
+            "anf_nummer",
+            "anf_klockslag",
+            "doktyp",
+            "tumnagel_stor",
+            "organ",
+            "subtyp",
+            "debattnamn",
+            "tempbeteckning",
+            "votering_ledamot_url_xml",
+            "relaterat_id",
+            "slutnummer",
+            "anf_beteckning",
+            "kammarbeslutstyp",
+            "source",
+            "utskottet",
+            "beteckning",
+            "rubrik",
+            "rm",
+            "video_url",
+            "publicerad",
+            "sourceid",
+            "video_id",
+            "anf_datum",
+            "titel",
+            "nummer",
+            "systemdatum",
+            "pretext",
+            "bet",
+            "lydelse",
+            "rubriker",
+            "utskottsforslag_url_xml",
+            "lydelse2",
+            "intressent_id",
+            "talare",
+            "motforslag_nummer",
+            "mottagare",
+            "htmlformat",
+            "votering_id",
+            "beslutstyp",
+            "status",
+            "hangar_id",
+            "dokument_url_html",
+            "parti",
+            "dokument_url_text",
+            "kammaren"
+        ],
+        "word_attributes": [
+            {
+                "name": "pos",
+                "set": false
+            },
+            {
+                "name": "msd",
+                "set": false
+            },
+            {
+                "name": "lemma",
+                "set": true
+            },
+            {
+                "type": "lemgram",
+                "name": "lemgram",
+                "set": true,
+                "nodeName": "lex"
+            },
+            {
+                "name": "sense",
+                "set": true
+            },
+            {
+                "type": "lemgram",
+                "name": "prefix",
+                "set": true
+            },
+            {
+                "type": "lemgram",
+                "name": "suffix",
+                "set": true
+            },
+            {
+                "name": "compwf",
+                "set": true
+            },
+            {
+                "name": "complemgram",
+                "set": true
+            },
+            {
+                "name": "ref",
+                "set": false
+            },
+            {
+                "name": "dephead",
+                "set": false
+            },
+            {
+                "name": "deprel",
+                "set": false
+            }
+        ]
+    },
+    "file_name_pattern": "*.xml"
 }

@@ -5,7 +5,7 @@
             "titel"
         ]
     },
-    "corpus_name": "rd-rskr",
+    "corpus_name": "rd-frsrdg",
     "document_id": "titel",
     "translation": {},
     "parser": "htmlparser",
