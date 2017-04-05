@@ -34,7 +34,12 @@
           "set": true
       }
     ],
-    "text_attributes": ["datefrom", "dateto", "timefrom", "timeto", "titel", "datum", "publicerad", "hangar_id", "fil_url", "doktyp", "dokument_url_text", "dok_id"]
+    "struct_attributes": {},
+    "text_attributes": ["datefrom", "dateto", "timefrom", "timeto", "titel", "datum",
+      "publicerad", "hangar_id", "fil_url", "doktyp", "dokument_url_text", "dok_id",
+      "typ", "systemdatum", "slutnummer", "rm", "nummer", "filtyp", "filstorlek",
+      "filnamn", "dokumentstatus_url_xml", "dokument_url_html", "beteckning",
+      "htmlformat", "dokument_url_text", "rm", "source", "status", "debattnamn"]
   },
   "document_id": "titel"
 }
