@@ -18,6 +18,7 @@ class StrixConfig:
         file = open(path)
         self.logger.info("Config file in use: %s", os.path.realpath(file.name))
         self.config = yaml.safe_load(file)
+        self.set_defaults()
 
     def __getattr__(self, item):
         try:
@@ -29,5 +30,11 @@ class StrixConfig:
     def has_attr(self, item):
         return item in self.config
 
+    def set_attr(self, k, v):
+        self.config[k] = v
+
+    def set_defaults(self):
+        if "base_dir" not in self.config:
+            self.config["base_dir"] = "."
 
 config = StrixConfig()

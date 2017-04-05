@@ -16,7 +16,7 @@ class InsertData:
         self.corpus_conf = self.get_corpus_conf()
 
     def get_corpus_conf(self):
-        return json.load(open("resources/config/" + self.index + ".json"))
+        return json.load(open(os.path.join(config.base_dir, "resources/config/" + self.index + ".json")))
 
     def prepare_urls(self, doc_ids):
         urls = []

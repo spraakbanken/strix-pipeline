@@ -2,6 +2,7 @@
 import codecs
 import json
 import logging
+import os
 
 import markdown
 from elasticsearch_dsl.connections import connections
@@ -172,7 +173,7 @@ def get_config(corpora=None):
     if corpora:
         result = {}
         for corpus in corpora.split(","):
-            result[corpus] = json.load(open("resources/config/" + corpus + ".json"))["analyze_config"]
+            result[corpus] = json.load(open(os.path.join(config.base_dir, "resources/config/" + corpus + ".json")))["analyze_config"]
         return result
     else:
         result = elasticapi.es.cat.indices(h="index")
@@ -186,7 +187,7 @@ def get_config(corpora=None):
 @app.route("/")
 @crossdomain(origin="*")
 def get_documentation():
-    input_file = codecs.open("resources/docs/api.md", mode="r", encoding="utf-8")
+    input_file = codecs.open(os.path.join(config.base_dir, "resources/docs/api.md"), mode="r", encoding="utf-8")
     text = input_file.read()
     css = '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">'
     return css + '<div style="margin-left: 20px; max-width: 750px">' + markdown.markdown(text) + '</div>'

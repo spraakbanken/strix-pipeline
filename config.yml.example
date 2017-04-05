@@ -1,5 +1,6 @@
 elastic_hosts: [{host: localhost, port: 9200}]
 texts_dir: /home/strix/texts
+base_dir: .
 
 # concurrency settings
 concurrency_upload_threads: 40

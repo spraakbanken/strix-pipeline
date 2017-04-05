@@ -1,4 +1,5 @@
 import json
+import os
 
 from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping
 from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer, get_swedish_analyzer, similarity_tags_analyzer
@@ -15,7 +16,7 @@ class CreateIndex:
     def __init__(self, index):
         self.es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
         self.index = index
-        corpus_config = json.load(open("resources/config/" + index + ".json"))
+        corpus_config = json.load(open(os.path.join(config.base_dir, "resources/config/" + index + ".json")))
         self.word_attributes = []
         for attr in corpus_config["analyze_config"]["word_attributes"]:
             self.word_attributes.append(attr)

@@ -439,8 +439,7 @@ def should_include(attribute, includes, excludes):
 
 def get_text_attributes():
     text_attributes = {}
-
-    for file in glob.glob("resources/config/*.json"):
+    for file in glob.glob(os.path.join(config.base_dir, "resources/config/*.json")):
         key = os.path.splitext(os.path.basename(file))[0]
         try:
             text_attributes[key] = json.load(open(file, "r"))["analyze_config"]["text_attributes"]
@@ -450,7 +449,6 @@ def get_text_attributes():
             text_attributes[key].remove("title")
 
     text_attributes["litteraturbanken"] = []
-
     return text_attributes
 
 text_attributes = get_text_attributes()
