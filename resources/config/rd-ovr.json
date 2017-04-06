@@ -1,15 +1,210 @@
 {
-    "title": {
-        "pattern": "{titel}",
-        "keys": [
-            "titel"
-        ]
-    },
     "corpus_name": "rd-ovr",
-    "document_id": "titel",
     "translation": {},
-    "parser": "htmlparser",
     "analyze_config": {
+        "text_attributes": [
+            {
+                "name": "datefrom"
+            },
+            {
+                "name": "dateto"
+            },
+            {
+                "name": "timefrom"
+            },
+            {
+                "name": "timeto"
+            },
+            {
+                "name": "vinnare"
+            },
+            {
+                "name": "datum"
+            },
+            {
+                "name": "subtitel"
+            },
+            {
+                "name": "tumnagel"
+            },
+            {
+                "name": "typ"
+            },
+            {
+                "name": "anf_typ"
+            },
+            {
+                "name": "behandlas_i"
+            },
+            {
+                "name": "anf_rm"
+            },
+            {
+                "name": "motforslag_partier"
+            },
+            {
+                "name": "forslag"
+            },
+            {
+                "name": "anf_hangar_id"
+            },
+            {
+                "name": "datatyp"
+            },
+            {
+                "name": "startpos"
+            },
+            {
+                "name": "anf_sekunder"
+            },
+            {
+                "name": "intressent"
+            },
+            {
+                "name": "punkt"
+            },
+            {
+                "name": "datumtid"
+            },
+            {
+                "name": "anf_video_id"
+            },
+            {
+                "name": "anf_nummer"
+            },
+            {
+                "name": "anf_klockslag"
+            },
+            {
+                "name": "doktyp"
+            },
+            {
+                "name": "tumnagel_stor"
+            },
+            {
+                "name": "organ"
+            },
+            {
+                "name": "subtyp"
+            },
+            {
+                "name": "debattnamn"
+            },
+            {
+                "name": "tempbeteckning"
+            },
+            {
+                "name": "votering_ledamot_url_xml"
+            },
+            {
+                "name": "relaterat_id"
+            },
+            {
+                "name": "slutnummer"
+            },
+            {
+                "name": "anf_beteckning"
+            },
+            {
+                "name": "kammarbeslutstyp"
+            },
+            {
+                "name": "source"
+            },
+            {
+                "name": "utskottet"
+            },
+            {
+                "name": "beteckning"
+            },
+            {
+                "name": "rubrik"
+            },
+            {
+                "name": "rm"
+            },
+            {
+                "name": "video_url"
+            },
+            {
+                "name": "publicerad"
+            },
+            {
+                "name": "sourceid"
+            },
+            {
+                "name": "video_id"
+            },
+            {
+                "name": "anf_datum"
+            },
+            {
+                "name": "titel"
+            },
+            {
+                "name": "nummer"
+            },
+            {
+                "name": "systemdatum"
+            },
+            {
+                "name": "pretext"
+            },
+            {
+                "name": "bet"
+            },
+            {
+                "name": "lydelse"
+            },
+            {
+                "name": "rubriker"
+            },
+            {
+                "name": "utskottsforslag_url_xml"
+            },
+            {
+                "name": "lydelse2"
+            },
+            {
+                "name": "intressent_id"
+            },
+            {
+                "name": "talare"
+            },
+            {
+                "name": "motforslag_nummer"
+            },
+            {
+                "name": "mottagare"
+            },
+            {
+                "name": "htmlformat"
+            },
+            {
+                "name": "votering_id"
+            },
+            {
+                "name": "beslutstyp"
+            },
+            {
+                "name": "status"
+            },
+            {
+                "name": "hangar_id"
+            },
+            {
+                "name": "dokument_url_html"
+            },
+            {
+                "name": "parti"
+            },
+            {
+                "name": "dokument_url_text"
+            },
+            {
+                "name": "kammaren"
+            }
+        ],
         "struct_attributes": {
             "sentence": [
                 {
@@ -17,16 +212,9 @@
                     "set": false
                 },
                 {
+                    "nodeName": "_geocontext",
                     "name": "geocontext",
-                    "set": false,
-                    "nodeName": "_geocontext"
-                }
-            ],
-            "paragraph": [
-                {
-                    "name": "geocontext",
-                    "set": false,
-                    "nodeName": "_geocontext"
+                    "set": false
                 }
             ],
             "dokument": [
@@ -56,77 +244,15 @@
                     "name": "name",
                     "set": false
                 }
+            ],
+            "paragraph": [
+                {
+                    "nodeName": "_geocontext",
+                    "name": "geocontext",
+                    "set": false
+                }
             ]
         },
-        "text_attributes": [
-            "datefrom",
-            "dateto",
-            "timefrom",
-            "timeto",
-            "vinnare",
-            "datum",
-            "subtitel",
-            "tumnagel",
-            "typ",
-            "anf_typ",
-            "behandlas_i",
-            "anf_rm",
-            "motforslag_partier",
-            "forslag",
-            "anf_hangar_id",
-            "datatyp",
-            "startpos",
-            "anf_sekunder",
-            "intressent",
-            "punkt",
-            "datumtid",
-            "anf_video_id",
-            "anf_nummer",
-            "anf_klockslag",
-            "doktyp",
-            "tumnagel_stor",
-            "organ",
-            "subtyp",
-            "debattnamn",
-            "tempbeteckning",
-            "votering_ledamot_url_xml",
-            "relaterat_id",
-            "slutnummer",
-            "anf_beteckning",
-            "kammarbeslutstyp",
-            "source",
-            "utskottet",
-            "beteckning",
-            "rubrik",
-            "rm",
-            "video_url",
-            "publicerad",
-            "sourceid",
-            "video_id",
-            "anf_datum",
-            "titel",
-            "nummer",
-            "systemdatum",
-            "pretext",
-            "bet",
-            "lydelse",
-            "rubriker",
-            "utskottsforslag_url_xml",
-            "lydelse2",
-            "intressent_id",
-            "talare",
-            "motforslag_nummer",
-            "mottagare",
-            "htmlformat",
-            "votering_id",
-            "beslutstyp",
-            "status",
-            "hangar_id",
-            "dokument_url_html",
-            "parti",
-            "dokument_url_text",
-            "kammaren"
-        ],
         "word_attributes": [
             {
                 "name": "pos",
@@ -141,23 +267,23 @@
                 "set": true
             },
             {
-                "type": "lemgram",
+                "nodeName": "lex",
                 "name": "lemgram",
-                "set": true,
-                "nodeName": "lex"
+                "type": "lemgram",
+                "set": true
             },
             {
                 "name": "sense",
                 "set": true
             },
             {
-                "type": "lemgram",
                 "name": "prefix",
+                "type": "lemgram",
                 "set": true
             },
             {
-                "type": "lemgram",
                 "name": "suffix",
+                "type": "lemgram",
                 "set": true
             },
             {
@@ -182,5 +308,13 @@
             }
         ]
     },
-    "file_name_pattern": "*.xml"
+    "file_name_pattern": "*.xml",
+    "title": {
+        "keys": [
+            "titel"
+        ],
+        "pattern": "{titel}"
+    },
+    "document_id": "titel",
+    "parser": "htmlparser"
 }

@@ -442,7 +442,7 @@ def get_text_attributes():
     for file in glob.glob(os.path.join(config.base_dir, "resources/config/*.json")):
         key = os.path.splitext(os.path.basename(file))[0]
         try:
-            text_attributes[key] = json.load(open(file, "r"))["analyze_config"]["text_attributes"]
+            text_attributes[key] = [attr["name"] for attr in json.load(open(file, "r"))["analyze_config"]["text_attributes"]]
         except:
             continue
         if "title" in text_attributes[key]:

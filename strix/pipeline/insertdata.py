@@ -43,6 +43,9 @@ class InsertData:
     def process_work(self, task_id, task, corpus_data):
         word_annotations = {"w": self.corpus_conf["analyze_config"]["word_attributes"]}
         struct_annotations = self.corpus_conf["analyze_config"]["struct_attributes"]
+        text_attributes = {}
+        for text_attribute in self.corpus_conf["analyze_config"]["text_attributes"]:
+            text_attributes[text_attribute["name"]] = text_attribute
 
         split_document = "text"
         file_name = task["text"]
@@ -51,14 +54,14 @@ class InsertData:
         terms = []
         for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations,
                                                  parser=self.corpus_conf.get("parser"),
-                                                 struct_annotations=struct_annotations, set_text_attributes=True,
+                                                 struct_annotations=struct_annotations, text_attributes=text_attributes,
                                                  token_count_id=True, add_similarity_tags=True):
             if self.corpus_conf["document_id"] == "task":
                 doc_id = task_id
             else:
                 doc_id = text[self.corpus_conf["document_id"]]
             if "title" not in text:
-                text["title"] = self.generate_title(text)
+                text["title"] = self.generate_title(text, text_attributes)
             text["original_file"] = os.path.basename(file_name)
             task = self.get_doc_task(doc_id, "text", text)
             task_terms = self.create_term_positions(doc_id, text["token_lookup"])
@@ -68,12 +71,12 @@ class InsertData:
 
         return itertools.chain(tasks, terms or [])
 
-    def generate_title(self, text):
+    def generate_title(self, text, text_attributes):
         title_keys = self.corpus_conf["title"]["keys"]
         format_params = {}
         for title_key in title_keys:
-            if title_key in self.corpus_conf["translation"]:
-                format_params[title_key] = self.corpus_conf["translation"][title_key][text[title_key]]
+            if "translation" in text_attributes[title_key]:
+                format_params[title_key] = text_attributes[title_key]["translation"][text[title_key]]
             else:
                 format_params[title_key] = text[title_key]
 

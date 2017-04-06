@@ -38,6 +38,7 @@ def create_new_corpus(corpus):
             word_attribute["type"] = types[pos_attribute]
         word_attributes.append(word_attribute)
 
+    document_id = ""
     text_attributes = []
     struct_attributes = {}
     for attribute in corpus_metadata["korpInfo"]["attrs"]["s"]:
@@ -47,7 +48,13 @@ def create_new_corpus(corpus):
 
             if struct == "text":
                 print("Adding {} to text_attributes".format(attr))
-                text_attributes.append(attr)
+                text_attributes.append({
+                    "name": attr
+                })
+                if attr == "title":
+                    document_id = "title"
+                if document_id != "title" and attr == "titel":
+                    document_id = "titel"
             else:
                 print("Adding {}_{} to struct_attributes".format(struct, attr))
                 if struct not in struct_attributes:
@@ -64,13 +71,6 @@ def create_new_corpus(corpus):
                 if attr.startswith("_"):
                     struct_attr["nodeName"] = attr
                 struct_attributes[struct].append(struct_attr)
-
-    if "title" in text_attributes:
-        document_id = "title"
-    elif "titel" in text_attributes:
-        document_id = "titel"
-    else:
-        document_id = ""
 
     res = {
         "corpus_name": corpus_id,

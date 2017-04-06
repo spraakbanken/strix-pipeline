@@ -1,15 +1,123 @@
 {
-    "title": {
-        "pattern": "{titel}",
-        "keys": [
-            "titel"
-        ]
-    },
     "corpus_name": "rd-prop",
-    "document_id": "titel",
     "translation": {},
-    "parser": "htmlparser",
     "analyze_config": {
+        "text_attributes": [
+            {
+                "name": "datefrom"
+            },
+            {
+                "name": "dateto"
+            },
+            {
+                "name": "timefrom"
+            },
+            {
+                "name": "timeto"
+            },
+            {
+                "name": "datum"
+            },
+            {
+                "name": "subtitel"
+            },
+            {
+                "name": "typ"
+            },
+            {
+                "name": "datatyp"
+            },
+            {
+                "name": "behandlas_i"
+            },
+            {
+                "name": "intressent"
+            },
+            {
+                "name": "lydelse"
+            },
+            {
+                "name": "doktyp"
+            },
+            {
+                "name": "kammaren"
+            },
+            {
+                "name": "subtyp"
+            },
+            {
+                "name": "debattnamn"
+            },
+            {
+                "name": "tempbeteckning"
+            },
+            {
+                "name": "relaterat_id"
+            },
+            {
+                "name": "slutnummer"
+            },
+            {
+                "name": "kammarbeslutstyp"
+            },
+            {
+                "name": "source"
+            },
+            {
+                "name": "utskottet"
+            },
+            {
+                "name": "beteckning"
+            },
+            {
+                "name": "avsnitt"
+            },
+            {
+                "name": "rm"
+            },
+            {
+                "name": "publicerad"
+            },
+            {
+                "name": "sourceid"
+            },
+            {
+                "name": "titel"
+            },
+            {
+                "name": "nummer"
+            },
+            {
+                "name": "systemdatum"
+            },
+            {
+                "name": "lydelse2"
+            },
+            {
+                "name": "pretext"
+            },
+            {
+                "name": "mottagare"
+            },
+            {
+                "name": "htmlformat"
+            },
+            {
+                "name": "status"
+            },
+            {
+                "name": "hangar_id"
+            },
+            {
+                "name": "dokument_url_html"
+            },
+            {
+                "name": "dokument_url_text"
+            },
+            {
+                "name": "organ"
+            }
+        ],
         "struct_attributes": {
             "sentence": [
                 {
@@ -17,16 +125,9 @@
                     "set": false
                 },
                 {
+                    "nodeName": "_geocontext",
                     "name": "geocontext",
-                    "set": false,
-                    "nodeName": "_geocontext"
-                }
-            ],
-            "paragraph": [
-                {
-                    "name": "geocontext",
-                    "set": false,
-                    "nodeName": "_geocontext"
+                    "set": false
                 }
             ],
             "dokument": [
@@ -56,48 +157,15 @@
                     "name": "name",
                     "set": false
                 }
+            ],
+            "paragraph": [
+                {
+                    "nodeName": "_geocontext",
+                    "name": "geocontext",
+                    "set": false
+                }
             ]
         },
-        "text_attributes": [
-            "datefrom",
-            "dateto",
-            "timefrom",
-            "timeto",
-            "datum",
-            "subtitel",
-            "typ",
-            "datatyp",
-            "behandlas_i",
-            "intressent",
-            "lydelse",
-            "doktyp",
-            "kammaren",
-            "subtyp",
-            "debattnamn",
-            "tempbeteckning",
-            "relaterat_id",
-            "slutnummer",
-            "kammarbeslutstyp",
-            "source",
-            "utskottet",
-            "beteckning",
-            "avsnitt",
-            "rm",
-            "publicerad",
-            "sourceid",
-            "titel",
-            "nummer",
-            "systemdatum",
-            "lydelse2",
-            "pretext",
-            "mottagare",
-            "htmlformat",
-            "status",
-            "hangar_id",
-            "dokument_url_html",
-            "dokument_url_text",
-            "organ"
-        ],
         "word_attributes": [
             {
                 "name": "pos",
@@ -112,23 +180,23 @@
                 "set": true
             },
             {
-                "type": "lemgram",
+                "nodeName": "lex",
                 "name": "lemgram",
-                "set": true,
-                "nodeName": "lex"
+                "type": "lemgram",
+                "set": true
             },
             {
                 "name": "sense",
                 "set": true
             },
             {
-                "type": "lemgram",
                 "name": "prefix",
+                "type": "lemgram",
                 "set": true
             },
             {
-                "type": "lemgram",
                 "name": "suffix",
+                "type": "lemgram",
                 "set": true
             },
             {
@@ -153,5 +221,13 @@
             }
         ]
     },
-    "file_name_pattern": "*.xml"
+    "file_name_pattern": "*.xml",
+    "title": {
+        "keys": [
+            "titel"
+        ],
+        "pattern": "{titel}"
+    },
+    "document_id": "titel",
+    "parser": "htmlparser"
 }

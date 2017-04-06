@@ -1,15 +1,117 @@
 {
-    "title": {
-        "pattern": "{titel}",
-        "keys": [
-            "titel"
-        ]
-    },
     "corpus_name": "rd-mot",
-    "document_id": "titel",
     "translation": {},
-    "parser": "htmlparser",
     "analyze_config": {
+        "text_attributes": [
+            {
+                "name": "datefrom"
+            },
+            {
+                "name": "dateto"
+            },
+            {
+                "name": "timefrom"
+            },
+            {
+                "name": "timeto"
+            },
+            {
+                "name": "datum"
+            },
+            {
+                "name": "subtitel"
+            },
+            {
+                "name": "typ"
+            },
+            {
+                "name": "rubriker"
+            },
+            {
+                "name": "datatyp"
+            },
+            {
+                "name": "behandlas_i"
+            },
+            {
+                "name": "intressent"
+            },
+            {
+                "name": "lydelse"
+            },
+            {
+                "name": "doktyp"
+            },
+            {
+                "name": "organ"
+            },
+            {
+                "name": "subtyp"
+            },
+            {
+                "name": "debattnamn"
+            },
+            {
+                "name": "tempbeteckning"
+            },
+            {
+                "name": "slutnummer"
+            },
+            {
+                "name": "kammarbeslutstyp"
+            },
+            {
+                "name": "source"
+            },
+            {
+                "name": "utskottet"
+            },
+            {
+                "name": "beteckning"
+            },
+            {
+                "name": "rm"
+            },
+            {
+                "name": "publicerad"
+            },
+            {
+                "name": "sourceid"
+            },
+            {
+                "name": "titel"
+            },
+            {
+                "name": "nummer"
+            },
+            {
+                "name": "systemdatum"
+            },
+            {
+                "name": "lydelse2"
+            },
+            {
+                "name": "pretext"
+            },
+            {
+                "name": "htmlformat"
+            },
+            {
+                "name": "status"
+            },
+            {
+                "name": "hangar_id"
+            },
+            {
+                "name": "dokument_url_html"
+            },
+            {
+                "name": "dokument_url_text"
+            },
+            {
+                "name": "kammaren"
+            }
+        ],
         "struct_attributes": {
             "sentence": [
                 {
@@ -17,16 +119,9 @@
                     "set": false
                 },
                 {
+                    "nodeName": "_geocontext",
                     "name": "geocontext",
-                    "set": false,
-                    "nodeName": "_geocontext"
-                }
-            ],
-            "paragraph": [
-                {
-                    "name": "geocontext",
-                    "set": false,
-                    "nodeName": "_geocontext"
+                    "set": false
                 }
             ],
             "dokument": [
@@ -56,46 +151,15 @@
                     "name": "name",
                     "set": false
                 }
+            ],
+            "paragraph": [
+                {
+                    "nodeName": "_geocontext",
+                    "name": "geocontext",
+                    "set": false
+                }
             ]
         },
-        "text_attributes": [
-            "datefrom",
-            "dateto",
-            "timefrom",
-            "timeto",
-            "datum",
-            "subtitel",
-            "typ",
-            "rubriker",
-            "datatyp",
-            "behandlas_i",
-            "intressent",
-            "lydelse",
-            "doktyp",
-            "organ",
-            "subtyp",
-            "debattnamn",
-            "tempbeteckning",
-            "slutnummer",
-            "kammarbeslutstyp",
-            "source",
-            "utskottet",
-            "beteckning",
-            "rm",
-            "publicerad",
-            "sourceid",
-            "titel",
-            "nummer",
-            "systemdatum",
-            "lydelse2",
-            "pretext",
-            "htmlformat",
-            "status",
-            "hangar_id",
-            "dokument_url_html",
-            "dokument_url_text",
-            "kammaren"
-        ],
         "word_attributes": [
             {
                 "name": "pos",
@@ -110,23 +174,23 @@
                 "set": true
             },
             {
-                "type": "lemgram",
+                "nodeName": "lex",
                 "name": "lemgram",
-                "set": true,
-                "nodeName": "lex"
+                "type": "lemgram",
+                "set": true
             },
             {
                 "name": "sense",
                 "set": true
             },
             {
-                "type": "lemgram",
                 "name": "prefix",
+                "type": "lemgram",
                 "set": true
             },
             {
-                "type": "lemgram",
                 "name": "suffix",
+                "type": "lemgram",
                 "set": true
             },
             {
@@ -151,5 +215,13 @@
             }
         ]
     },
-    "file_name_pattern": "*.xml"
+    "file_name_pattern": "*.xml",
+    "title": {
+        "keys": [
+            "titel"
+        ],
+        "pattern": "{titel}"
+    },
+    "document_id": "titel",
+    "parser": "htmlparser"
 }

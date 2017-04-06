@@ -60,7 +60,14 @@
         }
       ]
     },
-    "text_attributes": ["title", "url"]
+    "text_attributes": [
+      {
+        "name": "title"
+      },
+      {
+        "name": "url"
+      }
+    ]
   },
   "document_id": "title"
 }

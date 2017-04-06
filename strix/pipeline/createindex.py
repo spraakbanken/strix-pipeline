@@ -1,7 +1,7 @@
 import json
 import os
 
-from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping
+from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date
 from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer, get_swedish_analyzer, similarity_tags_analyzer
 from strix.config import config
 import elasticsearch
@@ -80,7 +80,13 @@ class CreateIndex:
         m.field("text", text_field)
 
         for attr in self.text_attributes:
-            m.field(attr, Keyword(index="not_analyzed"))
+            if attr.get("type") == "date":
+                mapping_type = Date()
+            elif attr.get("type") == "year":
+                mapping_type = Integer()
+            else:
+                mapping_type = Keyword(index="not_analyzed")
+            m.field(attr["name"], mapping_type)
 
         m.field("dump", Keyword(index="no"))
         m.field("lines", Object(enabled=False))

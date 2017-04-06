@@ -89,7 +89,7 @@ def parse_pipeline_xml(file_name,
                        parser=None,
                        struct_annotations=(),
                        token_count_id=False,
-                       set_text_attributes=False,
+                       text_attributes=None,
                        process_token=lambda x: None,
                        add_similarity_tags=False):
     """
@@ -97,7 +97,9 @@ def parse_pipeline_xml(file_name,
     word_annotations: a map of tag names and the attributes of those tags that
               will be included in annotation on word
     """
-    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, set_text_attributes, process_token, add_similarity_tags)
+    if text_attributes is None:
+        text_attributes = {}
+    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags)
     if parser == "htmlparser":
         strixHTMLParser = StrixHTMLParser(strix_parser)
 
@@ -121,13 +123,13 @@ def parse_pipeline_xml(file_name,
 
 class StrixParser:
 
-    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, set_text_attributes, process_token, add_similarity_tags):
+    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags):
         #input
         self.split_document = split_document
         self.word_annotations = word_annotations
         self.struct_annotations = struct_annotations
         self.token_count_id = token_count_id
-        self.set_text_attributes = set_text_attributes
+        self.text_attributes = text_attributes
         self.process_token = process_token
         self.add_similarity_tags = add_similarity_tags
 
@@ -151,10 +153,11 @@ class StrixParser:
         return self.current_parts
 
     def handle_starttag(self, tag, attrs):
-        if self.set_text_attributes and tag == self.split_document:
+        if self.text_attributes and tag == self.split_document:
             self.part_attributes = {}
             for attribute in attrs:
-                self.part_attributes[attribute] = attrs[attribute]
+                if attribute in self.text_attributes:
+                    self.part_attributes[attribute] = attrs[attribute]
 
         elif tag == "w":
             self.in_word = True
@@ -187,7 +190,7 @@ class StrixParser:
 
     def handle_endtag(self, tag):
         if tag == self.split_document:
-            if self.set_text_attributes:
+            if self.text_attributes:
                 current_part = self.part_attributes
             else:
                 current_part = {}
