@@ -56,6 +56,8 @@ def create_new_corpus(corpus):
                 if document_id != "title" and attr == "titel":
                     document_id = "titel"
             else:
+                if struct in ["sentence","paragraph","dokument"]:
+                    continue
                 print("Adding {}_{} to struct_attributes".format(struct, attr))
                 if struct not in struct_attributes:
                     struct_attributes[struct] = []

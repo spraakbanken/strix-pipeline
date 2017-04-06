@@ -1,6 +1,9 @@
 {
+    "file_name_pattern": "*.xml",
     "corpus_name": "rd-samtr",
     "translation": {},
+    "parser": "htmlparser",
+    "document_id": "titel",
     "analyze_config": {
         "text_attributes": [
             {
@@ -205,116 +208,85 @@
                 "name": "kammaren"
             }
         ],
-        "struct_attributes": {
-            "sentence": [
-                {
-                    "name": "id",
-                    "set": false
-                },
-                {
-                    "nodeName": "_geocontext",
-                    "name": "geocontext",
-                    "set": false
-                }
-            ],
-            "dokument": [
-                {
-                    "name": "dokumentstatus_url_xml",
-                    "set": false
-                },
-                {
-                    "name": "dok_id",
-                    "set": false
-                }
-            ],
-            "ne": [
-                {
-                    "name": "ex",
-                    "set": false
-                },
-                {
-                    "name": "type",
-                    "set": false
-                },
-                {
-                    "name": "subtype",
-                    "set": false
-                },
-                {
-                    "name": "name",
-                    "set": false
-                }
-            ],
-            "paragraph": [
-                {
-                    "nodeName": "_geocontext",
-                    "name": "geocontext",
-                    "set": false
-                }
-            ]
-        },
         "word_attributes": [
             {
-                "name": "pos",
-                "set": false
+                "set": false,
+                "name": "pos"
             },
             {
-                "name": "msd",
-                "set": false
+                "set": false,
+                "name": "msd"
             },
             {
-                "name": "lemma",
-                "set": true
+                "set": true,
+                "name": "lemma"
             },
             {
+                "set": true,
                 "nodeName": "lex",
                 "name": "lemgram",
-                "type": "lemgram",
-                "set": true
+                "type": "lemgram"
             },
             {
-                "name": "sense",
-                "set": true
+                "set": true,
+                "name": "sense"
             },
             {
+                "set": true,
                 "name": "prefix",
-                "type": "lemgram",
-                "set": true
+                "type": "lemgram"
             },
             {
+                "set": true,
                 "name": "suffix",
-                "type": "lemgram",
-                "set": true
+                "type": "lemgram"
             },
             {
-                "name": "compwf",
-                "set": true
+                "set": true,
+                "name": "compwf"
             },
             {
-                "name": "complemgram",
-                "set": true
+                "set": true,
+                "name": "complemgram"
             },
             {
-                "name": "ref",
-                "set": false
+                "set": false,
+                "name": "ref"
             },
             {
-                "name": "dephead",
-                "set": false
+                "set": false,
+                "name": "dephead"
             },
             {
-                "name": "deprel",
-                "set": false
+                "set": false,
+                "name": "deprel"
             }
-        ]
+        ],
+        "struct_attributes": {
+            "ne": [
+                {
+                    "set": false,
+                    "name": "ex"
+                },
+                {
+                    "set": false,
+                    "name": "type"
+                },
+                {
+                    "set": false,
+                    "name": "subtype"
+                },
+                {
+                    "set": false,
+                    "name": "name"
+                }
+            ]
+        }
     },
-    "file_name_pattern": "*.xml",
     "title": {
         "keys": [
             "titel"
         ],
         "pattern": "{titel}"
-    },
-    "document_id": "titel",
-    "parser": "htmlparser"
+    }
 }
