@@ -172,7 +172,7 @@ def get_config():
     result = elasticapi.es.cat.indices(h="index")
     indices = {}
     for index in result.split("\n"):
-        if not (index == ".kibana" or index.endswith("_search") or index.endswith("_terms") or index == "" or index == "litteraturbanken"):
+        if not (index == ".kibana" or index.endswith("_search") or index.endswith("_terms") or index == "" or index.startswith("litt")):
             config_json = json.load(open(os.path.join(config.base_dir, "resources/config/" + index + ".json")))
             names = config_json["corpus_name"]
             descriptions = config_json.get("corpus_description")
