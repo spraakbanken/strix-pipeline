@@ -1,5 +1,13 @@
 {
-  "corpus_name": "wikipedia",
+  "corpus_id": "wikipedia",
+  "corpus_name": {
+    "eng": "Swedish Wikipedia Corpus",
+    "swe": "Svenska Wikipedia-korpusen"
+  },
+  "corpus_description": {
+    "eng": "Corpus of Swedish Wikipedia",
+    "swe": "Svenska Wikipedia-korpusen"
+  },
   "file_name_pattern": "*wiki*.xml",
 
   "analyze_config": {

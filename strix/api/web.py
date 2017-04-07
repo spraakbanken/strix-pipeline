@@ -166,22 +166,23 @@ def get_values(corpus, field):
 
 
 @app.route("/config")
-@app.route("/config/<corpora>")
 @crossdomain(origin="*")
 @jsonify_response
-def get_config(corpora=None):
-    if corpora:
-        result = {}
-        for corpus in corpora.split(","):
-            result[corpus] = json.load(open(os.path.join(config.base_dir, "resources/config/" + corpus + ".json")))["analyze_config"]
-        return result
-    else:
-        result = elasticapi.es.cat.indices(h="index")
-        indices = []
-        for index in result.split("\n"):
-            if not (index == ".kibana" or index.endswith("_search") or index.endswith("_terms") or index == "" or index == "litteraturbanken"):
-                indices.append(index)
-        return indices
+def get_config():
+    result = elasticapi.es.cat.indices(h="index")
+    indices = {}
+    for index in result.split("\n"):
+        if not (index == ".kibana" or index.endswith("_search") or index.endswith("_terms") or index == "" or index == "litteraturbanken"):
+            config_json = json.load(open(os.path.join(config.base_dir, "resources/config/" + index + ".json")))
+            names = config_json["corpus_name"]
+            descriptions = config_json.get("corpus_description")
+            analyze_config = config_json["analyze_config"]
+            indices[index] = {
+                "name": names,
+                "description": descriptions,
+                "attributes": analyze_config
+            }
+    return indices
 
 
 @app.route("/")

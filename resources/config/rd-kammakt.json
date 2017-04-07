@@ -1,10 +1,25 @@
 {
-    "file_name_pattern": "*.xml",
-    "corpus_name": "rd-kammakt",
-    "translation": {},
-    "parser": "htmlparser",
-    "document_id": "titel",
     "analyze_config": {
+        "struct_attributes": {
+            "ne": [
+                {
+                    "set": false,
+                    "name": "ex"
+                },
+                {
+                    "set": false,
+                    "name": "type"
+                },
+                {
+                    "set": false,
+                    "name": "subtype"
+                },
+                {
+                    "set": false,
+                    "name": "name"
+                }
+            ]
+        },
         "text_attributes": [
             {
                 "name": "datefrom"
@@ -261,32 +276,25 @@
                 "set": false,
                 "name": "deprel"
             }
-        ],
-        "struct_attributes": {
-            "ne": [
-                {
-                    "set": false,
-                    "name": "ex"
-                },
-                {
-                    "set": false,
-                    "name": "type"
-                },
-                {
-                    "set": false,
-                    "name": "subtype"
-                },
-                {
-                    "set": false,
-                    "name": "name"
-                }
-            ]
-        }
+        ]
     },
+    "document_id": "titel",
+    "parser": "htmlparser",
+    "corpus_id": "rd-kammakt",
     "title": {
         "keys": [
             "titel"
         ],
         "pattern": "{titel}"
+    },
+    "corpus_name": {
+        "swe": "Kammaraktiviteter",
+        "eng": "Kammaraktiviteter"
+    },
+    "translation": {},
+    "file_name_pattern": "*.xml",
+    "corpus_description": {
+        "swe": "Riksdagens öppna data: Kammaraktiviteter",
+        "eng": "Part of the Riksdag's open data"
     }
 }

@@ -21,7 +21,7 @@ class InsertData:
     def prepare_urls(self, doc_ids):
         urls = []
         tot_size = 0
-        corpus_dir_name = self.corpus_conf.get("corpus_dir") or self.corpus_conf.get("corpus_name")
+        corpus_dir_name = self.corpus_conf.get("corpus_dir") or self.corpus_conf.get("corpus_id")
         texts_dir = os.path.join(config.texts_dir, corpus_dir_name)
         paths = glob.glob(os.path.join(texts_dir, "**/*.xml")) + glob.glob(os.path.join(texts_dir, "*.xml"))
 

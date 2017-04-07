@@ -1,10 +1,25 @@
 {
-    "file_name_pattern": "*.xml",
-    "corpus_name": "rd-utsk",
-    "translation": {},
-    "parser": "htmlparser",
-    "document_id": "titel",
     "analyze_config": {
+        "struct_attributes": {
+            "ne": [
+                {
+                    "set": false,
+                    "name": "ex"
+                },
+                {
+                    "set": false,
+                    "name": "type"
+                },
+                {
+                    "set": false,
+                    "name": "subtype"
+                },
+                {
+                    "set": false,
+                    "name": "name"
+                }
+            ]
+        },
         "text_attributes": [
             {
                 "name": "datefrom"
@@ -261,32 +276,25 @@
                 "set": false,
                 "name": "deprel"
             }
-        ],
-        "struct_attributes": {
-            "ne": [
-                {
-                    "set": false,
-                    "name": "ex"
-                },
-                {
-                    "set": false,
-                    "name": "type"
-                },
-                {
-                    "set": false,
-                    "name": "subtype"
-                },
-                {
-                    "set": false,
-                    "name": "name"
-                }
-            ]
-        }
+        ]
     },
+    "document_id": "titel",
+    "parser": "htmlparser",
+    "corpus_id": "rd-utsk",
     "title": {
         "keys": [
             "titel"
         ],
         "pattern": "{titel}"
+    },
+    "corpus_name": {
+        "swe": "Utskottsdokument",
+        "eng": "Utskottsdokument"
+    },
+    "translation": {},
+    "file_name_pattern": "*.xml",
+    "corpus_description": {
+        "swe": "Riksdagens öppna data: Dokument från utskotten, bland annat KU-anmälningar, protokoll, verksamhetsberättelser och den gamla dokumentserien Utredningar från riksdagen.",
+        "eng": "Part of the Riksdag's open data"
     }
 }

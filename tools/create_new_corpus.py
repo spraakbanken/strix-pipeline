@@ -13,11 +13,8 @@ def create_new_corpus(corpus):
 
     id_info = corpus_metadata["metadata"]["identificationInfo"]
     corpus_id = id_info["identifier"]
-    # corpus_name_eng = id_info["resourceName"]["eng"]
-    # corpus_name_swe = id_info["resourceName"]["swe"]
-    #
-    # corpus_description_eng = id_info["description"]["eng"]
-    # corpus_description_swe = id_info["description"]["swe"]
+    corpus_name = id_info["resourceName"]
+    corpus_description = id_info["description"]
 
     word_attributes = []
     for pos_attribute in corpus_metadata["korpInfo"]["attrs"]["p"]:
@@ -75,7 +72,9 @@ def create_new_corpus(corpus):
                 struct_attributes[struct].append(struct_attr)
 
     res = {
-        "corpus_name": corpus_id,
+        "corpus_id": corpus_id,
+        "corpus_name": corpus_name,
+        "corpus_description": corpus_description,
         "file_name_pattern": "*.xml",
         "analyze_config": {
             "word_attributes": word_attributes,
@@ -92,7 +91,7 @@ def create_new_corpus(corpus):
     }
 
     fp = open("../resources/config/{}.json".format(corpus_id), "w")
-    json.dump(res, fp, indent=4)
+    json.dump(res, fp, indent=4, ensure_ascii=False)
 
 if __name__ == '__main__':
     for corpus in sys.argv[1:]:

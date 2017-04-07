@@ -1,10 +1,25 @@
 {
-    "file_name_pattern": "*.xml",
-    "corpus_name": "rd-ds",
-    "translation": {},
-    "parser": "htmlparser",
-    "document_id": "titel",
     "analyze_config": {
+        "struct_attributes": {
+            "ne": [
+                {
+                    "set": false,
+                    "name": "ex"
+                },
+                {
+                    "set": false,
+                    "name": "type"
+                },
+                {
+                    "set": false,
+                    "name": "subtype"
+                },
+                {
+                    "set": false,
+                    "name": "name"
+                }
+            ]
+        },
         "text_attributes": [
             {
                 "name": "datefrom"
@@ -237,32 +252,25 @@
                 "set": false,
                 "name": "deprel"
             }
-        ],
-        "struct_attributes": {
-            "ne": [
-                {
-                    "set": false,
-                    "name": "ex"
-                },
-                {
-                    "set": false,
-                    "name": "type"
-                },
-                {
-                    "set": false,
-                    "name": "subtype"
-                },
-                {
-                    "set": false,
-                    "name": "name"
-                }
-            ]
-        }
+        ]
     },
+    "document_id": "titel",
+    "parser": "htmlparser",
+    "corpus_id": "rd-ds",
     "title": {
         "keys": [
             "titel"
         ],
         "pattern": "{titel}"
+    },
+    "corpus_name": {
+        "swe": "Departementsserien",
+        "eng": "Departementsserien"
+    },
+    "translation": {},
+    "file_name_pattern": "*.xml",
+    "corpus_description": {
+        "swe": "Riksdagens öppna data: Utredningar från regeringens departement.",
+        "eng": "Part of the Riksdag's open data"
     }
 }
