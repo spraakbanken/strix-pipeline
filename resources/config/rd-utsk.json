@@ -278,7 +278,6 @@
             }
         ]
     },
-    "document_id": "titel",
     "parser": "htmlparser",
     "corpus_id": "rd-utsk",
     "title": {

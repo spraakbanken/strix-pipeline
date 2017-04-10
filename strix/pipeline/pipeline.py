@@ -169,6 +169,7 @@ def process_corpus(index, limit_to=None, doc_ids=()):
     insert_data = insert_data_strix.InsertData(index)
 
     task_data, tot_size = insert_data.prepare_urls(doc_ids)
+
     from multiprocessing import Manager
     with Manager() as manager:
         task_queue = manager.Queue(maxsize=QUEUE_SIZE)

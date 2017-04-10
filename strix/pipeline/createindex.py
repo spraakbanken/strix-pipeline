@@ -4,6 +4,7 @@ import os
 from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date
 from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer, get_swedish_analyzer, similarity_tags_analyzer
 from strix.config import config
+import strix.pipeline.idgenerator as idgenerator
 import elasticsearch
 
 
@@ -40,6 +41,9 @@ class CreateIndex:
         self.create_text_type()
         self.es.indices.open(index=self.index)
         self.create_term_position_index()
+
+        idgenerator.create_sequence_index()
+        idgenerator.reset_sequence(self.index)
 
     def create_term_position_index(self):
         terms = Index(self.index + "_terms", using=self.es)

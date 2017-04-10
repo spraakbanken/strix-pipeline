@@ -6,6 +6,7 @@ import itertools
 import strix.pipeline.xmlparser as xmlparser
 from strix.config import config
 import time
+import strix.pipeline.idgenerator as idgenerator
 
 _logger = logging.getLogger(__name__)
 
@@ -53,14 +54,13 @@ class InsertData:
 
         tasks = []
         terms = []
+
+        id_generator = self.get_id_generator()
         for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations,
                                                  parser=self.corpus_conf.get("parser"),
                                                  struct_annotations=struct_annotations, text_attributes=text_attributes,
                                                  token_count_id=True, add_similarity_tags=True):
-            if self.corpus_conf["document_id"] == "task":
-                doc_id = task_id
-            else:
-                doc_id = text[self.corpus_conf["document_id"]]
+            doc_id = next(id_generator)
             if "title" not in text:
                 text["title"] = self.generate_title(text, text_attributes)
             text["original_file"] = os.path.basename(file_name)
@@ -72,10 +72,23 @@ class InsertData:
 
         return itertools.chain(tasks, terms or [])
 
+    def get_id_generator(self):
+        ids = None
+        while True:
+            if ids is None:
+                ids = idgenerator.get_id_sequence(self.index, 10)
+            try:
+                yield str(next(ids))
+            except StopIteration:
+                ids = None
+
     def generate_title(self, text, text_attributes):
         title_keys = self.corpus_conf["title"]["keys"]
         format_params = {}
         for title_key in title_keys:
+            if title_key not in text:
+                return ""
+
             if "translation" in text_attributes[title_key]:
                 format_params[title_key] = text_attributes[title_key]["translation"][text[title_key]]
             else:

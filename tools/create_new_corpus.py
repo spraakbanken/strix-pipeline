@@ -35,7 +35,7 @@ def create_new_corpus(corpus):
             word_attribute["type"] = types[pos_attribute]
         word_attributes.append(word_attribute)
 
-    document_id = ""
+    title = ""
     text_attributes = []
     struct_attributes = {}
     for attribute in corpus_metadata["korpInfo"]["attrs"]["s"]:
@@ -49,9 +49,9 @@ def create_new_corpus(corpus):
                     "name": attr
                 })
                 if attr == "title":
-                    document_id = "title"
-                if document_id != "title" and attr == "titel":
-                    document_id = "titel"
+                    title = "title"
+                if title != "title" and attr == "titel":
+                    title = "titel"
             else:
                 if struct in ["sentence","paragraph","dokument"]:
                     continue
@@ -81,10 +81,9 @@ def create_new_corpus(corpus):
             "struct_attributes": struct_attributes,
             "text_attributes": text_attributes
         },
-        "document_id": document_id,
         "title": {
-             "pattern": "{" + document_id + "}",
-             "keys": [document_id]
+             "pattern": "{" + title + "}",
+             "keys": [title]
          },
         "parser": "htmlparser",
         "translation": {}
