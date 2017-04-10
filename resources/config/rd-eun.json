@@ -1,25 +1,6 @@
 {
     "analyze_config": {
-        "struct_attributes": {
-            "ne": [
-                {
-                    "set": false,
-                    "name": "ex"
-                },
-                {
-                    "set": false,
-                    "name": "type"
-                },
-                {
-                    "set": false,
-                    "name": "subtype"
-                },
-                {
-                    "set": false,
-                    "name": "name"
-                }
-            ]
-        },
+        "struct_attributes": { },
         "text_attributes": [
             {
                 "name": "datefrom"
