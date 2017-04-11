@@ -73,6 +73,7 @@
                 "name": "party",
                 "type": "enum",
                 "has_translation": true,
+                "include_in_aggregation": true,
                 "translation": {
                     "all": "Alliansen",
                     "c": "Centerpartiet",
@@ -100,10 +101,12 @@
             },
             {
                 "name": "type",
+                "include_in_aggregation": true,
                 "type": "enum"
             },
             {
-                "name": "year"
+                "name": "year",
+                "include_in_aggregation": true
             },
             {
                 "name": "datefrom",

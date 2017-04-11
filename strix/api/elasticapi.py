@@ -36,7 +36,14 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
     if add_fuzzy_query:
         query = Q("bool", should=[query, Q("fuzzy", title={"value": search_term, "boost": 50})])
 
-    res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type)
+    def before_send(s):
+        if should_include("aggregations", includes, excludes):
+            for text_attribute, value in text_attributes[indices].items():
+                if value.get("include_in_aggregation"):
+                    s.aggs.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS) # order={"_term": "asc"}
+        return s
+
+    res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, before_send=before_send)
     for document in res["data"]:
         get_token_lookup(document, indices, doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
 
@@ -77,6 +84,7 @@ def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=
     s = get_search_query(indices, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, sort_field=sort_field)
     if before_send:
         s = before_send(s)
+
     hits = s.execute()
     items = []
     for hit in hits:
@@ -161,7 +169,7 @@ def move_text_attributes(corpus, item, includes, excludes):
         return
 
     item["text_attributes"] = {}
-    for text_attribute in text_attributes[corpus]:
+    for text_attribute in text_attributes[corpus].keys():
         if text_attribute in item:
             item["text_attributes"][text_attribute] = item[text_attribute]
             del item[text_attribute]
@@ -442,11 +450,11 @@ def get_text_attributes():
     for file in glob.glob(os.path.join(config.base_dir, "resources/config/*.json")):
         key = os.path.splitext(os.path.basename(file))[0]
         try:
-            text_attributes[key] = [attr["name"] for attr in json.load(open(file, "r"))["analyze_config"]["text_attributes"]]
+            text_attributes[key] = dict((attr["name"], attr) for attr in json.load(open(file, "r"))["analyze_config"]["text_attributes"])
         except:
             continue
         if "title" in text_attributes[key]:
-            text_attributes[key].remove("title")
+            del text_attributes[key]["title"]
 
     text_attributes["litteraturbanken"] = []
     return text_attributes
