@@ -92,7 +92,7 @@ class CreateIndex:
                 mapping_type = Keyword(index="not_analyzed")
             m.field(attr["name"], mapping_type)
 
-        m.field("dump", Keyword(index="no"))
+        m.field("dump", Keyword(index=False, doc_values=False))
         m.field("lines", Object(enabled=False))
         m.field("word_count", Integer())
         m.field("similarity_tags", Text(analyzer=similarity_tags_analyzer()))
