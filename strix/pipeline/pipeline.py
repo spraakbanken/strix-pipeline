@@ -17,7 +17,7 @@ MAX_UPLOAD_WORKERS = config.concurrency_upload_threads
 GROUP_SIZE = config.concurrency_group_size
 
 elastic_hosts = [config.elastic_hosts]
-es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
+es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500)
 
 _logger = logging.getLogger(__name__)
 
@@ -43,13 +43,13 @@ def partition_tasks(task_queue, num_tasks):
             else:
                 task_size = 0.5
 
-            current_tasks.append(task)
-            current_size += task_size
-
-            if current_size >= threshold:
+            if current_size + task_size >= threshold:
                 yield (current_tasks, work_size_accu)
                 current_size = 0
                 current_tasks = []
+
+            current_tasks.append(task)
+            current_size += task_size
     if current_tasks:
         yield (current_tasks, work_size_accu)
 
