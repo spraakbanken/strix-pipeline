@@ -157,6 +157,7 @@ def upload_executor(task_queue, tot_size, num_tasks):
                 # rid of the rather complex bulk packet size calculations in this method.
                 future = executor.submit(bulk_insert, task_chunk)
                 future_map[future] = size
+            _logger.info("------------------")
             for future in futures.as_completed(future_map):
                 # TODO: use task_chunk for logging extra exception data.
                 size_accu = future_map.pop(future)
