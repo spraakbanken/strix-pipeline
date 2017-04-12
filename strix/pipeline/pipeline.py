@@ -7,7 +7,6 @@ import elasticsearch
 import elasticsearch.helpers
 import elasticsearch.exceptions
 from strix.config import config
-import itertools
 import strix.pipeline.insertdata as insert_data_strix
 import logging
 import queue
@@ -15,6 +14,7 @@ import queue
 QUEUE_SIZE = config.concurrency_queue_size
 MAX_UPLOAD_WORKERS = config.concurrency_upload_threads
 GROUP_SIZE = config.concurrency_group_size
+MAX_GROUP_SIZE_KB = 250 * 1024
 
 elastic_hosts = [config.elastic_hosts]
 es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500)
@@ -44,14 +44,14 @@ def partition_tasks(task_queue, num_tasks):
                 task_size = 0.5
 
             if current_size + task_size >= threshold:
-                yield (current_tasks, work_size_accu)
+                yield (current_tasks, current_size, work_size_accu)
                 current_size = 0
                 current_tasks = []
 
             current_tasks.append(task)
             current_size += task_size
     if current_tasks:
-        yield (current_tasks, work_size_accu)
+        yield (current_tasks, current_size, work_size_accu)
 
 
 def process_task(insert_data, task_queue, size, process_args):
@@ -121,10 +121,25 @@ def upload_executor(task_queue, tot_size, num_tasks):
 
     with futures.ThreadPoolExecutor(max_workers=MAX_UPLOAD_WORKERS) as executor:
 
-        def grouper(n, iterable):
-            """grouper(3, "ABCDEFG", "x") --> ABC DEF Gxx"""
-            args = [iter(iterable)] * n
-            return itertools.zip_longest(*args)
+        def grouper(max_group_size, tasks):
+            current_group_length = 0
+            current_group_size = 0
+            current_group = []
+            while True:
+                try:
+                    (task, task_size, accu_size) = next(tasks)
+                    if current_group_size + task_size > MAX_GROUP_SIZE_KB or current_group_length == max_group_size:
+                        yield current_group
+                        current_group = []
+                        current_group_size = 0
+                        current_group_length = 0
+
+                    current_group.append((task, accu_size))
+                    current_group_length += 1
+                    current_group_size += task_size
+                except StopIteration:
+                    yield current_group
+                    break
 
         chunk_iter = partition_tasks(task_queue, num_tasks)
 
