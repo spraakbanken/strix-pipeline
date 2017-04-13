@@ -33,7 +33,7 @@
                 "set": true
             },
             {
-                "name": "saldo",
+                "name": "sense",
                 "set": true,
                 "type": "sense"
             },
