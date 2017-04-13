@@ -195,8 +195,12 @@ class StrixParser:
             else:
                 current_part = {}
             current_part["token_lookup"] = self.current_token_lookup
+
+            if len(self.lines[-1]) == 1 and self.lines[-1][0] != -1:
+                self.lines[-1] = [self.lines[-1][0], self.token_count - 1]
             current_part["dump"] = self.dump
             current_part["lines"] = self.lines
+
             current_part["word_count"] = len(self.current_part_tokens)
             current_part["text"] = "\u241D".join(self.current_part_tokens)
             if self.add_similarity_tags:
