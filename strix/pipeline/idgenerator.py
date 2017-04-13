@@ -3,7 +3,7 @@ from elasticsearch_dsl import Index, Mapping
 from strix.config import config
 
 
-es = elasticsearch.Elasticsearch(config.elastic_hosts)
+es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=60)
 
 
 def create_sequence_index():
