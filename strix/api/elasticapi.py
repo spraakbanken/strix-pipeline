@@ -133,7 +133,7 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
         s = s.highlight('strix', options={"number_of_fragments": highlight["number_of_fragments"]})
 
     if simple_highlight:
-        s = s.highlight("text.lemgram", type=simple_highlight_type, fragment_size=2500)
+        s = s.highlight("text.lemgram", type=simple_highlight_type or "plain", fragment_size=2500)
 
     excludes += ("text", "original_file", "similarity_tags")
 
