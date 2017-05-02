@@ -81,7 +81,7 @@ def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevan
 
 
 def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_field=None, before_send=None):
-    s = get_search_query(indices, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, sort_field=sort_field)
+    s = get_search_query(indices, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, sort_fields=sort_field)
     if before_send:
         s = before_send(s)
 
@@ -124,7 +124,7 @@ def join_queries(text_filter, search_query):
         return search_query
 
 
-def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_field=None):
+def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_fields=None):
     s = Search(index=indices, doc_type=doc_type)
     if query:
         s = s.query(query)
@@ -138,8 +138,10 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
     excludes += ("text", "original_file", "similarity_tags")
 
     s = s.source(includes=includes, excludes=excludes)
-    if sort_field:
-        s = s.sort(sort_field)
+    if isinstance(sort_fields, (list, tuple)):
+        s = s.sort(*sort_fields)
+    elif sort_fields:
+        s = s.sort(sort_fields)
     return s[from_hit:to_hit]
 
 
