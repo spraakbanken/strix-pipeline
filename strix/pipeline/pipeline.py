@@ -193,3 +193,32 @@ def process_corpus(index, limit_to=None, doc_ids=()):
         upload_executor(task_queue, tot_size, len(task_data))
 
     _logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))
+
+
+def reindex_corpus(source_alias, target_index):
+    # res = es.get_alias(name=source_alias)
+    # print(res)
+    # import sys
+    # sys.exit()
+    body = {
+        "source": {
+            "index": source_alias
+        },
+        "dest": {
+            "index": target_index,
+            "version_type": "internal"
+        }
+    }
+    es.reindex(body=body, requests_per_second=1000)
+
+
+def delete_index(alias):
+    es.indices.delete(index=alias, ignore=[400, 404])
+
+
+def setup_alias(alias_name, index_name):
+    es.indices.put_alias(index=index_name, name=alias_name)
+
+
+def delete_index_by_prefix(prefix):
+    es.indices.delete(prefix + "*")

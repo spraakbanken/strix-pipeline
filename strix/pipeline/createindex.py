@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date
 from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer, get_swedish_analyzer, similarity_tags_analyzer
@@ -14,9 +15,14 @@ class CreateIndex:
     terms_number_of_shards = config.terms_number_of_shards
     terms_number_of_replicas = config.terms_number_of_replicas
 
-    def __init__(self, index):
+    def __init__(self, index, reindexing=False):
+        """
+        :param index: name of index (alias name, date and time will be appended)
+        :param reindexing: if true, terms-index will not be created (only necessary when creating index from scratch)
+                            also no need for sequences
+        """
         self.es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
-        self.index = index
+
         corpus_config = json.load(open(os.path.join(config.base_dir, "resources/config/" + index + ".json")))
         self.word_attributes = []
         for attr in corpus_config["analyze_config"]["word_attributes"]:
@@ -27,26 +33,35 @@ class CreateIndex:
                 self.word_attributes.append(attr)
 
         self.text_attributes = corpus_config["analyze_config"]["text_attributes"]
+        self.reindexing = reindexing
+        self.alias = index
 
     def create_index(self):
-        base_index = Index(self.index, using=self.es)
+        base_index, index_name = self.get_unique_index("")
+        base_index.create()
+        self.es.cluster.health(index=index_name, wait_for_status="yellow")
+        self.es.indices.close(index=index_name)
+        self.create_text_type(index_name)
+        self.es.indices.open(index=index_name)
+        if not self.reindexing:
+            self.create_term_position_index()
+            idgenerator.create_sequence_index()
+            idgenerator.reset_sequence(self.alias)
+        return index_name
+
+    def get_unique_index(self, suffix):
+        index_name = self.alias + "_" + time.strftime("%Y%m%d-%H%M" + str(suffix))
+        base_index = Index(index_name, using=self.es)
+        if base_index.exists():
+            return self.get_unique_index(suffix + 1 if suffix else 1)
         base_index.settings(
             number_of_shards=CreateIndex.number_of_shards,
             number_of_replicas=0
         )
-        base_index.delete(ignore=404)
-        base_index.create()
-        self.es.cluster.health(index=self.index, wait_for_status="yellow")
-        self.es.indices.close(index=self.index)
-        self.create_text_type()
-        self.es.indices.open(index=self.index)
-        self.create_term_position_index()
-
-        idgenerator.create_sequence_index()
-        idgenerator.reset_sequence(self.index)
+        return base_index, index_name
 
     def create_term_position_index(self):
-        terms = Index(self.index + "_terms", using=self.es)
+        terms = Index(self.alias + "_terms", using=self.es)
         terms.settings(
             number_of_shards=CreateIndex.terms_number_of_shards,
             number_of_replicas=0
@@ -62,9 +77,9 @@ class CreateIndex:
         m.field("term", "object", enabled=False)
         m.field("doc_id", "keyword", index="not_analyzed")
         m.field("doc_type", "keyword", index="not_analyzed")
-        m.save(self.index + "_terms", using=self.es)
+        m.save(self.alias + "_terms", using=self.es)
 
-    def create_text_type(self):
+    def create_text_type(self, index_name):
         m = Mapping("text")
         m.meta("_all", enabled=False)
         m.meta("dynamic", "strict")
@@ -101,20 +116,20 @@ class CreateIndex:
 
         m.field("original_file", Keyword())
 
-        m.save(self.index, using=self.es)
+        m.save(index_name, using=self.es)
 
-    def enable_insert_settings(self):
-        self.es.indices.put_settings(index=self.index + "," + self.index + "_terms", body={
+    def enable_insert_settings(self, index_name=None):
+        self.es.indices.put_settings(index=(index_name or self.alias) + "," + self.alias + "_terms", body={
             "index.refresh_interval": -1,
         })
 
-    def enable_postinsert_settings(self):
-        self.es.indices.put_settings(index=self.index, body={
+    def enable_postinsert_settings(self, index_name=None):
+        self.es.indices.put_settings(index=index_name or self.alias, body={
             "index.number_of_replicas": CreateIndex.number_of_replicas,
             "index.refresh_interval": "30s"
         })
-        self.es.indices.put_settings(index=self.index + "_terms", body={
+        self.es.indices.put_settings(index=self.alias + "_terms", body={
             "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
             "index.refresh_interval": "30s"
         })
-        self.es.indices.forcemerge(index=self.index + "," + self.index + "_terms")
+        self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")

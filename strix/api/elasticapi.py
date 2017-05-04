@@ -38,9 +38,11 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
 
     def before_send(s):
         if should_include("aggregations", includes, excludes):
-            for text_attribute, value in text_attributes[indices].items():
-                if value.get("include_in_aggregation"):
-                    s.aggs.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"})
+            indices_array = indices.split(",")
+            for index in indices_array:
+                for text_attribute, value in text_attributes[index].items():
+                    if value.get("include_in_aggregation"):
+                        s.aggs.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"})
         return s
 
     res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, before_send=before_send)
