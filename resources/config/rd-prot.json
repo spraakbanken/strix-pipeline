@@ -4,10 +4,12 @@
         },
         "text_attributes": [
             {
-                "name": "datefrom"
+                "name": "datefrom",
+                "type": "date"
             },
             {
-                "name": "dateto"
+                "name": "dateto",
+                "type": "date"
             },
             {
                 "name": "timefrom"
