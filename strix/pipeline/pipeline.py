@@ -196,10 +196,6 @@ def process_corpus(index, limit_to=None, doc_ids=()):
 
 
 def reindex_corpus(source_alias, target_index):
-    # res = es.get_alias(name=source_alias)
-    # print(res)
-    # import sys
-    # sys.exit()
     body = {
         "source": {
             "index": source_alias
@@ -209,7 +205,15 @@ def reindex_corpus(source_alias, target_index):
             "version_type": "internal"
         }
     }
-    es.reindex(body=body, requests_per_second=1000)
+    task = es.reindex(body=body, requests_per_second=20000, wait_for_completion=False)
+    task_id = task["task"]
+    completed = False
+    while not completed:
+        time.sleep(10)
+        task_info = es.tasks.get(task_id)
+        _logger.info("Waiting on reindexing")
+        completed = task_info["completed"]
+    _logger.info("Reindexing done")
 
 
 def delete_index(alias):

@@ -115,7 +115,15 @@
             {
                 "name": "dateto",
                 "type": "date"
-            }
+            },
+            {
+                "name": "timefrom",
+                "type": "keyword"
+            },
+            {
+                "name": "timeto",
+                "type": "keyword"
+             }
         ]
     },
     "title": {
