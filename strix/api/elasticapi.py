@@ -90,17 +90,18 @@ def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=
     hits = s.execute()
     items = []
     for hit in hits:
+        hit_corpus = hit.meta.index.split("_")[0]
         item = hit.to_dict()
         if simple_highlight:
             if hasattr(hit.meta, "highlight"):
                 item["highlight"] = process_simple_highlight(hit.meta.highlight)
         elif highlight:
-            item["highlight"] = process_hit(hit.meta.index, hit, 5)
+            item["highlight"] = process_hit(hit_corpus, hit, 5)
 
         item["es_id"] = hit.meta.id
         item["doc_type"] = hit.meta.doc_type
-        item["corpus"] = hit.meta.index
-        move_text_attributes(hit.meta.index, item, includes, excludes)
+        item["corpus"] = hit_corpus
+        move_text_attributes(hit_corpus, item, includes, excludes)
         items.append(item)
 
     output = {"hits": hits.hits.total, "data": items}
@@ -160,9 +161,10 @@ def get_document_by_id(indices, doc_type, doc_id, includes=(), excludes=(), toke
     document = result['_source']
     document["es_id"] = result["_id"]
     get_token_lookup(document, indices, doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
-    document["corpus"] = result["_index"]
+    hit_corpus = result["_index"].split("_")[0]
+    document["corpus"] = hit_corpus
 
-    move_text_attributes(result["_index"], document, includes, excludes)
+    move_text_attributes(hit_corpus, document, includes, excludes)
     return {"data": document}
 
 
@@ -183,7 +185,7 @@ def put_document(index, doc_type, doc):
     return es.index(index=index, doc_type=doc_type, body=doc)
 
 
-def process_hit(index, hit, context_size):
+def process_hit(corpus, hit, context_size):
     """
     takes a hit and extracts positions from highlighting and extracts
     tokens + attributes using termvectors (to be replaced with something more effective)
@@ -194,7 +196,7 @@ def process_hit(index, hit, context_size):
     doc_type = hit.meta.doc_type
 
     if hasattr(hit.meta, "highlight"):
-        highlights = get_highlights(index, es_id, doc_type, hit.meta.highlight.positions, context_size)
+        highlights = get_highlights(corpus, es_id, doc_type, hit.meta.highlight.positions, context_size)
     else:
         highlights = []
 
@@ -222,8 +224,8 @@ def process_simple_highlight(highlights):
     }
 
 
-def get_highlights(index, es_id, doc_type, spans, context_size):
-    term_index = get_term_index(index, es_id, doc_type, spans, context_size)
+def get_highlights(corpus, es_id, doc_type, spans, context_size):
+    term_index = get_term_index(corpus, es_id, doc_type, spans, context_size)
 
     highlights = []
 
@@ -248,7 +250,7 @@ def get_highlights(index, es_id, doc_type, spans, context_size):
     return highlights
 
 
-def get_term_index(index, es_id, doc_type, spans, context_size):
+def get_term_index(corpus, es_id, doc_type, spans, context_size):
     positions = set()
     for span in spans:
         [_from, _to] = span.split('-')
@@ -261,10 +263,10 @@ def get_term_index(index, es_id, doc_type, spans, context_size):
             positions.update(set(range(from_int - context_size, from_int)))
             positions.update(set(range(to_int, to_int + context_size)))
 
-    return get_terms(index, doc_type, es_id, positions=list(positions))
+    return get_terms(corpus, doc_type, es_id, positions=list(positions))
 
 
-def get_terms(index, doc_type, es_id, positions=(), from_pos=None, size=None):
+def get_terms(corpus, doc_type, es_id, positions=(), from_pos=None, size=None):
     term_index = {}
 
     must_clauses = []
@@ -283,7 +285,7 @@ def get_terms(index, doc_type, es_id, positions=(), from_pos=None, size=None):
 
     query = Q('bool', must=must_clauses)
 
-    s = Search(index=index + "_terms", doc_type="term").query(query)
+    s = Search(index=corpus + "_terms", doc_type="term").query(query)
     s.sort("_doc")
 
     for hit in s.scan():
@@ -358,10 +360,10 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
         obj = hit.to_dict()
         obj["doc_id"] = hit.meta.id
         obj["doc_type"] = hit.meta.doc_type
-        obj["corpus"] = hit.meta.index
+        obj["corpus"] = hit.meta.index.split("_")[0]
         obj["highlight"] = []
 
-        move_text_attributes(hit.meta.index, obj, includes, excludes)
+        move_text_attributes(obj["corpus"], obj, includes, excludes)
 
         if size != 0 and hasattr(hit.meta, "highlight"):
             count = 0
