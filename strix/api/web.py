@@ -169,19 +169,22 @@ def get_values(corpus, field):
 @crossdomain(origin="*")
 @jsonify_response
 def get_config():
-    result = elasticapi.es.cat.indices(h="index")
+    # TODO replace this with all aliases when cluster has been upgraded
+    result = elasticapi.es.cat.indices(h="index", index="*_terms")
     indices = {}
-    for index in result.split("\n"):
-        if not (index == ".kibana" or index == "sequence" or index.endswith("_search") or index.endswith("_terms") or index == "" or index.startswith("litt")):
-            config_json = json.load(open(os.path.join(config.base_dir, "resources/config/" + index + ".json")))
-            names = config_json["corpus_name"]
-            descriptions = config_json.get("corpus_description")
-            analyze_config = config_json["analyze_config"]
-            indices[index] = {
-                "name": names,
-                "description": descriptions,
-                "attributes": analyze_config
-            }
+    for term_index in result.split("\n"):
+        if not term_index:
+            continue
+        index = term_index.split("_terms")[0]
+        config_json = json.load(open(os.path.join(config.base_dir, "resources/config/" + index + ".json")))
+        names = config_json["corpus_name"]
+        descriptions = config_json.get("corpus_description")
+        analyze_config = config_json["analyze_config"]
+        indices[index] = {
+            "name": names,
+            "description": descriptions,
+            "attributes": analyze_config
+        }
     return indices
 
 
