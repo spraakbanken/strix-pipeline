@@ -165,6 +165,13 @@ def get_values(corpus, field):
     return elasticapi.get_values(corpus, "text", field)
 
 
+@app.route("/date_histogram/<corpus>")
+@crossdomain(origin="*")
+@jsonify_response
+def date_histogram(corpus):
+    return elasticapi.date_histogram(corpus, request.args)
+
+
 @app.route("/config")
 @crossdomain(origin="*")
 @jsonify_response
