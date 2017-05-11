@@ -466,3 +466,44 @@ def get_text_attributes():
     return text_attributes
 
 text_attributes = get_text_attributes()
+
+
+def parse_date_range_params(params, date_field):
+    if "from" in params:
+        date_from = params.get("from")
+        date_to = params.get("to", "now")
+
+        date_range = Q("range", **{date_field: {
+            "from": date_from,
+            "to": date_to
+        }})
+    else:
+        date_range = Q()
+
+    return date_range
+
+
+def date_histogram(index, params):
+    def add_aggs(search):
+        a = search.aggs.bucket("histogram", "date_histogram", field=date_field, interval="year")
+        a.bucket("word_count", "sum", field="word_count")
+        a.bucket("shorttitle", "terms", field="shorttitle")
+        return search
+
+    date_field = params.get("date_field", "sort_date.date")
+    date_range = parse_date_range_params(params, date_field)
+
+    response = do_search_query(index,
+                               "etext,faksimil",
+                               date_range & Q("exists", field=date_field.split(".")[0]) & Q("exists", field="text"),
+                               to_hit=0,
+                               before_send=add_aggs)
+
+    output = []
+    for item in response["aggregations"]["histogram"]["buckets"]:
+        x = item["key"]
+        y = item["word_count"]["value"]
+        titles = [x["key"] for x in item["shorttitle"]["buckets"]]
+        output.append({"x": x / 1000, "y": y, "titles": titles})
+
+    return output
