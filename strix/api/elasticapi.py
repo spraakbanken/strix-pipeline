@@ -490,12 +490,12 @@ def date_histogram(index, doc_type, field, params):
         a.bucket(field, "terms", field=field)
         return search
 
-    date_field = params.get("date_field", "sort_date.date")
+    date_field = params.get("date_field")
     date_range = parse_date_range_params(params, date_field)
 
     response = do_search_query(index,
                                doc_type,
-                               date_range & Q("exists", field=date_field.split(".")[0]) & Q("exists", field="text"),
+                               date_range & Q("exists", field=date_field) & Q("exists", field="text"),
                                to_hit=0,
                                before_send=add_aggs)
 
