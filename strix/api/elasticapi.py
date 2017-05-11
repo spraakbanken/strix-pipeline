@@ -483,18 +483,18 @@ def parse_date_range_params(params, date_field):
     return date_range
 
 
-def date_histogram(index, params):
+def date_histogram(index, doc_type, field, params):
     def add_aggs(search):
         a = search.aggs.bucket("histogram", "date_histogram", field=date_field, interval="year")
         a.bucket("word_count", "sum", field="word_count")
-        a.bucket("shorttitle", "terms", field="shorttitle")
+        a.bucket(field, "terms", field=field)
         return search
 
     date_field = params.get("date_field", "sort_date.date")
     date_range = parse_date_range_params(params, date_field)
 
     response = do_search_query(index,
-                               "etext,faksimil",
+                               doc_type,
                                date_range & Q("exists", field=date_field.split(".")[0]) & Q("exists", field="text"),
                                to_hit=0,
                                before_send=add_aggs)
@@ -503,7 +503,7 @@ def date_histogram(index, params):
     for item in response["aggregations"]["histogram"]["buckets"]:
         x = item["key"]
         y = item["word_count"]["value"]
-        titles = [x["key"] for x in item["shorttitle"]["buckets"]]
+        titles = [x["key"] for x in item[field]["buckets"]]
         output.append({"x": x / 1000, "y": y, "titles": titles})
 
     return output
