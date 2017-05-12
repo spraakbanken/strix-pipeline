@@ -112,7 +112,13 @@ class CreateIndex:
         m.field("word_count", Integer())
         m.field("similarity_tags", Text(analyzer=similarity_tags_analyzer()))
 
-        m.field("title", Text(analyzer=get_swedish_analyzer()))
+        title_field = Text(
+            analyzer=get_swedish_analyzer(),
+            fields={
+                "raw": Keyword()
+            }
+        )
+        m.field("title", title_field)
 
         m.field("original_file", Keyword())
 
