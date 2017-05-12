@@ -100,7 +100,7 @@ class CreateIndex:
 
         for attr in self.text_attributes:
             if attr.get("type") == "date":
-                mapping_type = Date()
+                mapping_type = Date(format="yyyyMMdd")
             elif attr.get("type") == "year":
                 mapping_type = Integer()
             else:
