@@ -119,6 +119,10 @@ def join_queries(text_filter, search_query):
             if isinstance(v, str):
                 filter_clauses.append(Q("term", **{k: v}))
             elif "range" in v:
+                query_obj = v["range"]
+                for key in query_obj.keys():
+                    if key not in ["gte", "gt", "lte", "lt"]:
+                        raise ValueError("Operator: " + key + " not supported by range query")
                 filter_clauses.append(Q("range", **{k: v["range"]}))
             else:
                 raise ValueError("Expression " + str(v) + " is not allowed")
