@@ -64,8 +64,9 @@ given by the `/config/<corpora>` call.
 * `to` - For pagination through the results (default: 10)
 * `highlight` - boolean, should the matching tokens be returned or not (default: true)
 * `highlight_number_of_fragments` - how many of the matching tokens should be returned (default: 5)
-* `text_filter` - JSON formatted search query. Use same structure as given by `/config/<corpora>` (default: no filter)
-   Example: `text_filter={ "party": "v", "year": "2010" }`
+* `text_filter` - JSON formatted search query. Use same structure as given by `/config/<corpora>` (default: no filter)  
+   Example1: `text_filter={ "party": "v", "year": "2010" }`  
+   Example2: `text_filter={ "datefrom": { "range": { "gte": "19900101","lte": "19960101" }}}`
 
 ### Search in document
 
