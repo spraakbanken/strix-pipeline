@@ -116,7 +116,12 @@ def join_queries(text_filter, search_query):
     filter_clauses = []
     if text_filter:
         for k, v in text_filter.items():
-            filter_clauses.append(Q("term", **{k: v}))
+            if isinstance(v, str):
+                filter_clauses.append(Q("term", **{k: v}))
+            elif "range" in v:
+                filter_clauses.append(Q("range", **{k: v["range"]}))
+            else:
+                raise ValueError("Expression " + str(v) + " is not allowed")
 
     if search_query and filter_clauses:
         filter_clauses.append(search_query)
