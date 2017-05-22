@@ -1,0 +1,141 @@
+{
+    "analyze_config": {
+        "struct_attributes": {
+            "ne": [
+                {
+                    "set": false,
+                    "name": "ex"
+                },
+                {
+                    "set": false,
+                    "name": "type"
+                },
+                {
+                    "set": false,
+                    "name": "subtype"
+                },
+                {
+                    "set": false,
+                    "name": "name"
+                }
+            ],
+            "document": [
+                {
+                    "name": "id",
+                    "set": false
+                }
+            ]
+        },
+        "text_attributes": [
+            {
+                "name": "datefrom",
+                "type": "date"
+            },
+            {
+                "name": "dateto",
+                "type": "date"
+            },
+            {
+                "name": "timefrom"
+            },
+            {
+                "name": "timeto"
+            },
+            {
+                "name": "topicid"
+            },
+            {
+                "name": "topicname"
+            },
+            {
+                "name": "source"
+            },
+            {
+                "name": "year"
+            },
+            {
+                "name": "amount_answers"
+            },
+            {
+                "name": "author_signature"
+            }
+        ],
+        "word_attributes": [
+            {
+                "set": false,
+                "name": "pos"
+            },
+            {
+                "set": false,
+                "name": "msd"
+            },
+            {
+                "set": true,
+                "name": "lemma"
+            },
+            {
+                "set": true,
+                "nodeName": "lex",
+                "name": "lemgram",
+                "type": "lemgram"
+            },
+            {
+                "set": true,
+                "name": "sense"
+            },
+            {
+                "set": true,
+                "name": "prefix",
+                "type": "lemgram"
+            },
+            {
+                "set": true,
+                "name": "suffix",
+                "type": "lemgram"
+            },
+            {
+                "set": true,
+                "name": "compwf"
+            },
+            {
+                "set": true,
+                "name": "complemgram"
+            },
+            {
+                "set": false,
+                "name": "ref"
+            },
+            {
+                "set": false,
+                "name": "dephead"
+            },
+            {
+                "set": false,
+                "name": "deprel"
+            },
+            {
+                "set": false,
+                "name": "attitude",
+                "type": "integer"
+            }
+        ]
+    },
+    "corpus_id": "fragelistor",
+    "title": {
+        "keys": [
+            "topicname"
+        ],
+        "pattern": "{topicname}"
+    },
+    "has_id": true,
+    "corpus_name": {
+        "swe": "Etnologiska frågelistor",
+        "eng": "Ethnological question lists"
+    },
+    "translation": {},
+    "file_name_pattern": "*.xml",
+    "corpus_description": {
+        "swe": "Nordiska museets frågelistor",
+        "eng": "Question lists of the Nordic Museum"
+    }
+}
