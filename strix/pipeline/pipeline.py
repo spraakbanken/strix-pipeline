@@ -17,7 +17,7 @@ GROUP_SIZE = config.concurrency_group_size
 MAX_GROUP_SIZE_KB = 250 * 1024
 
 elastic_hosts = [config.elastic_hosts]
-es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500)
+es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500, retry_on_timeout=True)
 
 _logger = logging.getLogger(__name__)
 
