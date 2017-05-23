@@ -54,18 +54,12 @@ class CreateIndex:
         base_index = Index(index_name, using=self.es)
         if base_index.exists():
             return self.get_unique_index(suffix + 1 if suffix else 1)
-        base_index.settings(
-            number_of_shards=CreateIndex.number_of_shards,
-            number_of_replicas=0
-        )
+        self.set_settings(base_index, CreateIndex.number_of_shards)
         return base_index, index_name
 
     def create_term_position_index(self):
         terms = Index(self.alias + "_terms", using=self.es)
-        terms.settings(
-            number_of_shards=CreateIndex.terms_number_of_shards,
-            number_of_replicas=0
-        )
+        self.set_settings(terms, CreateIndex.terms_number_of_shards)
         terms.delete(ignore=404)
         terms.create()
 
@@ -78,6 +72,19 @@ class CreateIndex:
         m.field("doc_id", "keyword", index="not_analyzed")
         m.field("doc_type", "keyword", index="not_analyzed")
         m.save(self.alias + "_terms", using=self.es)
+
+    def set_settings(self, index, number_shards):
+        index.settings(
+            number_of_shards=number_shards,
+            number_of_replicas=0,
+            index={
+                "unassigned": {
+                    "node_left": {
+                        "delayed_timeout": "1m"
+                    }
+                }
+            }
+        )
 
     def create_text_type(self, index_name):
         m = Mapping("text")
