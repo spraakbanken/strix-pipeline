@@ -31,10 +31,9 @@ def search(indices, doc_type, field=None, search_term=None, includes=(), exclude
         query = None
         highlight = None
 
-    query = join_queries(text_filter, query)
-
     if add_fuzzy_query:
         query = Q("bool", should=[query, Q("fuzzy", title={"value": search_term, "boost": 50})])
+    query = join_queries(text_filter, query)
 
     def before_send(s):
         if should_include("aggregations", includes, excludes):
