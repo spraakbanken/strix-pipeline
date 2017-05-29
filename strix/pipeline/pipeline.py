@@ -164,10 +164,11 @@ def upload_executor(task_queue, tot_size, num_tasks):
                 if future.exception() is None:
                     chunk_len, t = future.result()
                     _logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (chunk_len, t))
-
-                    if tot_size > 0:
-                        _logger.info("%.1f%%" % (100 * (size_accu / tot_size)))
-                        _logger.info("------------------")
+                else:
+                    _logger.error("Failed bulk upload of a chunk of length %s, took %0.1fs" % (chunk_len, t))
+                if tot_size > 0:
+                    _logger.info("%.1f%%" % (100 * (size_accu / tot_size)))
+                    _logger.info("------------------")
 
 
 def bulk_insert(tasks):
