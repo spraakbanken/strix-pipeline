@@ -55,8 +55,7 @@
                 "name": "startpos"
             },
             {
-                "name": "anf_sekunder",
-                "include_in_aggregation": true
+                "name": "anf_sekunder"
             },
             {
                 "name": "punkt"
