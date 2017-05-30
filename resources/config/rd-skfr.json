@@ -42,7 +42,8 @@
                 "name": "datum"
             },
             {
-                "name": "subtitel"
+                "name": "subtitel",
+                "include_in_aggregation": true
             },
             {
                 "name": "tumnagel"
@@ -69,7 +70,8 @@
                 "name": "anf_hangar_id"
             },
             {
-                "name": "datatyp"
+                "name": "datatyp",
+                "include_in_aggregation": true
             },
             {
                 "name": "startpos"
@@ -195,7 +197,8 @@
                 "name": "motforslag_nummer"
             },
             {
-                "name": "mottagare"
+                "name": "mottagare",
+                "include_in_aggregation": true
             },
             {
                 "name": "htmlformat"
@@ -207,7 +210,8 @@
                 "name": "beslutstyp"
             },
             {
-                "name": "status"
+                "name": "status",
+                "include_in_aggregation": true
             },
             {
                 "name": "hangar_id"

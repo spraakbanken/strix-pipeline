@@ -29,7 +29,8 @@
                 "name": "rubriker"
             },
             {
-                "name": "datatyp"
+                "name": "datatyp",
+                "include_in_aggregation": true
             },
             {
                 "name": "behandlas_i"
@@ -59,7 +60,8 @@
                 "name": "slutnummer"
             },
             {
-                "name": "kammarbeslutstyp"
+                "name": "kammarbeslutstyp",
+                "include_in_aggregation": true
             },
             {
                 "name": "source"

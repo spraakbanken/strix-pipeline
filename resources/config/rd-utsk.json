@@ -69,7 +69,8 @@
                 "name": "anf_hangar_id"
             },
             {
-                "name": "datatyp"
+                "name": "datatyp",
+                "include_in_aggregation": true
             },
             {
                 "name": "startpos"
@@ -105,7 +106,8 @@
                 "name": "organ"
             },
             {
-                "name": "subtyp"
+                "name": "subtyp",
+                "include_in_aggregation": true
             },
             {
                 "name": "debattnamn"

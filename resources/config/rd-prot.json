@@ -51,7 +51,8 @@
                 "name": "anf_hangar_id"
             },
             {
-                "name": "datatyp"
+                "name": "datatyp",
+                "include_in_aggregation": true
             },
             {
                 "name": "startpos"

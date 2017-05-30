@@ -23,7 +23,8 @@
                 "name": "datum"
             },
             {
-                "name": "subtitel"
+                "name": "subtitel",
+                "include_in_aggregation": true
             },
             {
                 "name": "tumnagel"
@@ -47,13 +48,15 @@
                 "name": "anf_hangar_id"
             },
             {
-                "name": "datatyp"
+                "name": "datatyp",
+                "include_in_aggregation": true
             },
             {
                 "name": "startpos"
             },
             {
-                "name": "anf_sekunder"
+                "name": "anf_sekunder",
+                "include_in_aggregation": true
             },
             {
                 "name": "punkt"
@@ -77,7 +80,8 @@
                 "name": "tumnagel_stor"
             },
             {
-                "name": "organ"
+                "name": "organ",
+                "include_in_aggregation": true
             },
             {
                 "name": "subtyp"
@@ -152,7 +156,8 @@
                 "name": "intressent_id"
             },
             {
-                "name": "talare"
+                "name": "talare",
+                "include_in_aggregation": true
             },
             {
                 "name": "motforslag_nummer"
@@ -176,7 +181,8 @@
                 "name": "dokument_url_html"
             },
             {
-                "name": "parti"
+                "name": "parti",
+                "include_in_aggregation": true
             },
             {
                 "name": "dokument_url_text"

@@ -45,13 +45,15 @@
                 "name": "topicid"
             },
             {
-                "name": "topicname"
+                "name": "topicname",
+                "include_in_aggregation": true
             },
             {
                 "name": "source"
             },
             {
-                "name": "year"
+                "name": "year",
+                "include_in_aggregation": true
             },
             {
                 "name": "amount_answers"

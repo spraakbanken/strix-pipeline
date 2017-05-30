@@ -23,7 +23,8 @@
                 "name": "datum"
             },
             {
-                "name": "subtitel"
+                "name": "subtitel",
+                "include_in_aggregation": true
             },
             {
                 "name": "tumnagel"
@@ -50,7 +51,8 @@
                 "name": "anf_hangar_id"
             },
             {
-                "name": "datatyp"
+                "name": "datatyp",
+                "include_in_aggregation": true
             },
             {
                 "name": "startpos"
@@ -170,7 +172,8 @@
                 "name": "intressent_id"
             },
             {
-                "name": "talare"
+                "name": "talare",
+                "include_in_aggregation": true
             },
             {
                 "name": "motforslag_nummer"
@@ -197,7 +200,8 @@
                 "name": "dokument_url_html"
             },
             {
-                "name": "parti"
+                "name": "parti",
+                "include_in_aggregation": true
             },
             {
                 "name": "dokument_url_text"
