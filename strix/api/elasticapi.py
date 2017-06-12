@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-import glob
-import json
-import os
 import logging
 
 import elasticsearch
@@ -11,6 +8,7 @@ from elasticsearch_dsl import Search, Q
 from elasticsearch.exceptions import NotFoundError
 
 from strix.config import config
+import strix.corpusconf as corpusconf
 
 ALL_BUCKETS = "2147483647"
 
@@ -489,7 +487,7 @@ def get_config(only_ids=False):
 
     indices = {}
     for index in index_names:
-        config_json = json.load(open(os.path.join(config.base_dir, "resources/config/" + index + ".json")))
+        config_json = corpusconf.get_corpus_conf(index)
         names = config_json["corpus_name"]
         descriptions = config_json.get("corpus_description")
         analyze_config = config_json["analyze_config"]
@@ -505,21 +503,7 @@ def get_all_corpora_ids():
     return get_config(only_ids=True)
 
 
-def get_text_attributes():
-    text_attributes = {}
-    for file in glob.glob(os.path.join(config.base_dir, "resources/config/*.json")):
-        key = os.path.splitext(os.path.basename(file))[0]
-        try:
-            text_attributes[key] = dict((attr["name"], attr) for attr in json.load(open(file, "r"))["analyze_config"]["text_attributes"])
-        except:
-            continue
-        if "title" in text_attributes[key]:
-            del text_attributes[key]["title"]
-
-    text_attributes["litteraturbanken"] = []
-    return text_attributes
-
-text_attributes = get_text_attributes()
+text_attributes = corpusconf.get_text_attributes()
 
 
 def parse_date_range_params(params, date_field):

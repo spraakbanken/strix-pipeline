@@ -1,0 +1,38 @@
+{
+    "analyze_config": {
+        "text_attributes": [
+            {
+                "name": "datefrom",
+                "type": "date"
+            },
+            {
+                "name": "dateto",
+                "type": "date"
+            },
+            {
+                "name": "datatyp",
+                "include_in_aggregation": true,
+                "has_translation": true,
+                "translation": {
+                    "huvuddokument": "Huvuddokument",
+                    "forslag": "Förslag",
+                    "anforande": "Anförande",
+                    "utskottsforslag": "Utskottsförslag"
+                }
+            }
+        ]
+    },
+    "parser": "htmlparser",
+    "title": [
+        {
+            "title": "titel"
+        },
+        {
+            "keys": [
+                "datatyp"
+            ],
+            "pattern": "{datatyp}"
+        }
+    ],
+    "file_name_pattern": "*.xml"
+}

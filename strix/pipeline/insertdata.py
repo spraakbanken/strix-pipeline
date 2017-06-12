@@ -1,12 +1,12 @@
 import glob
 import os
 import logging
-import json
 import itertools
 import strix.pipeline.xmlparser as xmlparser
 from strix.config import config
 import time
 import strix.pipeline.idgenerator as idgenerator
+import strix.corpusconf as corpusconf
 
 _logger = logging.getLogger(__name__)
 
@@ -14,10 +14,7 @@ class InsertData:
 
     def __init__(self, index):
         self.index = index
-        self.corpus_conf = self.get_corpus_conf()
-
-    def get_corpus_conf(self):
-        return json.load(open(os.path.join(config.base_dir, "resources/config/" + self.index + ".json")))
+        self.corpus_conf = corpusconf.get_corpus_conf(self.index)
 
     def prepare_urls(self, doc_ids):
         urls = []
@@ -61,8 +58,7 @@ class InsertData:
                                                  struct_annotations=struct_annotations, text_attributes=text_attributes,
                                                  token_count_id=True, add_similarity_tags=True):
             doc_id = next(id_generator)
-            if "title" not in text:
-                text["title"] = self.generate_title(text, text_attributes)
+            self.generate_title(text, text_attributes)
             text["original_file"] = os.path.basename(file_name)
             task = self.get_doc_task(doc_id, "text", text)
             task_terms = self.create_term_positions(doc_id, text["token_lookup"])
@@ -84,19 +80,31 @@ class InsertData:
                 ids = None
 
     def generate_title(self, text, text_attributes):
-        title_keys = self.corpus_conf["title"]["keys"]
-        format_params = {}
-        for title_key in title_keys:
-            if title_key not in text:
-                return ""
+        if "title" in self.corpus_conf:
+            for setting in self.corpus_conf["title"]:
+                if "title" in setting:
+                    if setting["title"] in text:
+                        text["title"] = text[setting["title"]]
+                        break
+                if "pattern" in setting:
+                    title_keys = setting["keys"]
+                    format_params = {}
+                    for title_key in title_keys:
+                        if title_key not in text:
+                            return ""
 
-            if "translation" in text_attributes[title_key]:
-                format_params[title_key] = text_attributes[title_key]["translation"][text[title_key]]
-            else:
-                format_params[title_key] = text[title_key]
+                        if "translation" in text_attributes[title_key]:
+                            format_params[title_key] = text_attributes[title_key]["translation"][text[title_key]]
+                        else:
+                            format_params[title_key] = text[title_key]
 
-        title_pattern = self.corpus_conf["title"]["pattern"]
-        return title_pattern.format(**format_params)
+                    title_pattern = setting["pattern"]
+                    text["title"] = title_pattern.format(**format_params)
+                    break
+            if "title" not in text:
+                raise RuntimeError("Failed to set title for text")
+        elif "title" not in text:
+            raise RuntimeError("Configure \"title\" for corpus")
 
     def get_doc_task(self, text_id, doc_type, text):
         if text_id.startswith("_"):

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from elasticsearch_dsl import analysis, analyzer
-from strix.config import config
 
 
 def annotation_analyzer(annotation_name, is_set=False):

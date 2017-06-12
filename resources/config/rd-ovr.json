@@ -1,15 +1,8 @@
 {
+    "parent": "rd-parent",
     "analyze_config": {
         "struct_attributes": {},
         "text_attributes": [
-            {
-                "name": "datefrom",
-                "type": "date"
-            },
-            {
-                "name": "dateto",
-                "type": "date"
-            },
             {
                 "name": "timefrom"
             },
@@ -48,10 +41,6 @@
             },
             {
                 "name": "anf_hangar_id"
-            },
-            {
-                "name": "datatyp",
-                "include_in_aggregation": true
             },
             {
                 "name": "startpos"
@@ -263,20 +252,11 @@
             }
         ]
     },
-    "parser": "htmlparser",
     "corpus_id": "rd-ovr",
-    "title": {
-        "keys": [
-            "titel"
-        ],
-        "pattern": "{titel}"
-    },
     "corpus_name": {
         "swe": "The Riksdag's open data - other",
         "eng": "Riksdagens öppna data - övrigt"
     },
-    "translation": {},
-    "file_name_pattern": "*.xml",
     "corpus_description": {
         "swe": "Riksdagens öppna data: Dokumentserierna Riksrevisionens granskningsrapporter, Utredningar från Riksdagsförvaltningen och Rapporter från riksdagen samt planeringsdokument, bilagor till dokument och uttag ur riksdagens databaser.",
         "eng": "Part of the Riksdag's open data"

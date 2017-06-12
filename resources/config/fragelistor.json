@@ -123,12 +123,9 @@
         ]
     },
     "corpus_id": "fragelistor",
-    "title": {
-        "keys": [
-            "topicname"
-        ],
-        "pattern": "{topicname}"
-    },
+    "title": [{
+        "title": "topicname"
+    }],
     "has_id": true,
     "corpus_name": {
         "swe": "Etnologiska frågelistor",

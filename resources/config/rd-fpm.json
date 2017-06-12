@@ -1,4 +1,5 @@
 {
+    "parent": "rd-parent",
     "analyze_config": {
         "struct_attributes": {
             "ne": [
@@ -21,14 +22,6 @@
             ]
         },
         "text_attributes": [
-            {
-                "name": "datefrom",
-                "type": "date"
-            },
-            {
-                "name": "dateto",
-                "type": "date"
-            },
             {
                 "name": "timefrom"
             },
@@ -64,10 +57,6 @@
             },
             {
                 "name": "anf_hangar_id"
-            },
-            {
-                "name": "datatyp",
-                "include_in_aggregation": true
             },
             {
                 "name": "startpos"
@@ -261,20 +250,11 @@
             }
         ]
     },
-    "parser": "htmlparser",
     "corpus_id": "rd-fpm",
-    "title": {
-        "keys": [
-            "titel"
-        ],
-        "pattern": "{titel}"
-    },
     "corpus_name": {
         "swe": "Faktapromemoria",
         "eng": "Faktapromemoria"
     },
-    "translation": {},
-    "file_name_pattern": "*.xml",
     "corpus_description": {
         "swe": "Riksdagens öppna data: Regeringens faktapromemorior om EU-kommissionens förslag.",
         "eng": "Part of the Riksdag's open data"

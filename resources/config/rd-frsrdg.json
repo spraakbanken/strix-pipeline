@@ -1,16 +1,9 @@
 {
+    "parent": "rd-parent",
     "analyze_config": {
         "struct_attributes": {
         },
         "text_attributes": [
-            {
-                "name": "datefrom",
-                "type": "date"
-            },
-            {
-                "name": "dateto",
-                "type": "date"
-            },
             {
                 "name": "timefrom"
             },
@@ -49,10 +42,6 @@
             },
             {
                 "name": "anf_hangar_id"
-            },
-            {
-                "name": "datatyp",
-                "include_in_aggregation": true
             },
             {
                 "name": "startpos"
@@ -263,20 +252,11 @@
             }
         ]
     },
-    "parser": "htmlparser",
     "corpus_id": "rd-frsrdg",
-    "title": {
-        "keys": [
-            "titel"
-        ],
-        "pattern": "{titel}"
-    },
     "corpus_name": {
         "swe": "Framställning/redogörelse",
         "eng": "Framställning/redogörelse"
     },
-    "translation": {},
-    "file_name_pattern": "*.xml",
     "corpus_description": {
         "swe": "Riksdagens öppna data: Framställningar och redogörelser från organ som utsetts av riksdagen.",
         "eng": "Part of the Riksdag's open data"
