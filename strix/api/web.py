@@ -28,11 +28,28 @@ def get_token_lookup_sizes(request_obj):
     token_lookup_from = request.args.get("token_lookup_from")
     token_lookup_to = request.args.get("token_lookup_to")
     if token_lookup_from:
-        token_lookup_from = int(token_lookup_from)
+        request_obj["token_lookup_from"] = int(token_lookup_from)
     if token_lookup_to:
-        token_lookup_to = int(token_lookup_to)
-    request_obj["token_lookup_from"] = token_lookup_from
-    request_obj["token_lookup_to"] = token_lookup_to
+        request_obj["token_lookup_to"] = int(token_lookup_to)
+
+
+def get_material_selection(request_obj):
+    if "corpora" in request.args:
+        request_obj["corpora"] = request.args.get("corpora").split(",")
+    else:
+        request_obj["corpora"] = elasticapi.get_all_corpora_ids()
+
+    if "text_filter" in request.args:
+        request_obj["text_filter"] = json.loads(request.args.get("text_filter"))
+
+
+def get_search(request_obj):
+    if "text_query" in request.args:
+        # TODO remove lowercase-filter in mappingutil, then remove this
+        request_obj["text_query"] = request.args.get("text_query").lower()
+
+    if "text_query_field" in request.args:
+        request_obj["text_query_field"] = request.args.get("text_query_field").replace(".", "_")
 
 
 @app.route("/document/<corpus>/<doc_id>")
@@ -45,22 +62,18 @@ def get_document(corpus, doc_id):
     return elasticapi.get_document_by_id(corpus, "text", doc_id, **kwargs)
 
 
-@app.route("/search/<corpus>")
-@app.route("/search/<corpus>/")
-@app.route("/search/<corpus>/<search_term>")
-@app.route("/search/<corpus>/<field>/<search_term>")
+@app.route("/search")
+@app.route("/search/")
 @crossdomain(origin='*')
 @jsonify_response
-def search(corpus, search_term=None, field=None):
+def search():
     kwargs = {}
     get_includes_excludes(kwargs)
     get_token_lookup_sizes(kwargs)
 
-    if "text_filter" in request.args:
-        kwargs["text_filter"] = json.loads(request.args.get("text_filter"))
+    get_material_selection(kwargs)
 
-    if search_term:
-        kwargs["search_term"] = search_term
+    get_search(kwargs)
 
     if request.args.get("from"):
         kwargs["from_hit"] = int(request.args.get("from"))
@@ -82,17 +95,14 @@ def search(corpus, search_term=None, field=None):
             number_of_fragments = 5
         kwargs["highlight"] = {"number_of_fragments": number_of_fragments}
 
-    if field:
-        kwargs["field"] = field.replace(".", "_")
-
-    return elasticapi.search(corpus, "text", **kwargs)
+    return elasticapi.search("text", **kwargs)
 
 
-@app.route("/search/<corpus>/doc_id/<doc_id>/<search_term>")
-@app.route("/search/<corpus>/doc_id/<doc_id>/<field>/<search_term>")
+@app.route("/search/<corpus>/doc_id/<doc_id>")
+@app.route("/search/<corpus>/doc_id/<doc_id>/")
 @crossdomain(origin="*")
 @jsonify_response
-def search_in_document(corpus, doc_id, search_term, field=None):
+def search_in_document(corpus, doc_id):
     kwargs = {}
 
     get_includes_excludes(kwargs)
@@ -107,21 +117,15 @@ def search_in_document(corpus, doc_id, search_term, field=None):
     if request.args.get("forward"):
         kwargs["forward"] = request.args.get('forward').lower() == 'true'
 
-    if field and "." in field:
-        field = field.replace(".", "_")
+    get_search(kwargs)
 
-    kwargs["field"] = field
-
-    # TODO remove lowercase-filter in mappingutil, then remove this
-    value = search_term.lower()
-
-    return elasticapi.search_in_document(corpus, "text", doc_id, value, **kwargs)
+    return elasticapi.search_in_document(corpus, "text", doc_id, **kwargs)
 
 
-@app.route("/related/<corpus>/<doc_type>/<doc_id>")
+@app.route("/related/<corpus>/doc_id/<doc_id>")
 @crossdomain(origin='*')
 @jsonify_response
-def get_related_documents(corpus, doc_type, doc_id):
+def get_related_documents(corpus, doc_id):
     kwargs = {}
 
     if request.args.get("search_corpora"):
@@ -145,7 +149,7 @@ def get_related_documents(corpus, doc_type, doc_id):
         kwargs["from_hit"] = int(request.args.get("from"))
     if request.args.get("to"):
         kwargs["to_hit"] = int(request.args.get("to"))
-    return elasticapi.get_related_documents(corpus, doc_type, doc_id, **kwargs)
+    return elasticapi.get_related_documents(corpus, "text", doc_id, **kwargs)
 
 
 @app.route("/lemgramify/<terms>")
@@ -158,6 +162,7 @@ def autocomplete(terms):
     return lemgrams
 
 
+# TODO this should support the same filtering as any other call
 @app.route("/field_values/<corpus>/<field>")
 @crossdomain(origin="*")
 @jsonify_response
@@ -165,6 +170,7 @@ def get_values(corpus, field):
     return elasticapi.get_values(corpus, "text", field)
 
 
+# TODO this should support the same filtering as any other call?
 @app.route("/date_histogram/<corpus>/<field>")
 @crossdomain(origin="*")
 @jsonify_response
@@ -176,23 +182,7 @@ def date_histogram(corpus, field):
 @crossdomain(origin="*")
 @jsonify_response
 def get_config():
-    # TODO replace this with all aliases when cluster has been upgraded
-    result = elasticapi.es.cat.indices(h="index", index="*_terms")
-    indices = {}
-    for term_index in result.split("\n"):
-        if not term_index:
-            continue
-        index = term_index.split("_terms")[0]
-        config_json = json.load(open(os.path.join(config.base_dir, "resources/config/" + index + ".json")))
-        names = config_json["corpus_name"]
-        descriptions = config_json.get("corpus_description")
-        analyze_config = config_json["analyze_config"]
-        indices[index] = {
-            "name": names,
-            "description": descriptions,
-            "attributes": analyze_config
-        }
-    return indices
+    return elasticapi.get_config()
 
 
 @app.route("/")

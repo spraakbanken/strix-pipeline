@@ -72,6 +72,7 @@ class InsertData:
 
         return itertools.chain(tasks, terms or [])
 
+    # TODO replace this with getting the ID from the documents where applicable (for example fragelistor)
     def get_id_generator(self):
         ids = None
         while True:

@@ -18,35 +18,43 @@ es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 _logger = logging.getLogger(__name__)
 
 
-def search(indices, doc_type, field=None, search_term=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None, simple_highlight=False, token_lookup_from=None, token_lookup_to=None):
+def search(doc_type, corpora=(), text_query_field=None, text_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None, simple_highlight=False, token_lookup_from=None, token_lookup_to=None):
     simple_highlight_type = None
     add_fuzzy_query = False
-    if search_term:
-        if field:
-            query = Q("span_term", **{"text." + field: search_term})
+    if text_query:
+        if text_query_field:
+            query = Q("span_term", **{"text." + text_query_field: text_query})
         else:
-            query, simple_highlight_type = analyze_and_create_span_query(search_term, term_query=simple_highlight)
+            query, simple_highlight_type = analyze_and_create_span_query(text_query, term_query=simple_highlight)
             add_fuzzy_query = True
     else:
         query = None
         highlight = None
 
     if add_fuzzy_query:
-        query = Q("bool", should=[query, Q("fuzzy", title={"value": search_term, "boost": 50})])
+        query = Q("bool", should=[query, Q("fuzzy", title={"value": text_query, "boost": 50})])
     query = join_queries(text_filter, query)
 
     def before_send(s):
         if should_include("aggregations", includes, excludes):
-            indices_array = indices.split(",")
-            for index in indices_array:
+            for index in corpora:
                 for text_attribute, value in text_attributes[index].items():
                     if value.get("include_in_aggregation"):
                         s.aggs.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"})
+            s.aggs.bucket("corpora", "terms", field="_index", size=ALL_BUCKETS, order={"_term": "asc"})
         return s
 
-    res = do_search_query(indices, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, before_send=before_send)
-    for document in res["data"]:
-        get_token_lookup(document, indices, doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
+    res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, before_send=before_send)
+
+    if "aggregations" in res:
+        corpora_buckets = []
+        for bucket in res["aggregations"]["corpora"]["buckets"]:
+            corpora_buckets.append({"doc_count": bucket["doc_count"], "key": bucket["key"].split("_")[0]})
+        res["aggregations"]["corpora"]["buckets"] = corpora_buckets
+
+    if token_lookup_from is not None and token_lookup_to is not None:
+        for document in res["data"]:
+            get_token_lookup(document, document["corpus"], doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
 
     return res
 
@@ -75,18 +83,20 @@ def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevan
         query = Q("bool", should=shoulds, must_not=Q("term", _id=doc_id))
 
     res = do_search_query(search_corpora if search_corpora else corpus, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit)
-    for document in res["data"]:
-        get_token_lookup(document, corpus, doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
+    if token_lookup_from is not None and token_lookup_to is not None:
+        for document in res["data"]:
+            get_token_lookup(document, corpus, doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
 
     return res
 
 
-def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_field=None, before_send=None):
+def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_field=None, before_send=None):
     if to_hit > 10000:
         raise RuntimeError("Paging error. \"to\" cannot be larger than 10000")
     if to_hit < from_hit:
         raise RuntimeError("Paging error. \"to\" cannot be smaller than \"from\"")
-    s = get_search_query(indices, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, sort_fields=sort_field)
+    s = get_search_query(corpora, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, sort_fields=sort_field)
+
     if before_send:
         s = before_send(s)
 
@@ -353,14 +363,20 @@ def get_values(corpus, doc_type, field):
     return result.aggregations.values.to_dict()["buckets"]
 
 
-def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, size=None, forward=True, field=None, includes=(), excludes=(), token_lookup_from=None, token_lookup_to=None):
+def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None, forward=True, text_query=None, text_query_field=None, includes=(), excludes=(), token_lookup_from=None, token_lookup_to=None):
     s = Search(index=corpus, doc_type=doc_type)
     id_query = Q("term", _id=doc_id)
-    if field:
-        span_query = Q("span_term", **{"text." + field: value})
+    if text_query_field and text_query:
+        span_query = Q("span_term", **{"text." + text_query_field: text_query})
+    elif text_query:
+        span_query, _ = analyze_and_create_span_query(text_query)
     else:
-        span_query, _ = analyze_and_create_span_query(value)
-    query = Q("bool", must=[id_query], should=[span_query])
+        span_query = None
+    if span_query:
+        should = [span_query]
+    else:
+        should = []
+    query = Q("bool", must=[id_query], should=should)
     s = s.query(query)
 
     excludes += ("text", "original_file", "similarity_tags")
@@ -403,10 +419,6 @@ def search_in_document(corpus, doc_type, doc_id, value, current_position=-1, siz
     return {}
 
 
-
-
-
-
 # TODO support searching in any field and multiple fields per token (extended search style)
 # assumes searching in field text
 def create_span_query(tokens):
@@ -446,14 +458,14 @@ def mask_field(query, field="text"):
     return Q("field_masking_span", query=query, field=field)
 
 
-def get_token_lookup(document, indices, doc_type, doc_id, includes, excludes, token_lookup_from, token_lookup_to):
+def get_token_lookup(document, corpus, doc_type, doc_id, includes, excludes, token_lookup_from, token_lookup_to):
     if should_include("token_lookup", includes, excludes):
         kwargs = {}
         if token_lookup_from:
             kwargs["from_pos"] = token_lookup_from
         if token_lookup_to:
             kwargs["size"] = token_lookup_to - token_lookup_from
-        document["token_lookup"] = get_terms(indices, doc_type, doc_id, **kwargs)
+        document["token_lookup"] = get_terms(corpus, doc_type, doc_id, **kwargs)
 
 
 def should_include(attribute, includes, excludes):
@@ -461,6 +473,36 @@ def should_include(attribute, includes, excludes):
         return attribute in includes
     else:
         return attribute not in excludes and "*" not in excludes
+
+
+def get_config(only_ids=False):
+    # TODO replace this with all aliases
+    result = es.cat.indices(h="index", index="*_terms")
+    index_names = []
+    for term_index in result.split("\n"):
+        if not term_index:
+            continue
+        index_names.append(term_index.split("_terms")[0])
+
+    if only_ids:
+        return index_names
+
+    indices = {}
+    for index in index_names:
+        config_json = json.load(open(os.path.join(config.base_dir, "resources/config/" + index + ".json")))
+        names = config_json["corpus_name"]
+        descriptions = config_json.get("corpus_description")
+        analyze_config = config_json["analyze_config"]
+        indices[index] = {
+            "name": names,
+            "description": descriptions,
+            "attributes": analyze_config
+        }
+    return indices
+
+
+def get_all_corpora_ids():
+    return get_config(only_ids=True)
 
 
 def get_text_attributes():
