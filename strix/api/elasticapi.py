@@ -82,6 +82,10 @@ def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevan
 
 
 def do_search_query(indices, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_field=None, before_send=None):
+    if to_hit > 10000:
+        raise RuntimeError("Paging error. \"to\" cannot be larger than 10000")
+    if to_hit < from_hit:
+        raise RuntimeError("Paging error. \"to\" cannot be smaller than \"from\"")
     s = get_search_query(indices, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, sort_fields=sort_field)
     if before_send:
         s = before_send(s)

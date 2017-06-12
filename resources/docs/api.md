@@ -60,8 +60,8 @@ given by the `/config/<corpora>` call.
 
 * `include`
 * `exclude`
-* `from` - For pagination through the results (default: 0) 
-* `to` - For pagination through the results (default: 10)
+* `from` - For pagination through the results. (default: 0) 
+* `to` - For pagination through the results. Must be larger than `from`. Cannot be larger than 10000. (default: 10)
 * `highlight` - boolean, should the matching tokens be returned or not (default: true)
 * `highlight_number_of_fragments` - how many of the matching tokens should be returned (default: 5)
 * `text_filter` - JSON formatted search query. Use same structure as given by `/config/<corpora>` (default: no filter)  
