@@ -37,6 +37,12 @@ It is also possible to use `include` or `exclude` for `token_lookup`.
 
 #### Aggregations
 
+
+#### IDs
+
+Each document in a corpora is associated with an ID. In calls returning documents this is given by
+the field `doc_id`. IDs are not unique in the entire collection of material, only corpora.
+
 ## Requests
 
 ### Get a document
@@ -81,7 +87,7 @@ When `text_query` is empty, all documents in current selection will be returned.
 
 ### Search in document
 
-**GET** `/search/<corpus>/doc_id/<doc_id>/`
+**GET** `/search/<corpus>/<doc_id>/`
 
 Search in the selected  document using `text_query` for in-text-search. When `text_query_field` is empty, 
 the given `text_query` will be tokenized, lemmatized and searched for in the text content. When `text_query_field` is non-empty,
@@ -120,7 +126,7 @@ Returns the available corpora.
 
 ### Get related documents
 
-**GET** `/related/<corpus>/doc_id/<doc_id>`
+**GET** `/related/<corpus>/<doc_id>`
 
 Get a list of documents that are related to the given document.
 

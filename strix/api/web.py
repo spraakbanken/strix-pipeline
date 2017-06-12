@@ -98,8 +98,8 @@ def search():
     return elasticapi.search("text", **kwargs)
 
 
-@app.route("/search/<corpus>/doc_id/<doc_id>")
-@app.route("/search/<corpus>/doc_id/<doc_id>/")
+@app.route("/search/<corpus>/<doc_id>")
+@app.route("/search/<corpus>/<doc_id>/")
 @crossdomain(origin="*")
 @jsonify_response
 def search_in_document(corpus, doc_id):
@@ -122,7 +122,7 @@ def search_in_document(corpus, doc_id):
     return elasticapi.search_in_document(corpus, "text", doc_id, **kwargs)
 
 
-@app.route("/related/<corpus>/doc_id/<doc_id>")
+@app.route("/related/<corpus>/<doc_id>")
 @crossdomain(origin='*')
 @jsonify_response
 def get_related_documents(corpus, doc_id):

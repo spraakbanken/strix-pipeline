@@ -54,7 +54,7 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
 
     if token_lookup_from is not None and token_lookup_to is not None:
         for document in res["data"]:
-            get_token_lookup(document, document["corpus"], doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
+            get_token_lookup(document, document["corpus"], doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
 
     return res
 
@@ -85,7 +85,7 @@ def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevan
     res = do_search_query(search_corpora if search_corpora else corpus, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit)
     if token_lookup_from is not None and token_lookup_to is not None:
         for document in res["data"]:
-            get_token_lookup(document, corpus, doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
+            get_token_lookup(document, corpus, doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
 
     return res
 
@@ -111,7 +111,7 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
         elif highlight:
             item["highlight"] = process_hit(hit_corpus, hit, 5)
 
-        item["es_id"] = hit.meta.id
+        item["doc_id"] = hit.meta.id
         item["doc_type"] = hit.meta.doc_type
         item["corpus"] = hit_corpus
         move_text_attributes(hit_corpus, item, includes, excludes)
@@ -181,8 +181,8 @@ def get_document_by_id(indices, doc_type, doc_id, includes=(), excludes=(), toke
         return None
 
     document = result['_source']
-    document["es_id"] = result["_id"]
-    get_token_lookup(document, indices, doc_type, document["es_id"], includes, excludes, token_lookup_from, token_lookup_to)
+    document["doc_id"] = result["_id"]
+    get_token_lookup(document, indices, doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
     hit_corpus = result["_index"].split("_")[0]
     document["corpus"] = hit_corpus
 
@@ -214,18 +214,18 @@ def process_hit(corpus, hit, context_size):
     :param hit: a non-parsed hit that has used the strix-highlighting
     :return: hit-element with added highlighting
     """
-    es_id = hit.meta.id
+    doc_id = hit.meta.id
     doc_type = hit.meta.doc_type
 
     if hasattr(hit.meta, "highlight"):
-        highlights = get_highlights(corpus, es_id, doc_type, hit.meta.highlight.positions, context_size)
+        highlights = get_highlights(corpus, doc_id, doc_type, hit.meta.highlight.positions, context_size)
     else:
         highlights = []
 
     return {
         "highlight": highlights,
         "total_doc_highlights": len(highlights),
-        "es_id": es_id
+        "doc_id": doc_id
     }
 
 
@@ -246,8 +246,8 @@ def process_simple_highlight(highlights):
     }
 
 
-def get_highlights(corpus, es_id, doc_type, spans, context_size):
-    term_index = get_term_index(corpus, es_id, doc_type, spans, context_size)
+def get_highlights(corpus, doc_id, doc_type, spans, context_size):
+    term_index = get_term_index(corpus, doc_id, doc_type, spans, context_size)
 
     highlights = []
 
@@ -272,7 +272,7 @@ def get_highlights(corpus, es_id, doc_type, spans, context_size):
     return highlights
 
 
-def get_term_index(corpus, es_id, doc_type, spans, context_size):
+def get_term_index(corpus, doc_id, doc_type, spans, context_size):
     positions = set()
     for span in spans:
         [_from, _to] = span.split('-')
@@ -285,10 +285,10 @@ def get_term_index(corpus, es_id, doc_type, spans, context_size):
             positions.update(set(range(from_int - context_size, from_int)))
             positions.update(set(range(to_int, to_int + context_size)))
 
-    return get_terms(corpus, doc_type, es_id, positions=list(positions))
+    return get_terms(corpus, doc_type, doc_id, positions=list(positions))
 
 
-def get_terms(corpus, doc_type, es_id, positions=(), from_pos=None, size=None):
+def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None):
     term_index = {}
 
     must_clauses = []
@@ -302,7 +302,7 @@ def get_terms(corpus, doc_type, es_id, positions=(), from_pos=None, size=None):
             position_range["lte"] = from_pos + size - 1
         must_clauses.append(Q('constant_score', filter=Q('range', position=position_range)))
 
-    must_clauses.append(Q('term', doc_id=es_id))
+    must_clauses.append(Q('term', doc_id=doc_id))
     must_clauses.append(Q('term', doc_type=doc_type))
 
     query = Q('bool', must=must_clauses)
