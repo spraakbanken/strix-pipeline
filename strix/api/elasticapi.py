@@ -5,7 +5,6 @@ import elasticsearch
 import requests
 
 from elasticsearch_dsl import Search, Q
-from elasticsearch.exceptions import NotFoundError
 
 from strix.config import config
 import strix.corpusconf as corpusconf
@@ -58,6 +57,7 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
 
 
 def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), from_hit=0, to_hit=10, token_lookup_from=None, token_lookup_to=None):
+    query = None
     if relevance_function == "more_like_this":
         query = Q("more_like_this",
                   fields=["similarity_tags"],
@@ -72,20 +72,23 @@ def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevan
         if hits:
             for hit in s.execute():
                 similarity_tags = hit.similarity_tags
+                shoulds = []
+                for tag in similarity_tags.split(" "):
+                    shoulds.append(Q("term", similarity_tags=tag))
+                query = Q("bool", should=shoulds, must_not=Q("term", _id=doc_id))
                 break
         else:
             raise RuntimeError("No document with ID " + doc_id)
-        shoulds = []
-        for tag in similarity_tags.split(" "):
-            shoulds.append(Q("term", similarity_tags=tag))
-        query = Q("bool", should=shoulds, must_not=Q("term", _id=doc_id))
 
-    res = do_search_query(search_corpora if search_corpora else corpus, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit)
-    if token_lookup_from is not None and token_lookup_to is not None:
-        for document in res["data"]:
-            get_token_lookup(document, corpus, doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
+    if query:
+        res = do_search_query(search_corpora if search_corpora else corpus, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit)
+        if token_lookup_from is not None and token_lookup_to is not None:
+            for document in res["data"]:
+                get_token_lookup(document, corpus, doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
 
-    return res
+        return res
+    else:
+        return {}
 
 
 def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_field=None, before_send=None):
@@ -217,7 +220,9 @@ def process_hit(corpus, hit, context_size):
     """
     takes a hit and extracts positions from highlighting and extracts
     tokens + attributes using termvectors (to be replaced with something more effective)
+    :param corpus: the corpus of the hit
     :param hit: a non-parsed hit that has used the strix-highlighting
+    :param context_size: how many tokens should be shown to each side of the highlight
     :return: hit-element with added highlighting
     """
     doc_id = hit.meta.id
@@ -535,11 +540,11 @@ def parse_date_range_params(params, date_field):
 
 
 def date_histogram(index, doc_type, field, params):
-    def add_aggs(search):
-        a = search.aggs.bucket("histogram", "date_histogram", field=date_field, interval="year")
+    def add_aggs(s):
+        a = s.aggs.bucket("histogram", "date_histogram", field=date_field, interval="year")
         a.bucket("word_count", "sum", field="word_count")
         a.bucket(field, "terms", field=field)
-        return search
+        return s
 
     date_field = params.get("date_field")
     date_range = parse_date_range_params(params, date_field)
