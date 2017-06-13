@@ -17,8 +17,9 @@ def get_text_attributes():
     text_attributes = {}
     for file in glob.glob(get_config_file("*")):
         key = os.path.splitext(os.path.basename(file))[0]
+        conf = get_corpus_conf(key)
         try:
-            text_attributes[key] = dict((attr["name"], attr) for attr in json.load(open(file, "r"))["analyze_config"]["text_attributes"])
+            text_attributes[key] = dict((attr["name"], attr) for attr in conf["analyze_config"]["text_attributes"])
         except:
             continue
         if "title" in text_attributes[key]:
