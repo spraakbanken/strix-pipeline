@@ -168,24 +168,32 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
     return s[from_hit:to_hit]
 
 
-def get_document_by_id(indices, doc_type, doc_id, includes=(), excludes=(), token_lookup_from=None, token_lookup_to=None):
-    # TODO possible to fetch with document ID with DSL?
-    try:
-        if not excludes:
-            excludes = []
-        excludes += ("text", "original_file", "similarity_tags")
-        result = es.get(index=indices, doc_type=doc_type, id=doc_id, _source_include=includes, _source_exclude=excludes)
-    except NotFoundError:
-        return None
+def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, includes=(), excludes=(), token_lookup_from=None, token_lookup_to=None):
+    if not excludes:
+        excludes = []
+    excludes += ("text", "original_file", "similarity_tags")
+    if doc_id:
+        query = Q("term", _id=doc_id)
+    elif sentence_id:
+        query = Q("term", **{"text.sentence_id": sentence_id})
+    else:
+        raise ValueError("Document id or or sentence id must be given")
 
-    document = result['_source']
-    document["doc_id"] = result["_id"]
-    get_token_lookup(document, indices, doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
-    hit_corpus = result["_index"].split("_")[0]
-    document["corpus"] = hit_corpus
+    s = Search(index=indices, doc_type=doc_type)
+    s = s.source(includes=includes, excludes=excludes)
+    s = s.query(query)
+    s = s[0:1]
+    result = s.execute()
 
-    move_text_attributes(hit_corpus, document, includes, excludes)
-    return {"data": document}
+    for hit in result:
+        document = hit.to_dict()
+        document["doc_id"] = hit.meta.id
+        hit_corpus = hit.meta.index.split("_")[0]
+        get_token_lookup(document, indices, doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
+        document["corpus"] = hit_corpus
+        move_text_attributes(hit_corpus, document, includes, excludes)
+        return {"data": document}
+    return {}
 
 
 def move_text_attributes(corpus, item, includes, excludes):

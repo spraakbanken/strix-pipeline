@@ -51,6 +51,10 @@ the field `doc_id`. IDs are not unique in the entire collection of material, onl
 
 Returns a document from `corpus` with `doc_id` as the document ID
 
+**GET** `/document/<corpus>/sentence/<sentence_id>`
+
+Returns a document from `corpus` with `sentence_id` in the document.
+
 **Supported query params:**
 
 * `include`

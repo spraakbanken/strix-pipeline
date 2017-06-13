@@ -52,14 +52,18 @@ def get_search(request_obj):
         request_obj["text_query_field"] = request.args.get("text_query_field").replace(".", "_")
 
 
+@app.route("/document/<corpus>/sentence/<sentence_id>")
 @app.route("/document/<corpus>/<doc_id>")
 @crossdomain(origin='*')
 @jsonify_response
-def get_document(corpus, doc_id):
+def get_document(corpus, doc_id=None, sentence_id=None):
     kwargs = {}
     get_includes_excludes(kwargs)
     get_token_lookup_sizes(kwargs)
-    return elasticapi.get_document_by_id(corpus, "text", doc_id, **kwargs)
+
+    kwargs["doc_id"] = doc_id
+    kwargs["sentence_id"] = sentence_id
+    return elasticapi.get_document_by_id(corpus, "text", **kwargs)
 
 
 @app.route("/search")
