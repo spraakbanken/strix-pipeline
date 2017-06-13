@@ -5,6 +5,12 @@ from strix.config import config
 
 
 def get_corpus_conf(corpus_id):
+    """
+    Open requested corpus settings file and recursively fetch and merge
+    with parent config file, if there is one.
+    :param corpus_id: id of corpus to fetch
+    :return: a dict containing configuration for corpus
+    """
     config_file = get_config_file(corpus_id)
     config_obj = json.load(open(config_file))
     if "parent" in config_obj:
@@ -14,6 +20,9 @@ def get_corpus_conf(corpus_id):
 
 
 def get_text_attributes():
+    """
+    :return: a dict containing all text attributes by corpora
+    """
     text_attributes = {}
     for file in glob.glob(get_config_file("*")):
         key = os.path.splitext(os.path.basename(file))[0]
@@ -34,6 +43,12 @@ def get_config_file(corpus_id):
 
 
 def merge_configs(target, source):
+    """
+    Merge two corpus configurations.
+    Moves attributes from source to target, so any definitions in both will
+    be overwritten by source.
+    :return: A new corpus configuration.
+    """
     for k, v in source.items():
         if k in target:
             if k == "analyze_config":
