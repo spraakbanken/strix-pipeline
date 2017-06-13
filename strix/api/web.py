@@ -67,7 +67,6 @@ def get_document(corpus, doc_id=None, sentence_id=None):
 
 
 @app.route("/search")
-@app.route("/search/")
 @crossdomain(origin='*')
 @jsonify_response
 def search():
@@ -103,7 +102,6 @@ def search():
 
 
 @app.route("/search/<corpus>/<doc_id>")
-@app.route("/search/<corpus>/<doc_id>/")
 @crossdomain(origin="*")
 @jsonify_response
 def search_in_document(corpus, doc_id):
