@@ -325,7 +325,7 @@ def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None):
 
 def analyze_and_create_span_query(search_term, word_form_only=False, term_query=False):
     tokens = []
-    terms = search_term.split(" ")
+    terms = tokenize_search_string(search_term)
     if not term_query or len(terms) > 1:
         for term in terms:
             words = []
@@ -344,6 +344,11 @@ def analyze_and_create_span_query(search_term, word_form_only=False, term_query=
         for lemgram in lemgrammify(term):
             should.append(Q("term", **{"text.lemgram": lemgram}))
         return Q("bool", should=should), "fvh"
+
+
+# TODO this needs to be replaced with proper tokenizing
+def tokenize_search_string(search_term):
+    return search_term.split(" ")
 
 
 def lemgrammify(term):
