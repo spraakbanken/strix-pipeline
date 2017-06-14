@@ -18,19 +18,20 @@ _logger = logging.getLogger(__name__)
 def search(doc_type, corpora=(), text_query_field=None, text_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None, simple_highlight=False, token_lookup_from=None, token_lookup_to=None):
     simple_highlight_type = None
     add_fuzzy_query = False
+    search_queries = []
     if text_query:
         if text_query_field:
-            query = Q("span_term", **{"text." + text_query_field: text_query})
+            search_queries.append(Q("span_term", **{"text." + text_query_field: text_query}))
         else:
             query, simple_highlight_type = analyze_and_create_span_query(text_query, term_query=simple_highlight)
+            search_queries.append(query)
             add_fuzzy_query = True
     else:
-        query = None
         highlight = None
 
     if add_fuzzy_query:
-        query = Q("bool", should=[query, Q("fuzzy", title={"value": text_query, "boost": 50})])
-    query = join_queries(text_filter, query)
+        search_queries.append(Q("fuzzy", title={"value": text_query, "boost": 50}))
+    query = join_queries(text_filter, search_queries)
 
     def before_send(s):
         if should_include("aggregations", includes, excludes):
@@ -126,7 +127,7 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
     return output
 
 
-def join_queries(text_filter, search_query):
+def join_queries(text_filter, search_queries):
     filter_clauses = []
     if text_filter:
         for k, v in text_filter.items():
@@ -141,13 +142,18 @@ def join_queries(text_filter, search_query):
             else:
                 raise ValueError("Expression " + str(v) + " is not allowed")
 
-    if search_query and filter_clauses:
-        filter_clauses.append(search_query)
-
     if filter_clauses:
-        return Q("bool", must=filter_clauses)
+        if len(search_queries) > 0:
+            minimum_should_match = 1
+        else:
+            minimum_should_match = 0
+        return Q("bool", filter=filter_clauses, should=search_queries, minimum_should_match=minimum_should_match)
+    elif len(search_queries) > 1:
+        return Q("bool", should=search_queries, minimum_should_match=1)
+    elif len(search_queries) is 1:
+        return search_queries[0]
     else:
-        return search_query
+        return None
 
 
 def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_fields=None):
