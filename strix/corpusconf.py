@@ -1,22 +1,18 @@
 import json
 import os
 import glob
+import logging
 from strix.config import config
+
+
+_logger = logging.getLogger(__name__)
 
 
 def get_corpus_conf(corpus_id):
     """
-    Open requested corpus settings file and recursively fetch and merge
-    with parent config file, if there is one.
-    :param corpus_id: id of corpus to fetch
-    :return: a dict containing configuration for corpus
+    get all information about corpus_id
     """
-    config_file = get_config_file(corpus_id)
-    config_obj = json.load(open(config_file))
-    if "parent" in config_obj:
-        parent_obj = get_corpus_conf(config_obj["parent"])
-        merge_configs(config_obj, parent_obj)
-    return config_obj
+    return _all_config_files[corpus_id]
 
 
 def get_text_attributes():
@@ -24,25 +20,48 @@ def get_text_attributes():
     :return: a dict containing all text attributes by corpora
     """
     text_attributes = {}
-    for file in glob.glob(get_config_file("*")):
-        key = os.path.splitext(os.path.basename(file))[0]
-        conf = get_corpus_conf(key)
+    for key, conf in _all_config_files.items():
         try:
             text_attributes[key] = dict((attr["name"], attr) for attr in conf["analyze_config"]["text_attributes"])
-        except:
+        except KeyError:
+            _logger.info("No text attributes for corpus: %s" % key)
             continue
         if "title" in text_attributes[key]:
             del text_attributes[key]["title"]
 
+    # TODO WHY do we need this???
     text_attributes["litteraturbanken"] = []
     return text_attributes
 
 
-def get_config_file(corpus_id):
+def _get_all_config_files():
+    config_files = {}
+    for file in glob.glob(_get_config_file("*")):
+        key = os.path.splitext(os.path.basename(file))[0]
+        config_files[key] = _fetch_corpus_conf(key)
+    return config_files
+
+
+def _fetch_corpus_conf(corpus_id):
+    """
+    Open requested corpus settings file and recursively fetch and merge
+    with parent config file, if there is one.
+    :param corpus_id: id of corpus to fetch
+    :return: a dict containing configuration for corpus
+    """
+    config_file = _get_config_file(corpus_id)
+    config_obj = json.load(open(config_file))
+    if "parent" in config_obj:
+        parent_obj = _fetch_corpus_conf(config_obj["parent"])
+        _merge_configs(config_obj, parent_obj)
+    return config_obj
+
+
+def _get_config_file(corpus_id):
     return os.path.join(config.base_dir, "resources/config/" + corpus_id + ".json")
 
 
-def merge_configs(target, source):
+def _merge_configs(target, source):
     """
     Merge two corpus configurations.
     Moves attributes from source to target, so any definitions in both will
@@ -66,3 +85,5 @@ def merge_configs(target, source):
                 target[k] = v
         else:
             target[k] = v
+
+_all_config_files = _get_all_config_files()
