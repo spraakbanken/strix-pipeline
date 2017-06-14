@@ -304,19 +304,19 @@ def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None):
 
     must_clauses = []
     if positions:
-        must_clauses.append(Q('constant_score', filter=Q('terms', position=positions)))
+        must_clauses.append(Q('terms', position=positions))
     elif from_pos or size:
         if not from_pos:
             from_pos = 0
         position_range = {"gte": from_pos}
         if size:
             position_range["lte"] = from_pos + size - 1
-        must_clauses.append(Q('constant_score', filter=Q('range', position=position_range)))
+        must_clauses.append(Q('range', position=position_range))
 
     must_clauses.append(Q('term', doc_id=doc_id))
     must_clauses.append(Q('term', doc_type=doc_type))
 
-    query = Q('bool', must=must_clauses)
+    query = Q('constant_score', filter=Q('bool', must=must_clauses))
 
     s = Search(index=corpus + "_terms", doc_type="term").query(query)
     s.sort("_doc")
@@ -405,7 +405,6 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
         obj["doc_id"] = hit.meta.id
         obj["doc_type"] = hit.meta.doc_type
         obj["corpus"] = hit.meta.index.split("_")[0]
-        obj["highlight"] = []
 
         move_text_attributes(obj["corpus"], obj, includes, excludes)
 
@@ -415,18 +414,22 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
             if not forward:
                 positions.reverse()
 
+            get_positions = []
             for span_pos in positions:
                 pos = int(span_pos.split("-")[0])
                 if forward and pos > current_position or not forward and pos < current_position:
-                    terms = get_terms(corpus, doc_type, doc_id, positions=[pos])
-                    obj["highlight"].append(list(terms.values())[0])
+                    get_positions.append(pos)
                     count += 1
 
                 if size and size <= count:
                     break
+            terms = get_terms(corpus, doc_type, doc_id, positions=get_positions)
+            obj["highlight"] = list(terms.values())
 
-        if not forward:
-            obj["highlight"].reverse()
+            if not forward:
+                obj["highlight"].reverse()
+        else:
+            obj["highlight"] = []
 
         get_token_lookup(obj, corpus, doc_type, obj["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
 
