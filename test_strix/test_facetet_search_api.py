@@ -101,7 +101,7 @@ class FacetetSearchTest(unittest.TestCase):
         assert wikipedia_found
 
     def test_text_filter_1(self):
-        result = self.do_request('/aggs?text_filter={"party": ["v","m"]}&corpora=vivill')
+        result = self.do_request('/aggs?text_filter={"party": ["v","m"]}&corpora=vivill&')
         found_vivill = False
         for bucket in result["aggregations"]["corpora"]["buckets"]:
             if bucket["key"] == "vivill":
@@ -115,18 +115,38 @@ class FacetetSearchTest(unittest.TestCase):
         assert len(result["aggregations"]["party"]["buckets"]) == 22
 
         # but not all years, nor all types of documents
-        assert len(result["aggregations"]["year"]["buckets"]) == 44
-        assert len(result["aggregations"]["type"]["buckets"]) == 3
+        year_count = 0
+        for bucket in result["aggregations"]["year"]["buckets"]:
+            if bucket["doc_count"] > 0:
+                year_count += 1
+        assert year_count == 44
+        type_count = 0
+        for bucket in result["aggregations"]["type"]["buckets"]:
+            if bucket["doc_count"] > 0:
+                type_count += 1
+        assert type_count == 3
 
     def test_text_filter_2(self):
         result = self.do_request('/aggs?text_filter={"party": ["v","m"], "year": ["2010"]}&corpora=vivill')
 
-        # only parties with documents from 2004 appear in the list
-        assert len(result["aggregations"]["party"]["buckets"]) == 11
+        # only parties with documents from 2004 have non-zero values
+        party_count = 0
+        for bucket in result["aggregations"]["party"]["buckets"]:
+            if bucket["doc_count"] > 0:
+                party_count += 1
+        assert party_count == 11
         # with years only constrained by "party"
-        assert len(result["aggregations"]["year"]["buckets"]) == 44
+        year_count = 0
+        for bucket in result["aggregations"]["year"]["buckets"]:
+            if bucket["doc_count"] > 0:
+                year_count += 1
+        assert year_count == 44
         # with type constrained by "party" and "year"
-        assert len(result["aggregations"]["type"]["buckets"]) == 1
+        type_count = 0
+        for bucket in result["aggregations"]["type"]["buckets"]:
+            if bucket["doc_count"] > 0:
+                type_count += 1
+        assert type_count == 1
 
     def test_expected_number_of_aggs_1(self):
         result = self.do_request("/aggs?facet_count=1")
@@ -139,3 +159,20 @@ class FacetetSearchTest(unittest.TestCase):
         result = self.do_request("/aggs?facet_count=2")
         aggregation_keys = result["aggregations"].keys()
         assert len(aggregation_keys) == 2
+
+    def test_exclude_empty_buckets(self):
+        base_url = '/aggs?facet_count=3&corpora=vivill&text_filter={"party": ["v","m"]}'
+        result = self.do_request(base_url)
+        empty_bucket = False
+        for v in result["aggregations"].values():
+            buckets = v["buckets"]
+            for bucket in buckets:
+                if bucket["doc_count"] == 0:
+                    empty_bucket = True
+        assert empty_bucket
+
+        result = self.do_request(base_url + "&exclude_empty_buckets")
+        for v in result["aggregations"].values():
+            buckets = v["buckets"]
+            for bucket in buckets:
+                assert bucket["doc_count"] > 0

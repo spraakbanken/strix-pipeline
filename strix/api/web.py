@@ -187,6 +187,8 @@ def aggs():
     kwargs = {}
     if "facet_count" in request.args:
         kwargs["facet_count"] = int(request.args["facet_count"])
+    if "exclude_empty_buckets" in request.args:
+        kwargs["min_doc_count"] = 1
     get_material_selection(kwargs)
     res = elasticapi.get_aggs(**kwargs)
     return res

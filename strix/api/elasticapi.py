@@ -604,7 +604,7 @@ def expand_corpus_ids(corpora):
     return expanded_corpus_names
 
 
-def get_aggs(corpora=(), text_filter=None, facet_count=4, included_facets=()):
+def get_aggs(corpora=(), text_filter=None, facet_count=4, included_facets=(), min_doc_count=0):
     if len(corpora) == 0:
         raise ValueError("Something went wrong")
 
@@ -618,10 +618,10 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, included_facets=()):
         filters = [value for text_filter, value in text_filters.items() if text_filter != text_attribute]
         filters.append(corpus_filter)
         a = s.aggs.bucket(text_attribute + "_all", "filter", filter=Q("bool", filter=filters))
-        a.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"})
+        a.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
 
     a = s.aggs.bucket("corpora_all", "filter", filter=Q("bool", filter=list(text_filters.values())))
-    a.bucket("corpora", "terms", field="_index", size=ALL_BUCKETS, order={"_term": "asc"})
+    a.bucket("corpora", "terms", field="_index", size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
 
     s = s[0:0]
     result = s.execute().to_dict()
