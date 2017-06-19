@@ -14,45 +14,45 @@ connections.create_connection(hosts=["localhost"], timeout=120)
 class ElasticApiTest(unittest.TestCase):
 
     def test_empty_search(self):
-        result = api.search("vivill", "text", search_term="foobar")
+        result = api.search("text", corpora="vivill", text_query="foobar")
         assert result['data'] == []
         assert result['hits'] == 0
 
     def test_simple_search(self):
-        result = api.search("vivill", "text", search_term="hund", highlight={'number_of_fragments': 1})
+        result = api.search("text", corpora="vivill", text_query="hund", highlight={'number_of_fragments': 1})
         assert result['hits'] == 1
         item = result['data'][0]
         assert item["text_attributes"]['party'] != ''
         assert "hund" in item['highlight']['highlight'][0]['match'][0]['word']
 
     def test_simple_search_excludes(self):
-        result = api.search("vivill", "text", search_term="hund", excludes=['dump'])
+        result = api.search("text", corpora="vivill", text_query="hund", excludes=['dump'])
         assert result['hits'] == 1
         item = result['data'][0]
         with pytest.raises(KeyError):
-            item["text_attributes"]['dump']
+            item["text_attributes"]["dump"]
 
     def test_search_wrong_doc_type(self):
         doc_type = "asdf"
-        result = api.search("vivill", doc_type, search_term="hund")
+        result = api.search(doc_type, corpora="vivill", text_query="hund")
         assert result['hits'] == 0
 
     def test_paging(self):
-        result = api.search("vivill", "text", from_hit=25, to_hit=27)
+        result = api.search("text", corpora="vivill", from_hit=25, to_hit=27)
         assert result['hits'] == 243
         assert len(result['data']) == 2
 
     def test_malformed_paging(self):
-        result = api.search("vivill", "text", from_hit=29, to_hit=27)
-        assert len(result["data"]) == 0
+        with pytest.raises(RuntimeError):
+            api.search("text", corpora="vivill", from_hit=29, to_hit=27)
 
     def test_get_document(self):
-        result = api.search("vivill", "text", from_hit=28, to_hit=29)
+        result = api.search("text", corpora="vivill", from_hit=28, to_hit=29)
         item = result['data'][0]
-        id = item['es_id']
-        result = api.get_document_by_id("vivill", "text", id, [], [])
+        id = item['doc_id']
+        result = api.get_document_by_id("vivill", "text", doc_id=id)
         assert result['data']
 
     def test_get_nonexistent_document(self):
-        result = api.get_document_by_id("vivill", "text", "nonexisting", [], [])
+        result = api.get_document_by_id("vivill", "text", doc_id="nonexisting")
         assert not result

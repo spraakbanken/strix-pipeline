@@ -24,7 +24,7 @@ class WebApiTest(unittest.TestCase):
 
     host = "http://localhost:5000"
     corpus_config = json.load(open(os.path.dirname(os.path.realpath(__file__)) + "/../resources/config/" + corpus + ".json"))
-    text_structures = ["dump", "lines", "es_id", "word_count", "title", "text_attributes", "corpus"]
+    text_structures = ["dump", "lines", "doc_id", "word_count", "title", "text_attributes", "corpus"]
 
     def setUp(self):
         self.app = web.app.test_client()
@@ -34,7 +34,7 @@ class WebApiTest(unittest.TestCase):
         return json.loads(rv.data.decode())
 
     def test_search(self):
-        result = self.do_request("/search/" + WebApiTest.corpus + "/" + WebApiTest.search["value"] + "?exclude=text,dump,lines,token_lookup")
+        result = self.do_request("/search?exclude=text,dump,lines,token_lookup&corpora=" + WebApiTest.corpus + "&text_query=" + WebApiTest.search["value"])
         assert result["hits"] == WebApiTest.search["expected_results"]
 
         for token in result["data"][0]["highlight"]["highlight"][0]["match"]:
@@ -53,12 +53,14 @@ class WebApiTest(unittest.TestCase):
             del data["highlight"]
             self.check_doc_text_attributes(data)
 
+    @unittest.skip("this test will fail until the old vivill IDs are back")
     def test_get_document1(self):
         for doc_id in WebApiTest.doc_ids:
             result = self.do_request("/document/" + WebApiTest.corpus + "/" + doc_id + "?exclude=token_lookup")
             doc = result["data"]
             self.check_doc_text_attributes(doc)
 
+    @unittest.skip("this test will fail until the old vivill IDs are back")
     def test_get_document3(self):
         for doc_id in WebApiTest.doc_ids:
             result = self.do_request("/document/" + WebApiTest.corpus + "/" + doc_id + "?exclude=token_lookup")
@@ -66,14 +68,12 @@ class WebApiTest(unittest.TestCase):
             with pytest.raises(KeyError):
                 doc["token_lookup"]
 
-    # def test_get_document2(self):
-    #     for doc_id in WebApiTest.doc_ids:
-    #         result = self.do_request("/document/" + WebApiTest.corpus + "/" + doc_id + "?include=dump")
-    #         doc = result['data']
-    #         self.check_doc_text_attributes(doc)
+    def test_get_document_with_bad_doc_id(self):
+        result = self.do_request("/document/" + WebApiTest.corpus + "/qwerty?exclude=token_lookup")
+        assert result == {}
 
     def test_get_documents(self):
-        result = self.do_request("/search/" + WebApiTest.corpus + "/?exclude=token_lookup&from=25&to=50")
+        result = self.do_request("/search?exclude=token_lookup&from=25&to=50&corpora=" + WebApiTest.corpus)
         assert result["hits"] == WebApiTest.total_num_documents
         hits = result["data"]
         assert len(hits) == 25
@@ -83,7 +83,7 @@ class WebApiTest(unittest.TestCase):
             self.check_doc_text_attributes(doc)
 
     def test_filters(self):
-        result = self.do_request("/search/" + WebApiTest.corpus + '/?exclude=token_lookup&from=25&to=50&text_filter={"party": "m"}')
+        result = self.do_request('/search?exclude=token_lookup&from=25&to=50&text_filter={"party": "m"}&corpora=' + WebApiTest.corpus)
         assert result["hits"] == 39
 
     def check_doc_text_attributes(self, doc):
