@@ -55,9 +55,9 @@ class FacetetSearchTest(unittest.TestCase):
         for key in keys:
             assert key in buckets
 
-        assert buckets["huvuddokument"] == 275916
+        assert buckets["huvuddokument"] == 276066
         assert buckets["anforande"] == 91575
-        assert buckets["forslag"] == 383135
+        assert buckets["forslag"] == 383632
         assert buckets["utskottsforslag"] == 6348
 
     def test_rd_datatyp_bucket_corpora_filter(self):
@@ -176,3 +176,21 @@ class FacetetSearchTest(unittest.TestCase):
             buckets = v["buckets"]
             for bucket in buckets:
                 assert bucket["doc_count"] > 0
+
+    def test_list_of_facets(self):
+        result = self.do_request("/aggs?include_facets=party,year,type")
+        facets = list(result["aggregations"].keys())
+
+        assert len(facets) == 4
+        assert "party" in facets
+        assert "year" in facets
+        assert "type" in facets
+        assert "corpora" in facets
+
+    def test_unused_facets(self):
+        result = self.do_request("/aggs?include_facets=party,year,type")
+        unused_facets = result["unused_facets"]
+        assert "subtitel" in unused_facets
+        assert "organ" in unused_facets
+        assert "datatyp" in unused_facets
+        assert len(unused_facets) == 13

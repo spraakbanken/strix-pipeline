@@ -159,10 +159,12 @@ Get an aggregation of the current set of documents (as decided by `text_filter` 
   `vivill`-facets will be included in the result. If many corpora is selected, it will be the most common
   attributes that will be used.
 - Selected `corpora` and `text_filter` will be used to decide the counts for the different facets.
+- The available facets are given in the result as `unused_facets`.
 
 * `corpora` - Selected material. (default: All corpora)
 * `text_filter` - JSON formatted search query. Use same structure as given by `/config/<corpora>` (default: no filter)  
    Example1: `text_filter={ "party": ["v","m"], "year": "2010" }`  
    Example2: `text_filter={ "datefrom": { "range": { "gte": "19900101","lte": "19960101" }}}`
 * `facet_count` - Integer, the number of facets that will be generated
+* `include_facets` - List of attribute names to be included in the result. `facet_count` will be ignored.
 * `exclude_empty_buckets` - If included will remove all buckets that are empty from the result

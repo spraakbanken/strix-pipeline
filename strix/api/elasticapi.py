@@ -604,7 +604,7 @@ def expand_corpus_ids(corpora):
     return expanded_corpus_names
 
 
-def get_aggs(corpora=(), text_filter=None, facet_count=4, included_facets=(), min_doc_count=0):
+def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min_doc_count=0):
     if len(corpora) == 0:
         raise ValueError("Something went wrong")
 
@@ -613,7 +613,11 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, included_facets=(), mi
     corpus_filter = Q("terms", _index=expand_corpus_ids(corpora))
     text_filters = get_text_filters(text_filter)
 
+    if include_facets:
+        facet_count = 1
     (use_text_attributes, additional_text_attributes) = get_most_common_text_attributes(corpora, facet_count - 1)
+    if include_facets:
+        use_text_attributes = include_facets
     for text_attribute in use_text_attributes:
         filters = [value for text_filter, value in text_filters.items() if text_filter != text_attribute]
         filters.append(corpus_filter)
