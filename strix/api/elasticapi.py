@@ -34,7 +34,8 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
     query = join_queries(text_filter, search_queries)
 
     def before_send(s):
-        if should_include("aggregations", includes, excludes):
+        if "aggregations" in includes:
+            includes.remove("aggregations")
             for index in corpora:
                 for text_attribute, value in text_attributes[index].items():
                     if value.get("include_in_aggregation"):
@@ -127,20 +128,28 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
     return output
 
 
+def get_text_filters(text_filter):
+    if not text_filter:
+        return {}
+    filter_clauses = {}
+    for k, v in text_filter.items():
+        if isinstance(v, str):
+            filter_clauses[k] = Q("term", **{k: v})
+        elif isinstance(v, list):
+            filter_clauses[k] = Q("terms", **{k: v})
+        elif isinstance(v, dict) and "range" in v:
+            query_obj = v["range"]
+            for key in query_obj.keys():
+                if key not in ["gte", "gt", "lte", "lt"]:
+                    raise ValueError("Operator: " + key + " not supported by range query")
+            filter_clauses[k] = Q("range", **{k: v["range"]})
+        else:
+            raise ValueError("Expression " + str(v) + " for key " + k + " is not allowed")
+    return filter_clauses
+
+
 def join_queries(text_filter, search_queries):
-    filter_clauses = []
-    if text_filter:
-        for k, v in text_filter.items():
-            if isinstance(v, str):
-                filter_clauses.append(Q("term", **{k: v}))
-            elif "range" in v:
-                query_obj = v["range"]
-                for key in query_obj.keys():
-                    if key not in ["gte", "gt", "lte", "lt"]:
-                        raise ValueError("Operator: " + key + " not supported by range query")
-                filter_clauses.append(Q("range", **{k: v["range"]}))
-            else:
-                raise ValueError("Expression " + str(v) + " is not allowed")
+    filter_clauses = list(get_text_filters(text_filter).values())
 
     if filter_clauses:
         if len(search_queries) > 0:
@@ -569,3 +578,65 @@ def date_histogram(index, doc_type, field, params):
         output.append({"x": x / 1000, "y": y, "titles": titles})
 
     return output
+
+
+def get_most_common_text_attributes(corpora, facet_count):
+    supported_text_attributes = {}
+    for index in corpora:
+        for text_attribute, value in text_attributes[index].items():
+            if value.get("include_in_aggregation"):
+                if text_attribute in supported_text_attributes:
+                    supported_text_attributes[text_attribute] += 1
+                else:
+                    supported_text_attributes[text_attribute] = 1
+    tmp = sorted(supported_text_attributes.items(), key=lambda x: x[1], reverse=True)
+    tmp1 = [k for (k, v) in tmp]
+    return tmp1[0:facet_count], tmp1[facet_count:]
+
+
+def expand_corpus_ids(corpora):
+    # TODO index corpus_id and use instead of this...
+    expanded_corpus_names = []
+    indices = es.cat.indices(h="index").split("\n")[:-1]
+    for index in indices:
+        if index.split("_")[0] in corpora:
+            expanded_corpus_names.append(index)
+    return expanded_corpus_names
+
+
+def get_aggs(corpora=(), text_filter=None, facet_count=4, included_facets=()):
+    if len(corpora) == 0:
+        raise ValueError("Something went wrong")
+
+    s = Search(index="*", doc_type="text")
+
+    corpus_filter = Q("terms", _index=expand_corpus_ids(corpora))
+    text_filters = get_text_filters(text_filter)
+
+    (use_text_attributes, additional_text_attributes) = get_most_common_text_attributes(corpora, facet_count - 1)
+    for text_attribute in use_text_attributes:
+        filters = [value for text_filter, value in text_filters.items() if text_filter != text_attribute]
+        filters.append(corpus_filter)
+        a = s.aggs.bucket(text_attribute + "_all", "filter", filter=Q("bool", filter=filters))
+        a.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"})
+
+    a = s.aggs.bucket("corpora_all", "filter", filter=Q("bool", filter=list(text_filters.values())))
+    a.bucket("corpora", "terms", field="_index", size=ALL_BUCKETS, order={"_term": "asc"})
+
+    s = s[0:0]
+    result = s.execute().to_dict()
+
+    new_result = {"aggregations": {}, "unused_facets": additional_text_attributes}
+    for x in result["aggregations"]:
+        new_key = x.split("_all")[0]
+        if new_key == "corpora":
+            new_buckets = []
+            for bucket in result["aggregations"][x]["corpora"]["buckets"]:
+                corpus_key = bucket["key"].split("_")[0]
+                new_buckets.append({"doc_count": bucket["doc_count"], "key": corpus_key})
+            new_result["aggregations"][new_key] = {"buckets": new_buckets}
+            pass
+        else:
+            new_result["aggregations"][new_key] = result["aggregations"][x][new_key]
+
+    return new_result

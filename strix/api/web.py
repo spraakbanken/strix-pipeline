@@ -180,6 +180,18 @@ def date_histogram(corpus, field):
     return elasticapi.date_histogram(corpus, "text", field, request.args)
 
 
+@app.route("/aggs")
+@crossdomain(origin="*")
+@jsonify_response
+def aggs():
+    kwargs = {}
+    if "facet_count" in request.args:
+        kwargs["facet_count"] = int(request.args["facet_count"])
+    get_material_selection(kwargs)
+    res = elasticapi.get_aggs(**kwargs)
+    return res
+
+
 @app.route("/config")
 @crossdomain(origin="*")
 @jsonify_response
