@@ -501,13 +501,10 @@ def should_include(attribute, includes, excludes):
 
 
 def get_config(only_ids=False):
-    # TODO replace this with all aliases
-    result = es.cat.indices(h="index", index="*_terms")
+    result = es.cat.aliases(h="alias")
     index_names = []
-    for term_index in result.split("\n"):
-        if not term_index:
-            continue
-        index_names.append(term_index.split("_terms")[0])
+    for index_name in result.split("\n")[:-1]:
+        index_names.append(index_name)
 
     if only_ids:
         return index_names
