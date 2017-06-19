@@ -35,9 +35,6 @@ Note that the returned array can be huge depending on document size and may take
 For calls returning multiple documents (search and related documents), it is disabled by default.
 It is also possible to use `include` or `exclude` for `token_lookup`.
 
-#### Aggregations
-
-
 #### IDs
 
 Each document in a corpora is associated with an ID. In calls returning documents this is given by
@@ -149,3 +146,23 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-mlt-qu
 * `relevance_function` - Possible values are: `more_like_this`, `disjunctive_query` (default: `more_like_this`)
 * `max_query_terms` - Only applicable for `more_like_this`, see elasticsearch documentation (default: 30)
 * `min_term_freq` - Only applicable for `more_like_this`, see elasticsearch documentation (default: 1)
+
+### Aggregations / faceted search
+
+**GET** `/aggs`
+
+Get an aggregation of the current set of documents (as decided by `text_filter` and `corpora`).
+
+- Document count for corpora will always be returned.
+- Only text attributes that have `include_in_aggregation` set, may be used for aggregation. 
+- The other facets will be decided by the selected corpora. If only `vivill`-corpus is selected, only
+  `vivill`-facets will be included in the result. If many corpora is selected, it will be the most common
+  attributes that will be used.
+- Selected `corpora` and `text_filter` will be used to decide the counts for the different facets.
+
+* `corpora` - Selected material. (default: All corpora)
+* `text_filter` - JSON formatted search query. Use same structure as given by `/config/<corpora>` (default: no filter)  
+   Example1: `text_filter={ "party": ["v","m"], "year": "2010" }`  
+   Example2: `text_filter={ "datefrom": { "range": { "gte": "19900101","lte": "19960101" }}}`
+* `facet_count` - Integer, the number of facets that will be generated
+* `exclude_empty_buckets` - If included will remove all buckets that are empty from the result
