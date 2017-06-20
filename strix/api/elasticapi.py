@@ -48,7 +48,7 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
     if "aggregations" in res:
         corpora_buckets = []
         for bucket in res["aggregations"]["corpora"]["buckets"]:
-            corpora_buckets.append({"doc_count": bucket["doc_count"], "key": bucket["key"].split("_")[0]})
+            corpora_buckets.append({"doc_count": bucket["doc_count"], "key": corpus_id_to_alias(bucket["key"])})
         res["aggregations"]["corpora"]["buckets"] = corpora_buckets
 
     if token_lookup_from is not None and token_lookup_to is not None:
@@ -106,7 +106,7 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
     hits = s.execute()
     items = []
     for hit in hits:
-        hit_corpus = hit.meta.index.split("_")[0]
+        hit_corpus = corpus_id_to_alias(hit.meta.index)
         item = hit.to_dict()
         if simple_highlight:
             if hasattr(hit.meta, "highlight"):
@@ -206,7 +206,7 @@ def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, include
     for hit in result:
         document = hit.to_dict()
         document["doc_id"] = hit.meta.id
-        hit_corpus = hit.meta.index.split("_")[0]
+        hit_corpus = corpus_id_to_alias(hit.meta.index)
         get_token_lookup(document, indices, doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
         document["corpus"] = hit_corpus
         move_text_attributes(hit_corpus, document, includes, excludes)
@@ -419,7 +419,7 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
         obj = hit.to_dict()
         obj["doc_id"] = hit.meta.id
         obj["doc_type"] = hit.meta.doc_type
-        obj["corpus"] = hit.meta.index.split("_")[0]
+        obj["corpus"] = corpus_id_to_alias(hit.meta.index)
 
         move_text_attributes(obj["corpus"], obj, includes, excludes)
 
@@ -594,23 +594,13 @@ def get_most_common_text_attributes(corpora, facet_count):
     return tmp1[0:facet_count], tmp1[facet_count:]
 
 
-def expand_corpus_ids(corpora):
-    # TODO index corpus_id and use instead of this...
-    expanded_corpus_names = []
-    indices = es.cat.indices(h="index").split("\n")[:-1]
-    for index in indices:
-        if index.split("_")[0] in corpora:
-            expanded_corpus_names.append(index)
-    return expanded_corpus_names
-
-
 def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min_doc_count=0):
     if len(corpora) == 0:
         raise ValueError("Something went wrong")
 
     s = Search(index="*", doc_type="text")
 
-    corpus_filter = Q("terms", _index=expand_corpus_ids(corpora))
+    corpus_filter = Q("terms", _index=corpus_alias_to_id(corpora))
     text_filters = get_text_filters(text_filter)
 
     if include_facets:
@@ -624,6 +614,7 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
         a = s.aggs.bucket(text_attribute + "_all", "filter", filter=Q("bool", filter=filters))
         a.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
 
+    # TODO index corpus_id and use instead of this...
     a = s.aggs.bucket("corpora_all", "filter", filter=Q("bool", filter=list(text_filters.values())))
     a.bucket("corpora", "terms", field="_index", size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
 
@@ -636,7 +627,7 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
         if new_key == "corpora":
             new_buckets = []
             for bucket in result["aggregations"][x]["corpora"]["buckets"]:
-                corpus_key = bucket["key"].split("_")[0]
+                corpus_key = corpus_id_to_alias(bucket["key"])
                 new_buckets.append({"doc_count": bucket["doc_count"], "key": corpus_key})
             new_result["aggregations"][new_key] = {"buckets": new_buckets}
             pass
@@ -644,3 +635,16 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
             new_result["aggregations"][new_key] = result["aggregations"][x][new_key]
 
     return new_result
+
+
+def corpus_alias_to_id(corpora):
+    expanded_corpus_names = []
+    indices = es.cat.indices(h="index").split("\n")[:-1]
+    for index in indices:
+        if index.split("_")[0] in corpora:
+            expanded_corpus_names.append(index)
+    return expanded_corpus_names
+
+
+def corpus_id_to_alias(corpus):
+    return corpus.split("_")[0]
