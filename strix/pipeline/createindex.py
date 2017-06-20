@@ -28,8 +28,9 @@ class CreateIndex:
             self.word_attributes.append(attr)
         for nodeName, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
             for attr in attributes:
-                attr["name"] = nodeName + "_" + attr["name"]
-                self.word_attributes.append(attr)
+                new_attr = dict(attr)
+                new_attr["name"] = nodeName + "_" + attr["name"]
+                self.word_attributes.append(new_attr)
 
         self.text_attributes = corpus_config["analyze_config"]["text_attributes"]
         self.reindexing = reindexing
