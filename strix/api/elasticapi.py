@@ -11,7 +11,7 @@ import strix.corpusconf as corpusconf
 
 ALL_BUCKETS = "2147483647"
 
-es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
+es = elasticsearch.Elasticsearch(hosts=config.elastic_hosts if config.has_attr("elastic_hosts") else None, timeout=120)
 _logger = logging.getLogger(__name__)
 
 

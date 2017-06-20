@@ -13,7 +13,7 @@ from strix.config import config
 import strix.loghelper
 app = Flask(__name__)
 
-connections.create_connection(hosts=config.elastic_hosts, timeout=120)
+connections.create_connection(hosts=config.elastic_hosts if config.has_attr("elastic_hosts") else None, timeout=120)
 _logger = logging.getLogger("strix.api.web")
 
 
