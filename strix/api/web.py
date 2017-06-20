@@ -5,7 +5,6 @@ import logging
 import os
 
 import markdown
-from elasticsearch_dsl.connections import connections
 from flask import Flask, request
 from strix.api.flask_util import crossdomain, jsonify_response
 import strix.api.elasticapi as elasticapi
@@ -13,7 +12,6 @@ from strix.config import config
 import strix.loghelper
 app = Flask(__name__)
 
-connections.create_connection(hosts=config.elastic_hosts if config.has_attr("elastic_hosts") else None, timeout=120)
 _logger = logging.getLogger("strix.api.web")
 
 

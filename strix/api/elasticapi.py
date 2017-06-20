@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 import logging
 
-import elasticsearch
 import requests
 
 from elasticsearch_dsl import Search, Q
+from elasticsearch_dsl.connections import connections
 
 from strix.config import config
 import strix.corpusconf as corpusconf
 
 ALL_BUCKETS = "2147483647"
 
-es = elasticsearch.Elasticsearch(hosts=config.elastic_hosts if config.has_attr("elastic_hosts") else None, timeout=120)
+es = connections.create_connection(hosts=config.elastic_hosts if config.has_attr("elastic_hosts") else None, timeout=120)
 _logger = logging.getLogger(__name__)
 
 
