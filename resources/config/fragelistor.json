@@ -60,6 +60,10 @@
             },
             {
                 "name": "author_signature"
+            },
+            {
+                "name": "_id",
+                "ignore": true
             }
         ],
         "word_attributes": [
@@ -126,7 +130,6 @@
     "title": [{
         "title": "topicname"
     }],
-    "has_id": true,
     "corpus_name": {
         "swe": "Etnologiska frågelistor",
         "eng": "Ethnological question lists"
@@ -136,5 +139,6 @@
     "corpus_description": {
         "swe": "Nordiska museets frågelistor",
         "eng": "Question lists of the Nordic Museum"
-    }
+    },
+    "document_id": "_id"
 }

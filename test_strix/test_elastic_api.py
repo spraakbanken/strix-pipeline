@@ -56,3 +56,8 @@ class ElasticApiTest(unittest.TestCase):
     def test_get_nonexistent_document(self):
         result = api.get_document_by_id("vivill", "text", doc_id="nonexisting")
         assert not result
+
+    def test_search_in_document(self):
+        doc_id = "c-2002v"
+        result = api.search_in_document("vivill", "text", doc_id)
+        assert result["doc_id"] == doc_id

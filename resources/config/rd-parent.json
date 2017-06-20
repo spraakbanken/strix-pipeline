@@ -34,5 +34,6 @@
             "pattern": "{datatyp}"
         }
     ],
-    "file_name_pattern": "*.xml"
+    "file_name_pattern": "*.xml",
+    "document_id": "generated"
 }

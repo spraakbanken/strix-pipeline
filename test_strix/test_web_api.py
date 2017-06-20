@@ -53,14 +53,12 @@ class WebApiTest(unittest.TestCase):
             del data["highlight"]
             self.check_doc_text_attributes(data)
 
-    @unittest.skip("this test will fail until the old vivill IDs are back")
     def test_get_document1(self):
         for doc_id in WebApiTest.doc_ids:
             result = self.do_request("/document/" + WebApiTest.corpus + "/" + doc_id + "?exclude=token_lookup")
             doc = result["data"]
             self.check_doc_text_attributes(doc)
 
-    @unittest.skip("this test will fail until the old vivill IDs are back")
     def test_get_document3(self):
         for doc_id in WebApiTest.doc_ids:
             result = self.do_request("/document/" + WebApiTest.corpus + "/" + doc_id + "?exclude=token_lookup")

@@ -129,5 +129,6 @@
     "title": [{
         "pattern": "{party} {year} {type}",
         "keys": ["party", "year", "type"]
-    }]
+    }],
+    "document_id": "filename"
 }

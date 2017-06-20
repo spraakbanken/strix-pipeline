@@ -76,5 +76,7 @@
         "name": "url"
       }
     ]
-  }
+  },
+  "document_id": "title",
+  "document_id_hash": true
 }

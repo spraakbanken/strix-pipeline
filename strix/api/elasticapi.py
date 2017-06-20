@@ -114,7 +114,7 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
         elif highlight:
             item["highlight"] = process_hit(hit_corpus, hit, 5)
 
-        item["doc_id"] = hit.meta.id
+        item["doc_id"] = hit["doc_id"]
         item["doc_type"] = hit.meta.doc_type
         item["corpus"] = hit_corpus
         move_text_attributes(hit_corpus, item, includes, excludes)
@@ -191,7 +191,7 @@ def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, include
         excludes = []
     excludes += ("text", "original_file", "similarity_tags")
     if doc_id:
-        query = Q("term", _id=doc_id)
+        query = Q("term", doc_id=doc_id)
     elif sentence_id:
         query = Q("term", **{"text.sentence_id": sentence_id})
     else:
@@ -205,7 +205,7 @@ def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, include
 
     for hit in result:
         document = hit.to_dict()
-        document["doc_id"] = hit.meta.id
+        document["doc_id"] = hit["doc_id"]
         hit_corpus = corpus_id_to_alias(hit.meta.index)
         get_token_lookup(document, indices, doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
         document["corpus"] = hit_corpus
@@ -240,7 +240,7 @@ def process_hit(corpus, hit, context_size):
     :param context_size: how many tokens should be shown to each side of the highlight
     :return: hit-element with added highlighting
     """
-    doc_id = hit.meta.id
+    doc_id = hit["doc_id"]
     doc_type = hit.meta.doc_type
 
     if hasattr(hit.meta, "highlight"):
@@ -274,6 +274,8 @@ def process_simple_highlight(highlights):
 
 def get_highlights(corpus, doc_id, doc_type, spans, context_size):
     term_index = get_term_index(corpus, doc_id, doc_type, spans, context_size)
+    if not term_index:
+        raise RuntimeError("It was not possible to fetch term index for corpus: " + corpus + ", doc_id: " + doc_id + ", doc_type: " + doc_type)
 
     highlights = []
 
@@ -396,7 +398,7 @@ def get_values(corpus, doc_type, field):
 
 def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None, forward=True, text_query=None, text_query_field=None, includes=(), excludes=(), token_lookup_from=None, token_lookup_to=None):
     s = Search(index=corpus, doc_type=doc_type)
-    id_query = Q("term", _id=doc_id)
+    id_query = Q("term", doc_id=doc_id)
     if text_query_field and text_query:
         span_query = Q("span_term", **{"text." + text_query_field: text_query})
     elif text_query:
@@ -417,7 +419,7 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
     result = s.execute()
     for hit in result:
         obj = hit.to_dict()
-        obj["doc_id"] = hit.meta.id
+        obj["doc_id"] = hit["doc_id"]
         obj["doc_type"] = hit.meta.doc_type
         obj["corpus"] = corpus_id_to_alias(hit.meta.index)
 

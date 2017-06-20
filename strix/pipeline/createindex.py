@@ -32,12 +32,12 @@ class CreateIndex:
                 new_attr["name"] = nodeName + "_" + attr["name"]
                 self.word_attributes.append(new_attr)
 
-        self.text_attributes = corpus_config["analyze_config"]["text_attributes"]
+        self.text_attributes = filter(lambda x: not x["ignore"] if "ignore" in x else True, corpus_config["analyze_config"]["text_attributes"])
         self.reindexing = reindexing
         self.alias = index
 
     def create_index(self):
-        base_index, index_name = self.get_unique_index("")
+        base_index, index_name = self.get_unique_index()
         base_index.create()
         self.es.cluster.health(index=index_name, wait_for_status="yellow")
         self.es.indices.close(index=index_name)
@@ -49,11 +49,11 @@ class CreateIndex:
             idgenerator.reset_sequence(self.alias)
         return index_name
 
-    def get_unique_index(self, suffix):
-        index_name = self.alias + "_" + time.strftime("%Y%m%d-%H%M" + str(suffix))
+    def get_unique_index(self, suffix=""):
+        index_name = self.alias + "_" + time.strftime("%Y%m%d-%H%M" + suffix)
         base_index = Index(index_name, using=self.es)
         if base_index.exists():
-            return self.get_unique_index(suffix + 1 if suffix else 1)
+            return self.get_unique_index(suffix + "1" if suffix else "1")
         self.set_settings(base_index, CreateIndex.number_of_shards)
         return base_index, index_name
 
@@ -126,8 +126,8 @@ class CreateIndex:
             }
         )
         m.field("title", title_field)
-
         m.field("original_file", Keyword())
+        m.field("doc_id", Keyword())
 
         m.save(index_name, using=self.es)
 
