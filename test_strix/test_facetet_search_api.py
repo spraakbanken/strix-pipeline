@@ -32,7 +32,7 @@ class FacetetSearchTest(unittest.TestCase):
 
         # only aggregations and unused_facets should be sent back for this call
         assert vivill_bucket["doc_count"] == 90
-        assert rdflista_bucket["doc_count"] == 632
+        assert rdflista_bucket["doc_count"] == 503
         result_keys = result.keys()
         assert len(result_keys) == 2
         assert "unused_facets" in result_keys
@@ -53,7 +53,7 @@ class FacetetSearchTest(unittest.TestCase):
         for key in keys:
             assert key in buckets
 
-        assert buckets["huvuddokument"] == 1137
+        assert buckets["huvuddokument"] == 1008
         assert buckets["anforande"] == 1520
 
     def test_rd_datatyp_bucket_corpora_filter(self):
@@ -66,7 +66,7 @@ class FacetetSearchTest(unittest.TestCase):
         for bucket in result["aggregations"]["datatyp"]["buckets"]:
             if bucket["key"] in keys:
                 buckets[bucket["key"]] = bucket["doc_count"]
-        assert buckets["huvuddokument"] == 814
+        assert buckets["huvuddokument"] == 685
         assert buckets["anforande"] == 1520
         assert "forslag" not in buckets
 
@@ -87,7 +87,7 @@ class FacetetSearchTest(unittest.TestCase):
         wikipedia_found = False
         for corpus_bucket in result["aggregations"]["corpora"]["buckets"]:
             if corpus_bucket["key"] == "rd-flista":
-                assert corpus_bucket["doc_count"] == 632
+                assert corpus_bucket["doc_count"] == 503
                 rdflista_found = True
             if corpus_bucket["key"] == "wikipedia":
                 assert corpus_bucket["doc_count"] == 172
