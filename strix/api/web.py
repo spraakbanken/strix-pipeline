@@ -9,7 +9,6 @@ from flask import Flask, request
 from strix.api.flask_util import crossdomain, jsonify_response
 import strix.api.elasticapi as elasticapi
 from strix.config import config
-import strix.loghelper
 app = Flask(__name__)
 
 _logger = logging.getLogger("strix.api.web")
@@ -211,5 +210,4 @@ def get_documentation():
 
 
 if __name__ == "__main__":
-    strix.loghelper.setup_console_logging()
     app.run(debug=True, host='0.0.0.0', threaded=True)

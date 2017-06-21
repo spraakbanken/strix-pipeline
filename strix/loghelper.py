@@ -13,17 +13,6 @@ FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 os.makedirs("logs", exist_ok=True)
 
 
-# even if strix uses logging.DEBUG or logging.INFO
-# we don't want to log everything from libs
-def set_levels_for_libs():
-    el = logging.getLogger("elasticsearch")
-    el.setLevel(logging.WARN)
-    url = logging.getLogger("urllib3")
-    url.setLevel(logging.WARN)
-
-set_levels_for_libs()
-
-
 class MsgCounterHandler(logging.Handler):
     levelcount = None
 
@@ -98,11 +87,3 @@ def setup_file_logging():
     fh.setFormatter(logging.Formatter(FORMAT))
     logging.root.setLevel(log_level)
     logging.root.addHandler(fh)
-
-
-def setup_console_logging():
-    ch = logging.StreamHandler(stream=sys.stdout)
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(logging.Formatter(FORMAT))
-    logging.root.setLevel(logging.INFO)
-    logging.root.addHandler(ch)

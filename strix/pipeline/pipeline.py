@@ -8,6 +8,7 @@ import elasticsearch.helpers
 import elasticsearch.exceptions
 from strix.config import config
 import strix.pipeline.insertdata as insert_data_strix
+import strix.pipeline.createindex as create_index_strix
 import logging
 import queue
 
@@ -228,3 +229,33 @@ def setup_alias(alias_name, index_name):
 
 def delete_index_by_prefix(prefix):
     es.indices.delete(prefix + "*")
+
+
+def do_run(index, doc_ids=(), limit_to=None):
+    ci = create_index_strix.CreateIndex(index)
+    ci.enable_insert_settings()
+    process_corpus(index, limit_to=limit_to, doc_ids=doc_ids)
+    ci.enable_postinsert_settings()
+
+
+def recreate_indices(indices):
+    for index in indices:
+        delete_index_by_prefix(index)
+        ci = create_index_strix.CreateIndex(index)
+        try:
+            index_name = ci.create_index()
+            setup_alias(index, index_name)
+        except elasticsearch.exceptions.TransportError as e:
+            _logger.exception("transport error")
+            raise e
+
+
+def reindex(indices):
+    for alias in indices:
+        ci = create_index_strix.CreateIndex(alias, reindexing=True)
+        new_index_name = ci.create_index()
+        ci.enable_insert_settings(index_name=new_index_name)
+        reindex_corpus(alias, new_index_name)
+        ci.enable_postinsert_settings(index_name=new_index_name)
+        delete_index(alias)
+        setup_alias(alias, new_index_name)

@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 import logging
-import elasticsearch
 import strix.loghelper
 import strix.pipeline.pipeline as pipeline
-import strix.pipeline.createindex as createindex
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
 
@@ -15,36 +13,22 @@ if __name__ == '__main__':
 
     def do_run(args):
         doc_ids = args.doc_ids if args.doc_ids else []
-        strix.loghelper.setup_pipeline_logging(args.index + "-run")
-        ci = createindex.CreateIndex(args.index)
-        ci.enable_insert_settings()
-        pipeline.process_corpus(args.index, limit_to=args.limit_to, doc_ids=doc_ids)
-        ci.enable_postinsert_settings()
+        index = args.index
+        limit_to = args.limit_to
+        strix.loghelper.setup_pipeline_logging(index + "-run")
+        pipeline.do_run(index, doc_ids, limit_to)
 
     def do_recreate(args):
-        if args.index:
-            strix.loghelper.setup_pipeline_logging("|".join(args.index) + "-reindex")
-            for index in args.index:
-                pipeline.delete_index_by_prefix(index)
-                ci = createindex.CreateIndex(index)
-                try:
-                    index_name = ci.create_index()
-                    pipeline.setup_alias(index, index_name)
-                except elasticsearch.exceptions.TransportError as e:
-                    logger.exception("transport error")
-                    raise e
+        indices = args.index
+        if indices:
+            strix.loghelper.setup_pipeline_logging("|".join(indices) + "-reindex")
+            pipeline.recreate_indices(indices)
 
     def do_reindex(args):
-        if args.index:
-            strix.loghelper.setup_pipeline_logging("|".join(args.index) + "-reindex-data")
-            for alias in args.index:
-                ci = createindex.CreateIndex(alias, reindexing=True)
-                new_index_name = ci.create_index()
-                ci.enable_insert_settings(index_name=new_index_name)
-                pipeline.reindex_corpus(alias, new_index_name)
-                ci.enable_postinsert_settings(index_name=new_index_name)
-                pipeline.delete_index(alias)
-                pipeline.setup_alias(alias, new_index_name)
+        indices = args.index
+        if indices:
+            strix.loghelper.setup_pipeline_logging("|".join(indices) + "-reindex-data")
+            pipeline.reindex(indices)
 
     # Parse command line arguments
 

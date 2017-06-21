@@ -31,8 +31,8 @@ class FacetetSearchTest(unittest.TestCase):
                 rdflista_bucket = bucket
 
         # only aggregations and unused_facets should be sent back for this call
-        assert vivill_bucket["doc_count"] == 243
-        assert rdflista_bucket["doc_count"] == 1002
+        assert vivill_bucket["doc_count"] == 90
+        assert rdflista_bucket["doc_count"] == 632
         result_keys = result.keys()
         assert len(result_keys) == 2
         assert "unused_facets" in result_keys
@@ -40,13 +40,11 @@ class FacetetSearchTest(unittest.TestCase):
         # with no parameters supplied, aggs call give only corpora aggregation and the three most common other text-attributes aggs
         aggregation_keys = result["aggregations"].keys()
         assert len(aggregation_keys) == 4
-        assert "subtitel" in aggregation_keys
-        assert "organ" in aggregation_keys
         assert "datatyp" in aggregation_keys
 
     def test_rd_datatyp_bucket_no_filter(self):
         result = self.do_request("/aggs")
-        keys = ["huvuddokument", "anforande", "forslag", "utskottsforslag"]
+        keys = ["huvuddokument", "anforande"]
         buckets = {}
         for bucket in result["aggregations"]["datatyp"]["buckets"]:
             if bucket["key"] in keys:
@@ -55,25 +53,22 @@ class FacetetSearchTest(unittest.TestCase):
         for key in keys:
             assert key in buckets
 
-        assert buckets["huvuddokument"] == 276066
-        assert buckets["anforande"] == 91575
-        assert buckets["forslag"] == 383632
-        assert buckets["utskottsforslag"] == 6348
+        assert buckets["huvuddokument"] == 1137
+        assert buckets["anforande"] == 1520
 
     def test_rd_datatyp_bucket_corpora_filter(self):
         """
-        when we filter on the corpora rd-flista, rd-ip, rd-bet, we expect less results from each category
+        when we filter on the corpora rd-flista, rd-kammakt we expect less results from each category
         """
-        result = self.do_request("/aggs?corpora=rd-flista,rd-ip,rd-bet")
+        result = self.do_request("/aggs?corpora=rd-flista,rd-kammakt")
         keys = ["huvuddokument", "anforande", "forslag", "utskottsforslag"]
         buckets = {}
         for bucket in result["aggregations"]["datatyp"]["buckets"]:
             if bucket["key"] in keys:
                 buckets[bucket["key"]] = bucket["doc_count"]
-        assert buckets["huvuddokument"] == 27959
-        assert buckets["anforande"] == 77153
+        assert buckets["huvuddokument"] == 814
+        assert buckets["anforande"] == 1520
         assert "forslag" not in buckets
-        assert buckets["utskottsforslag"] == 6348
 
     def test_vivill_facets(self):
         """
@@ -92,10 +87,10 @@ class FacetetSearchTest(unittest.TestCase):
         wikipedia_found = False
         for corpus_bucket in result["aggregations"]["corpora"]["buckets"]:
             if corpus_bucket["key"] == "rd-flista":
-                assert corpus_bucket["doc_count"] == 1002
+                assert corpus_bucket["doc_count"] == 632
                 rdflista_found = True
             if corpus_bucket["key"] == "wikipedia":
-                assert corpus_bucket["doc_count"] == 3454478
+                assert corpus_bucket["doc_count"] == 172
                 wikipedia_found = True
         assert rdflista_found
         assert wikipedia_found
@@ -105,26 +100,26 @@ class FacetetSearchTest(unittest.TestCase):
         found_vivill = False
         for bucket in result["aggregations"]["corpora"]["buckets"]:
             if bucket["key"] == "vivill":
-                assert bucket["doc_count"] == 74
+                assert bucket["doc_count"] == 23
                 found_vivill = True
             else:
                 assert False # no other corpora should support party and should therefore not appear in the list
         assert found_vivill
 
         # all parties should still appear in the list
-        assert len(result["aggregations"]["party"]["buckets"]) == 22
+        assert len(result["aggregations"]["party"]["buckets"]) == 20
 
         # but not all years, nor all types of documents
         year_count = 0
         for bucket in result["aggregations"]["year"]["buckets"]:
             if bucket["doc_count"] > 0:
                 year_count += 1
-        assert year_count == 44
+        assert year_count == 13
         type_count = 0
         for bucket in result["aggregations"]["type"]["buckets"]:
             if bucket["doc_count"] > 0:
                 type_count += 1
-        assert type_count == 3
+        assert type_count == 1
 
     def test_text_filter_2(self):
         result = self.do_request('/aggs?text_filter={"party": ["v","m"], "year": ["2010"]}&corpora=vivill')
@@ -140,7 +135,7 @@ class FacetetSearchTest(unittest.TestCase):
         for bucket in result["aggregations"]["year"]["buckets"]:
             if bucket["doc_count"] > 0:
                 year_count += 1
-        assert year_count == 44
+        assert year_count == 13
         # with type constrained by "party" and "year"
         type_count = 0
         for bucket in result["aggregations"]["type"]["buckets"]:
@@ -191,6 +186,6 @@ class FacetetSearchTest(unittest.TestCase):
         result = self.do_request("/aggs?include_facets=party,year,type")
         unused_facets = result["unused_facets"]
         assert "subtitel" in unused_facets
-        assert "organ" in unused_facets
+        assert "talare" in unused_facets
         assert "datatyp" in unused_facets
-        assert len(unused_facets) == 13
+        assert len(unused_facets) == 8

@@ -14,13 +14,9 @@ import strix.api.web as web
 class WebApiTest(unittest.TestCase):
 
     corpus = "vivill"
-    doc_ids = ["kd-2010v", "c-2002v", "c-1920v", "pp-2010v-kunskap", "v-1970v"]
-    search = {"value": "alla familjer", "expected_results": 4}
-    total_num_documents = 243
-    # corpus = "wikipedia"
-    # doc_ids = ["Julien Bahain", "Glomerate Creek (vattendrag i Kanada)", "Gimli (berg)", "Lundby kapell"]
-    # search = {"value": "Havelock är huvudsakligen platt", "expected_results": 1}
-    # total_num_documents = 17973
+    doc_ids = ["m-1988v", "v-2010v", "m-1991v", "kd-1988v", "c-2002v"]
+    search = {"value": "alla familjer", "expected_results": 2}
+    total_num_documents = 90
 
     host = "http://localhost:5000"
     corpus_config = json.load(open(os.path.dirname(os.path.realpath(__file__)) + "/../resources/config/" + corpus + ".json"))
@@ -82,7 +78,7 @@ class WebApiTest(unittest.TestCase):
 
     def test_filters(self):
         result = self.do_request('/search?exclude=token_lookup&from=25&to=50&text_filter={"party": "m"}&corpora=' + WebApiTest.corpus)
-        assert result["hits"] == 39
+        assert result["hits"] == 12
 
     def test_mutli_word_search(self):
         # when one word does not have a lemmatization s.a. missspelled words we want the search not to fail

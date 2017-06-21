@@ -39,7 +39,7 @@ class ElasticApiTest(unittest.TestCase):
 
     def test_paging(self):
         result = api.search("text", corpora="vivill", from_hit=25, to_hit=27)
-        assert result['hits'] == 243
+        assert result['hits'] == 90
         assert len(result['data']) == 2
 
     def test_malformed_paging(self):

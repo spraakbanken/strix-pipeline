@@ -34,6 +34,16 @@ def get_text_attributes():
     return text_attributes
 
 
+def get_paths_for_corpus(corpus_id):
+    conf = _all_config_files[corpus_id]
+    corpus_dir_name = conf.get("corpus_dir") or conf.get("corpus_id")
+    if config.texts_dir.startswith("/"):
+        texts_dir = os.path.join(config.texts_dir, corpus_dir_name)
+    else:
+        texts_dir = os.path.join(config.base_dir, config.texts_dir, corpus_dir_name)
+    return glob.glob(os.path.join(texts_dir, "**/*.xml")) + glob.glob(os.path.join(texts_dir, "*.xml"))
+
+
 def _get_all_config_files():
     config_files = {}
     for file in glob.glob(_get_config_file("*")):
