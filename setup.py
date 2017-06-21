@@ -19,7 +19,7 @@ setup(
     zip_safe=False,
     install_requires=[
         'click==6.6',
-        'elasticsearch-dsl==5.0.0',
+        'elasticsearch-dsl==5.1.0',
         'Flask==0.11.1',
         'Flask-Compress==1.3.0',
         'Flask-Cors==2.1.2',

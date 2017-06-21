@@ -470,11 +470,11 @@ def create_span_query(tokens):
                 query = lemgram_terms[0]
             span_terms.append(query)
         elif "word" in token_dict and token_dict["word"]:
-            word = token_dict["word"][0]  # Assume one word for now
-            if '*' in word:
-                span_terms.append(Q("span_multi", match={"wildcard": {"text": {"value": word}}}))
-            else:
-                span_terms.append(Q("span_term", **{"text": word}))
+            for word in token_dict["word"]:
+                if '*' in word:
+                    span_terms.append(mask_field(Q("span_multi", match={"wildcard": {"text": {"value": word}}}), field="text.lemgram"))
+                else:
+                    span_terms.append(mask_field(Q("span_term", **{"text": word}), field="text.lemgram"))
         else:
             raise RuntimeError("only non-empty tokens allowed")
 

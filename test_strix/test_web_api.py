@@ -24,7 +24,7 @@ class WebApiTest(unittest.TestCase):
 
     host = "http://localhost:5000"
     corpus_config = json.load(open(os.path.dirname(os.path.realpath(__file__)) + "/../resources/config/" + corpus + ".json"))
-    text_structures = ["dump", "lines", "doc_id", "word_count", "title", "text_attributes", "corpus"]
+    text_structures = ["dump", "lines", "doc_id", "word_count", "title", "text_attributes", "corpus", "corpus_id"]
 
     def setUp(self):
         self.app = web.app.test_client()
@@ -83,6 +83,11 @@ class WebApiTest(unittest.TestCase):
     def test_filters(self):
         result = self.do_request('/search?exclude=token_lookup&from=25&to=50&text_filter={"party": "m"}&corpora=' + WebApiTest.corpus)
         assert result["hits"] == 39
+
+    def test_mutli_word_search(self):
+        # when one word does not have a lemmatization s.a. missspelled words we want the search not to fail
+        result = self.do_request("/search?corpora=vivill&from=0&to0&text_query=sverges framtid")
+        assert result["hits"] == 0
 
     def check_doc_text_attributes(self, doc):
         text_attributes = [obj["name"] for obj in WebApiTest.corpus_config["analyze_config"]["text_attributes"]]
