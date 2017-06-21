@@ -105,6 +105,7 @@ class InsertData:
             doc_id = get_id(task_id, text)
             text["doc_id"] = doc_id
             self.generate_title(text, text_attributes)
+            text["corpus_id"] = self.index
             text["original_file"] = os.path.basename(file_name)
             task = self.get_doc_task("text", text)
             task_terms = self.create_term_positions(doc_id, text["token_lookup"])

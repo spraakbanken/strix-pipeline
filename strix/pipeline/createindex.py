@@ -128,6 +128,7 @@ class CreateIndex:
         m.field("title", title_field)
         m.field("original_file", Keyword())
         m.field("doc_id", Keyword())
+        m.field("corpus_id", Keyword())
 
         m.save(index_name, using=self.es)
 
