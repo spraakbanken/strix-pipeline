@@ -60,15 +60,18 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
 
 def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), from_hit=0, to_hit=10, token_lookup_from=None, token_lookup_to=None):
     query = None
+    s = Search(index=corpus, doc_type=doc_type)
+    s = s.query(Q("term", doc_id=doc_id))
     if relevance_function == "more_like_this":
+        s = s.source(False)
+        hits = s.execute()
+        es_id = [hit.meta.id for hit in hits][0]
         query = Q("more_like_this",
                   fields=["similarity_tags"],
-                  like=[{"_index": corpus, "_type": doc_type, "_id": doc_id}],
+                  like=[{"_index": corpus, "_type": doc_type, "_id": es_id}],
                   min_term_freq=min_term_freq,
                   max_query_terms=max_query_terms)
     else:
-        s = Search(index=corpus, doc_type=doc_type)
-        s = s.query(Q("term", _id=doc_id))
         s = s.source(includes="similarity_tags")
         hits = s.execute()
         if hits:
