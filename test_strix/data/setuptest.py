@@ -1,8 +1,7 @@
 import logging
 import strix.pipeline.pipeline as pipeline
 
-#corpora = ["fragelistor", "rd-eun", "rd-flista", "rd-kammakt", "vivill", "wikipedia"]
-corpora = ["rd-kammakt"]
+corpora = ["fragelistor", "rd-eun", "rd-flista", "rd-kammakt", "vivill", "wikipedia"]
 
 _logger = logging.getLogger(__name__)
 
