@@ -43,6 +43,9 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
             s.aggs.bucket("corpora", "terms", field="_index", size=ALL_BUCKETS, order={"_term": "asc"})
         return s
 
+    if includes:
+        includes += ("doc_id",)
+
     res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, before_send=before_send)
 
     if "aggregations" in res:
@@ -117,7 +120,10 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
         elif highlight:
             item["highlight"] = process_hit(hit_corpus, hit, 5)
 
-        item["doc_id"] = hit["doc_id"]
+        if "doc_id" in item:
+            item["doc_id"] = hit["doc_id"]
+        else:
+            item["doc_id"] = hit.meta.id
         item["doc_type"] = hit.meta.doc_type
         item["corpus"] = hit_corpus
         move_text_attributes(hit_corpus, item, includes, excludes)
@@ -193,8 +199,14 @@ def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, include
     if not excludes:
         excludes = []
     excludes += ("text", "original_file", "similarity_tags")
+    if includes:
+        includes += ("doc_id", )
     if doc_id:
-        query = Q("term", doc_id=doc_id)
+        # TODO this will be removed when all corpora have "doc_id"
+        if indices in ["rd-skfr", "rd-ip", "rd-mot", "rd-bet", "rd-prot", "rd-kom", "fragelistor", "rd-prop", "wikipedia", "rd-sou"]:
+            query = Q("term", _id=doc_id)
+        else:
+            query = Q("term", doc_id=doc_id)
     elif sentence_id:
         query = Q("term", **{"text.sentence_id": sentence_id})
     else:
@@ -208,7 +220,10 @@ def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, include
 
     for hit in result:
         document = hit.to_dict()
-        document["doc_id"] = hit["doc_id"]
+        if "doc_id" in hit:
+            document["doc_id"] = hit["doc_id"]
+        else:
+            document["doc_id"] = hit.meta.id
         hit_corpus = corpus_id_to_alias(hit.meta.index)
         get_token_lookup(document, indices, doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
         document["corpus"] = hit_corpus
@@ -390,13 +405,6 @@ def lemgrammify(term):
         if "_" not in lemgram:
             lemgrams.append(lemgram.lower())  # .lower() here is because we accidentally have lowercase active in the mapping
     return lemgrams
-
-
-def get_values(corpus, doc_type, field):
-    s = Search(index=corpus, doc_type=doc_type)
-    s.aggs.bucket("values", "terms", field=field, size=ALL_BUCKETS)
-    result = s.execute()
-    return result.aggregations.values.to_dict()["buckets"]
 
 
 def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None, forward=True, text_query=None, text_query_field=None, includes=(), excludes=(), token_lookup_from=None, token_lookup_to=None):
@@ -640,6 +648,14 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
             new_result["aggregations"][new_key] = result["aggregations"][x][new_key]
 
     return new_result
+
+
+def get_doc_aggs(corpus, doc_type, field):
+    s = Search(index=corpus, doc_type=doc_type)
+    s.aggs.bucket(field, "terms", field=field, size=ALL_BUCKETS)
+    s = s[0:0]
+    result = s.execute()
+    return result.to_dict()
 
 
 def corpus_alias_to_id(corpora):
