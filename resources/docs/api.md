@@ -109,12 +109,6 @@ If `text_query` is empty, the document will be returned without highlights.
 * `current_position` - The position to start looking for hits from (default: start of document)
 * `forward` - boolean, search for matches forward or backward in the document (default: true)
 
-### Get all possible values for a field
-
-**GET** `/field_values/<corpus>/<field>`
-
-For any text field (available fields  given by `/config/<corpora>`) return all possible values of that field.
-
 ### Get configuration
 
 **GET** `/config`
@@ -168,3 +162,9 @@ Get an aggregation of the current set of documents (as decided by `text_filter` 
 * `facet_count` - Integer, the number of facets that will be generated
 * `include_facets` - List of attribute names to be included in the result. `facet_count` will be ignored.
 * `exclude_empty_buckets` - If included will remove all buckets that are empty from the result
+
+### Values of (non-text) attributes in a document
+
+**GET** `/aggs/<corpus>/<doc_id>/<field>
+
+Get a list of values available in the given document.

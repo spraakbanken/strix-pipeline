@@ -161,14 +161,6 @@ def autocomplete(terms):
     return lemgrams
 
 
-# TODO this should support the same filtering as any other call
-@app.route("/field_values/<corpus>/<field>")
-@crossdomain(origin="*")
-@jsonify_response
-def get_values(corpus, field):
-    return elasticapi.get_values(corpus, "text", field)
-
-
 # TODO this should support the same filtering as any other call?
 @app.route("/date_histogram/<corpus>/<field>")
 @crossdomain(origin="*")
@@ -192,6 +184,12 @@ def aggs():
     res = elasticapi.get_aggs(**kwargs)
     return res
 
+
+@app.route("/aggs/<corpus>/<doc_id>/<field>")
+@crossdomain(origin="*")
+@jsonify_response
+def document_aggs(corpus, doc_id, field):
+    return elasticapi.get_doc_aggs(corpus, doc_id, field)
 
 @app.route("/config")
 @crossdomain(origin="*")

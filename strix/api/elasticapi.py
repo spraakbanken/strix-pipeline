@@ -650,12 +650,16 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
     return new_result
 
 
-def get_doc_aggs(corpus, doc_type, field):
-    s = Search(index=corpus, doc_type=doc_type)
-    s.aggs.bucket(field, "terms", field=field, size=ALL_BUCKETS)
+def get_doc_aggs(corpus, doc_id, field):
+    s = Search(index=corpus + "_terms", doc_type="term")
+    s = s.query(Q("term", doc_id=doc_id))
+    split = field.split(".")
+    if len(split) > 1:
+        field = ".attrs.".join(split)
+    s.aggs.bucket(field, "terms", field="term.attrs." + field, size=ALL_BUCKETS)
     s = s[0:0]
     result = s.execute()
-    return result.to_dict()
+    return {"aggregations": result.to_dict()["aggregations"]}
 
 
 def corpus_alias_to_id(corpora):

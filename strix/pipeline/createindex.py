@@ -66,9 +66,21 @@ class CreateIndex:
         m = Mapping("term")
         m.meta("_all", enabled=False)
         m.meta("dynamic", "strict")
+        m.meta("date_detection", False)
+        m.meta("dynamic_templates", [
+                {
+                    "just_a_name": {
+                        "path_match": "term.*",
+                        "match_mapping_type": "string",
+                        "mapping": {
+                            "type": "keyword"
+                        }
+                    }
+                }
+            ])
 
         m.field("position", "integer")
-        m.field("term", "object", enabled=False)
+        m.field("term", "object", dynamic=True)
         m.field("doc_id", "keyword", index="not_analyzed")
         m.field("doc_type", "keyword", index="not_analyzed")
         m.save(self.alias + "_terms", using=self.es)
