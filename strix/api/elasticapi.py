@@ -200,7 +200,7 @@ def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, include
         includes += ("doc_id", )
     if doc_id:
         # TODO this will be removed when all corpora have "doc_id"
-        if indices in ["rd-skfr", "rd-ip", "rd-mot", "rd-bet", "rd-prot", "rd-kom", "fragelistor", "rd-prop", "wikipedia", "rd-sou"]:
+        if indices in ["rd-prot", "rd-kom", "fragelistor", "rd-prop", "wikipedia", "rd-sou"]:
             query = Q("term", _id=doc_id)
         else:
             query = Q("term", doc_id=doc_id)
