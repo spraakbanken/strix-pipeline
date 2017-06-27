@@ -393,7 +393,7 @@ def tokenize_search_string(search_term):
 
 def lemgrammify(term):
     lemgrams = []
-    response = requests.get("https://ws.spraakbanken.gu.se/ws/karp/v2/autocomplete?q=" + term + "&resource=saldom")
+    response = requests.get("https://ws.spraakbanken.gu.se/ws/karp/v3/autocomplete?mode=external&q=" + term + "&resource=saldom")
     try:
         response.raise_for_status()
     except requests.exceptions.HTTPError:
@@ -402,7 +402,7 @@ def lemgrammify(term):
     result = response.json()
     for hit in result["hits"]["hits"]:
         lemgram = hit["_source"]["FormRepresentations"][0]["lemgram"]
-        if "_" not in lemgram:
+        if "_" not in lemgram[1:]:
             lemgrams.append(lemgram.lower())  # .lower() here is because we accidentally have lowercase active in the mapping
     return lemgrams
 
