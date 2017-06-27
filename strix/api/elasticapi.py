@@ -367,25 +367,45 @@ def analyze_and_create_span_query(search_term, word_form_only=False, term_query=
         for term in terms:
             words = []
             lemgrams = []
-            if word_form_only or ("*" in term):
-                words.append(term)
-            else:
-                lemgrams.extend(lemgrammify(term))
-                if not lemgrams:
-                    words.append(term)
+            word = term[0]
+            words.append(word)
+            if not (term[1] or word_form_only or ("*" in word)):
+                lemgrams.extend(lemgrammify(word))
             tokens.append({"lemgram": lemgrams, "word": words})
         return create_span_query(tokens), "plain"
     else:
         term = terms[0]
-        should = []
-        for lemgram in lemgrammify(term):
-            should.append(Q("term", **{"text.lemgram": lemgram}))
-        return Q("bool", should=should), "fvh"
+        if term[1]:
+            return Q("term", **{"text": term[0]})
+        else:
+            # TODO replace term with terms-query
+            should = []
+            for lemgram in lemgrammify(term):
+                should.append(Q("term", **{"text.lemgram": lemgram}))
+            return Q("bool", should=should), "fvh"
 
 
-# TODO this needs to be replaced with proper tokenizing
 def tokenize_search_string(search_term):
-    return search_term.split(" ")
+    terms = []
+    # TODO this needs to be replaced with proper tokenizing
+    split = search_term.split(" ")
+    in_quotes = False
+    for term in split:
+        still_in_quotes = in_quotes
+        if len(term) > 1:
+            start_idx = 0
+            end_idx = len(term)
+            if term.startswith('"'):
+                in_quotes = True
+                start_idx = 1
+            if term.endswith('"'):
+                end_idx = -1
+                still_in_quotes = False
+            term = term[start_idx:end_idx]
+
+        terms.append([term, in_quotes])
+        in_quotes = still_in_quotes
+    return terms
 
 
 def lemgrammify(term):
@@ -484,23 +504,21 @@ def fix_includes_excludes(includes, excludes, corpora):
 def create_span_query(tokens):
     span_terms = []
     for token_dict in tokens:
-        if "lemgram" in token_dict and token_dict["lemgram"]:
-            lemgram_terms = []
+        span_ors = []
+        if token_dict["lemgram"]:
             for lemgram in token_dict["lemgram"]:
-                lemgram_terms.append(Q("span_term", **{"text.lemgram": lemgram.lower()}))
-            if len(lemgram_terms) > 1:
-                query = Q("span_or", clauses=lemgram_terms)
-            else:
-                query = lemgram_terms[0]
-            span_terms.append(query)
-        elif "word" in token_dict and token_dict["word"]:
+                span_ors.append(Q("span_term", **{"text.lemgram": lemgram.lower()}))
+        if token_dict["word"]:
             for word in token_dict["word"]:
                 if '*' in word:
-                    span_terms.append(mask_field(Q("span_multi", match={"wildcard": {"text": {"value": word}}}), field="text.lemgram"))
+                    span_ors.append(mask_field(Q("span_multi", match={"wildcard": {"text": {"value": word}}}), field="text.lemgram"))
                 else:
-                    span_terms.append(mask_field(Q("span_term", **{"text": word}), field="text.lemgram"))
+                    span_ors.append(mask_field(Q("span_term", **{"text": word}), field="text.lemgram"))
+        if len(span_ors) > 1:
+            query = Q("span_or", clauses=span_ors)
         else:
-            raise RuntimeError("only non-empty tokens allowed")
+            query = span_ors[0]
+        span_terms.append(query)
 
     if len(span_terms) > 1:
         query = Q("span_near", clauses=span_terms, in_order=True, slop=0)
