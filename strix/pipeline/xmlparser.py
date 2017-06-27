@@ -216,6 +216,9 @@ class StrixParser:
             self.lines = [[0]]
             self.similarity_tags = []
         elif tag in self.struct_annotations:
+            annotation_length = self.current_struct_annotations[tag]["length"]
+            for token in self.current_token_lookup[-annotation_length:]:
+                token["attrs"][tag]["length"] = annotation_length
             del self.current_struct_annotations[tag]
         elif tag == "w":
             self.in_word = False
@@ -237,12 +240,15 @@ class StrixParser:
                 token_data["wid"] = self.token_count
 
             struct_data = {}
+            struct_annotations = {}
             for tag_name, annotations in self.current_struct_annotations.items():
-                if "length" not in annotations:
-                    annotations["length"] = 1
+                struct_annotations[tag_name] = {"attrs": annotations["attrs"]}
+                if "start_wid" not in annotations:
                     annotations["start_wid"] = token_data["wid"]
-                else:
-                    annotations["length"] += 1
+                    annotations["start_pos"] = self.token_count
+                    struct_annotations[tag_name]["is_start"] = True
+                struct_annotations[tag_name]["start_wid"] = annotations["start_wid"]
+                annotations["length"] = self.token_count - annotations["start_pos"] + 1
 
                 if "attrs" in annotations:
                     for annotation_name, v in annotations["attrs"].items():
@@ -264,7 +270,7 @@ class StrixParser:
             self.current_part_tokens.append(word)
 
             token_lookup_data = dict(token_data)
-            token_lookup_data.update(self.current_struct_annotations)
+            token_lookup_data.update(struct_annotations)
             self.current_token_lookup.append({"word": token, "attrs": token_lookup_data, "position": self.token_count})
 
             self.token_count += 1

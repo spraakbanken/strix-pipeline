@@ -656,6 +656,8 @@ def get_doc_aggs(corpus, doc_id, field):
     split = field.split(".")
     if len(split) > 1:
         es_field = ".attrs.".join(split)
+        is_start_q = "term.attrs." + split[0] + ".is_start"
+        s = s.query(Q("term", **{is_start_q: True}))
     else:
         es_field = field
     s.aggs.bucket(field, "terms", field="term.attrs." + es_field, size=ALL_BUCKETS)
