@@ -46,3 +46,38 @@ class FacetetSearchTest(unittest.TestCase):
                 assert highlight["match"][0]["word"].lower() == "var"
                 assert highlight["match"][1]["word"].lower() == "en"
                 assert highlight["match"][2]["word"].lower() == "svensk"
+
+    def test_multi_word_quote_search2(self):
+        result = self.do_request("/search?exclude=dump,lines&text_query=\"det är en\"&corpora=vivill")
+        assert result["hits"] == 23
+        for hit in result["data"]:
+            for highlight in hit["highlight"]["highlight"]:
+                assert highlight["match"][0]["word"].lower() == "det"
+                assert highlight["match"][1]["word"].lower() == "är"
+                assert highlight["match"][2]["word"].lower() == "en"
+
+    def test_multi_word_quote_search3(self):
+        result = self.do_request("/search?exclude=dump,lines&text_query=\"det är\" en&corpora=vivill")
+        assert result["hits"] == 31
+        found_de = False
+        found_en = False
+        found_den = False
+        found_ett = False
+        for hit in result["data"]:
+            for highlight in hit["highlight"]["highlight"]:
+                assert highlight["match"][0]["word"].lower() == "det"
+                assert highlight["match"][1]["word"].lower() == "är"
+                word = highlight["match"][2]["word"].lower()
+                if word == "de":
+                    found_de = True
+                elif word == "den":
+                    found_den = True
+                elif word == "ett":
+                    found_ett = True
+                elif word == "en":
+                    found_en = True
+
+        assert found_de
+        assert found_den
+        assert found_ett
+        assert found_en

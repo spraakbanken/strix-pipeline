@@ -397,6 +397,7 @@ def tokenize_search_string(search_term):
             end_idx = len(term)
             if term.startswith('"'):
                 in_quotes = True
+                still_in_quotes = True
                 start_idx = 1
             if term.endswith('"'):
                 end_idx = -1
