@@ -43,9 +43,6 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
             s.aggs.bucket("corpora", "terms", field="_index", size=ALL_BUCKETS, order={"_term": "asc"})
         return s
 
-    if includes:
-        includes += ("doc_id",)
-
     res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, before_send=before_send)
 
     if "aggregations" in res:
@@ -185,9 +182,9 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
     if simple_highlight:
         s = s.highlight("text.lemgram", type=simple_highlight_type or "plain", fragment_size=2500)
 
-    excludes += ("text", "original_file", "similarity_tags")
+    new_includes, new_excludes = fix_includes_excludes(includes, excludes, indices)
 
-    s = s.source(includes=includes, excludes=excludes)
+    s = s.source(includes=new_includes, excludes=new_excludes)
     if isinstance(sort_fields, (list, tuple)):
         s = s.sort(*sort_fields)
     elif sort_fields:
@@ -423,9 +420,9 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
     query = Q("bool", must=[id_query], should=should)
     s = s.query(query)
 
-    excludes += ("text", "original_file", "similarity_tags")
+    new_includes, new_excludes = fix_includes_excludes(includes, excludes, [corpus])
 
-    s = s.source(includes=includes, excludes=excludes)
+    s = s.source(includes=new_includes, excludes=new_excludes)
     s = s.highlight("strix")
     result = s.execute()
     for hit in result:
@@ -464,6 +461,22 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
         return obj
 
     return {}
+
+
+def fix_includes_excludes(includes, excludes, corpora):
+    new_includes = list(includes)
+    new_excludes = list(excludes)
+
+    if "*" in new_excludes:
+        new_excludes = ("dump", "lines")
+        for corpus in corpora:
+            new_excludes += tuple(text_attributes[corpus].keys())
+    new_excludes += ("text", "original_file", "similarity_tags")
+
+    if includes:
+        includes += ("doc_id",)
+
+    return new_includes, new_excludes
 
 
 # TODO support searching in any field and multiple fields per token (extended search style)
