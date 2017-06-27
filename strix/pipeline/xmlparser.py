@@ -240,16 +240,13 @@ class StrixParser:
             for tag_name, annotations in self.current_struct_annotations.items():
                 if "length" not in annotations:
                     annotations["length"] = 1
+                    annotations["start_wid"] = token_data["wid"]
                 else:
-                    offset = -annotations["length"]
-                    start_token_data = self.current_token_lookup[offset]["attrs"]
-                    start_token_data[tag_name]["length"] += 1
-                    self.current_struct_annotations[tag_name]["start_wid"] = start_token_data["wid"]
+                    annotations["length"] += 1
 
-                for k, attr in annotations.items():
-                    if k == "attrs":
-                        for annotation_name, v in attr.items():
-                            struct_data[tag_name + "_" + annotation_name] = v
+                if "attrs" in annotations:
+                    for annotation_name, v in annotations["attrs"].items():
+                        struct_data[tag_name + "_" + annotation_name] = v
 
             self.process_token(token_data)
             all_data = dict(token_data)
