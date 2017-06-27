@@ -655,8 +655,10 @@ def get_doc_aggs(corpus, doc_id, field):
     s = s.query(Q("term", doc_id=doc_id))
     split = field.split(".")
     if len(split) > 1:
-        field = ".attrs.".join(split)
-    s.aggs.bucket(field, "terms", field="term.attrs." + field, size=ALL_BUCKETS)
+        es_field = ".attrs.".join(split)
+    else:
+        es_field = field
+    s.aggs.bucket(field, "terms", field="term.attrs." + es_field, size=ALL_BUCKETS)
     s = s[0:0]
     result = s.execute()
     return {"aggregations": result.to_dict()["aggregations"]}

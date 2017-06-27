@@ -35,3 +35,13 @@ class FacetetSearchTest(unittest.TestCase):
                 assert bucket["doc_count"] == 10
         assert found1
         assert found2
+
+    def test_structural_attributes(self):
+        result = self.do_request("/aggs/wikipedia/231411843919/ne.name")
+        assert "ne.name" in result["aggregations"]
+        found = False
+        for bucket in result["aggregations"]["ne.name"]["buckets"]:
+            if bucket["key"] == "Under andra hälften av 1300-talet":
+                found = True
+                assert bucket["doc_count"] == 1
+        assert found
