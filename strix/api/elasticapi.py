@@ -647,9 +647,8 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
         a = s.aggs.bucket(text_attribute + "_all", "filter", filter=Q("bool", filter=filters))
         a.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
 
-    # TODO index corpus_id and use instead of this...
     a = s.aggs.bucket("corpora_all", "filter", filter=Q("bool", filter=list(text_filters.values())))
-    a.bucket("corpora", "terms", field="_index", size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
+    a.bucket("corpora", "terms", field="corpus_id", size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
 
     s = s[0:0]
     result = s.execute().to_dict()
@@ -657,15 +656,7 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
     new_result = {"aggregations": {}, "unused_facets": additional_text_attributes}
     for x in result["aggregations"]:
         new_key = x.split("_all")[0]
-        if new_key == "corpora":
-            new_buckets = []
-            for bucket in result["aggregations"][x]["corpora"]["buckets"]:
-                corpus_key = corpus_id_to_alias(bucket["key"])
-                new_buckets.append({"doc_count": bucket["doc_count"], "key": corpus_key})
-            new_result["aggregations"][new_key] = {"buckets": new_buckets}
-            pass
-        else:
-            new_result["aggregations"][new_key] = result["aggregations"][x][new_key]
+        new_result["aggregations"][new_key] = result["aggregations"][x][new_key]
 
     return new_result
 
