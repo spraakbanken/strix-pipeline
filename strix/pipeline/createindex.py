@@ -113,7 +113,7 @@ class CreateIndex:
 
         for attr in self.word_attributes:
             annotation_name = attr["name"]
-            text_field.fields[annotation_name] = Text(analyzer=annotation_analyzer(annotation_name, attr["set"]), term_vector="with_positions_offsets")
+            text_field.fields[annotation_name] = Text(analyzer=annotation_analyzer(annotation_name, attr["set"]))
 
         m.field("text", text_field)
 
