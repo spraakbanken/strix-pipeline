@@ -106,9 +106,8 @@ class CreateIndex:
 
         text_field = Text(
             analyzer=get_standard_analyzer(),
-            term_vector="with_positions_offsets",
             fields={
-                "wid": Text(analyzer=annotation_analyzer("wid"), term_vector="with_positions_offsets"),
+                "wid": Text(analyzer=annotation_analyzer("wid")),
             }
         )
 
@@ -130,7 +129,7 @@ class CreateIndex:
         m.field("dump", Keyword(index=False, doc_values=False))
         m.field("lines", Object(enabled=False))
         m.field("word_count", Integer())
-        m.field("similarity_tags", Text(analyzer=similarity_tags_analyzer()))
+        m.field("similarity_tags", Text(analyzer=similarity_tags_analyzer()), term_vector="yes")
 
         title_field = Text(
             analyzer=get_swedish_analyzer(),

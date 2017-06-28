@@ -162,6 +162,7 @@ def autocomplete(terms):
 
 
 # TODO this should support the same filtering as any other call?
+# DEPRACATED use aggs?corpora=corpus&include_facets=field
 @app.route("/date_histogram/<corpus>/<field>")
 @crossdomain(origin="*")
 @jsonify_response
