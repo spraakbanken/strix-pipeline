@@ -473,8 +473,11 @@ def fix_includes_excludes(includes, excludes, corpora):
     new_includes = list(includes)
     new_excludes = list(excludes)
 
-    if "*" in new_excludes:
+    if "*" in excludes:
         new_excludes = ("dump", "lines")
+        for corpus in corpora:
+            new_excludes += tuple(text_attributes[corpus].keys())
+    if "*" in excludes or "text_attributes" in excludes:
         for corpus in corpora:
             new_excludes += tuple(text_attributes[corpus].keys())
     new_excludes += ("text", "original_file", "similarity_tags")
