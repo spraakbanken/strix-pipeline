@@ -1,0 +1,16 @@
+{
+  "analyze_config": {
+    "text_attributes": [
+      {
+        "name": "datefrom",
+        "type": "date",
+        "include_in_aggregation": true
+      },
+      {
+        "name": "dateto",
+        "type": "date",
+        "include_in_aggregation": true
+      }
+    ]
+  }
+}

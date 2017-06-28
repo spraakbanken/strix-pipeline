@@ -1,14 +1,7 @@
 {
+    "parent": "all-parent",
     "analyze_config": {
         "text_attributes": [
-            {
-                "name": "datefrom",
-                "type": "date"
-            },
-            {
-                "name": "dateto",
-                "type": "date"
-            },
             {
                 "name": "datatyp",
                 "include_in_aggregation": true,

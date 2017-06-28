@@ -1,4 +1,5 @@
 {
+    "parent": "all-parent",
     "analyze_config": {
         "struct_attributes": {
             "ne": [
@@ -27,14 +28,6 @@
             ]
         },
         "text_attributes": [
-            {
-                "name": "datefrom",
-                "type": "date"
-            },
-            {
-                "name": "dateto",
-                "type": "date"
-            },
             {
                 "name": "timefrom"
             },

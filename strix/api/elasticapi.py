@@ -613,18 +613,32 @@ def date_histogram(index, doc_type, field, params):
     return output
 
 
-def get_most_common_text_attributes(corpora, facet_count):
+def get_most_common_text_attributes(corpora, facet_count, include_facets):
+    if include_facets:
+        facet_count = len(include_facets)
     supported_text_attributes = {}
     for index in corpora:
         for text_attribute, value in text_attributes[index].items():
             if value.get("include_in_aggregation"):
+                attr_type = value.get("type", "keyword")
                 if text_attribute in supported_text_attributes:
-                    supported_text_attributes[text_attribute] += 1
+                    supported_text_attributes[text_attribute] = (supported_text_attributes[text_attribute][0] + 1, supported_text_attributes[text_attribute][1])
                 else:
-                    supported_text_attributes[text_attribute] = 1
-    tmp = sorted(supported_text_attributes.items(), key=lambda x: x[1], reverse=True)
-    tmp1 = [k for (k, v) in tmp]
-    return tmp1[0:facet_count], tmp1[facet_count:]
+                    supported_text_attributes[text_attribute] = (1, attr_type)
+    if include_facets:
+        all_attributes = []
+        for facet in include_facets:
+            if facet in supported_text_attributes:
+                all_attributes.append((facet, supported_text_attributes[facet][1]))
+                del supported_text_attributes[facet]
+            else:
+                facet_count -= 1
+        tmp = sorted(supported_text_attributes.items(), key=lambda x: x[1][0], reverse=True)
+        all_attributes.extend([(text_attribute, attr_type[1]) for (text_attribute, attr_type) in tmp])
+    else:
+        tmp = sorted(supported_text_attributes.items(), key=lambda x: x[1][0], reverse=True)
+        all_attributes = [(text_attribute, attr_type[1]) for (text_attribute, attr_type) in tmp]
+    return all_attributes[0:facet_count], [x[0] for x in all_attributes[facet_count:]]
 
 
 def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min_doc_count=0):
@@ -636,16 +650,19 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
     corpus_filter = Q("terms", _index=corpus_alias_to_id(corpora))
     text_filters = get_text_filters(text_filter)
 
-    if include_facets:
-        facet_count = 1
-    (use_text_attributes, additional_text_attributes) = get_most_common_text_attributes(corpora, facet_count - 1)
-    if include_facets:
-        use_text_attributes = include_facets
-    for text_attribute in use_text_attributes:
+    (use_text_attributes, additional_text_attributes) = get_most_common_text_attributes(corpora, facet_count - 1, include_facets)
+
+    date_aggs = []
+    for (text_attribute, attr_type) in use_text_attributes:
         filters = [value for text_filter, value in text_filters.items() if text_filter != text_attribute]
         filters.append(corpus_filter)
         a = s.aggs.bucket(text_attribute + "_all", "filter", filter=Q("bool", filter=filters))
-        a.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
+        if attr_type == "date":
+            a = a.bucket(text_attribute, "date_histogram", field=text_attribute, interval="year",  min_doc_count=min_doc_count)
+            a.bucket("word_count", "sum", field="word_count")
+            date_aggs.append(text_attribute)
+        else:
+            a.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
 
     a = s.aggs.bucket("corpora_all", "filter", filter=Q("bool", filter=list(text_filters.values())))
     a.bucket("corpora", "terms", field="corpus_id", size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
@@ -657,6 +674,11 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
     for x in result["aggregations"]:
         new_key = x.split("_all")[0]
         new_result["aggregations"][new_key] = result["aggregations"][x][new_key]
+        if new_key in date_aggs:
+            for bucket in new_result["aggregations"][new_key]["buckets"]:
+                del bucket["key_as_string"]
+                bucket["word_count"] = bucket["word_count"]["value"]
+                bucket["key"] /= 1000
 
     return new_result
 

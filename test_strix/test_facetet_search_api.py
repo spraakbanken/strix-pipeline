@@ -75,10 +75,10 @@ class FacetetSearchTest(unittest.TestCase):
         when we filter on the vivill corpora, we expect only vivill facets to appear (but still
         get document counts for each corpora)
         """
-        result = self.do_request("/aggs?corpora=vivill")
+        result = self.do_request("/aggs?corpora=vivill&facet_count=6")
 
         aggregation_keys = result["aggregations"].keys()
-        assert len(aggregation_keys) == 4
+        assert len(aggregation_keys) == 6
         assert "type" in aggregation_keys
         assert "party" in aggregation_keys
         assert "year" in aggregation_keys
@@ -96,7 +96,7 @@ class FacetetSearchTest(unittest.TestCase):
         assert wikipedia_found
 
     def test_text_filter_1(self):
-        result = self.do_request('/aggs?text_filter={"party": ["v","m"]}&corpora=vivill&')
+        result = self.do_request('/aggs?text_filter={"party": ["v","m"]}&corpora=vivill&include_facets=year,type,party')
         found_vivill = False
         for bucket in result["aggregations"]["corpora"]["buckets"]:
             if bucket["key"] == "vivill":
@@ -122,7 +122,7 @@ class FacetetSearchTest(unittest.TestCase):
         assert type_count == 1
 
     def test_text_filter_2(self):
-        result = self.do_request('/aggs?text_filter={"party": ["v","m"], "year": ["2010"]}&corpora=vivill')
+        result = self.do_request('/aggs?text_filter={"party": ["v","m"], "year": ["2010"]}&corpora=vivill&include_facets=year,type,party')
 
         # only parties with documents from 2004 have non-zero values
         party_count = 0
@@ -188,4 +188,4 @@ class FacetetSearchTest(unittest.TestCase):
         assert "subtitel" in unused_facets
         assert "talare" in unused_facets
         assert "datatyp" in unused_facets
-        assert len(unused_facets) == 8
+        assert len(unused_facets) == 7

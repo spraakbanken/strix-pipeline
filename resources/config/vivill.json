@@ -1,4 +1,5 @@
 {
+    "parent": "all-parent",
     "corpus_id": "vivill",
     "corpus_name": {
         "eng": "Swedish party programs and election manifestos",
@@ -107,14 +108,6 @@
             {
                 "name": "year",
                 "include_in_aggregation": true
-            },
-            {
-                "name": "datefrom",
-                "type": "date"
-            },
-            {
-                "name": "dateto",
-                "type": "date"
             },
             {
                 "name": "timefrom",

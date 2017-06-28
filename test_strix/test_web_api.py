@@ -9,6 +9,7 @@ myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../../')
 
 import strix.api.web as web
+import strix.corpusconf as corpusconf
 
 
 class WebApiTest(unittest.TestCase):
@@ -19,7 +20,7 @@ class WebApiTest(unittest.TestCase):
     total_num_documents = 90
 
     host = "http://localhost:5000"
-    corpus_config = json.load(open(os.path.dirname(os.path.realpath(__file__)) + "/../resources/config/" + corpus + ".json"))
+    corpus_config = corpusconf.get_corpus_conf(corpus)
     text_structures = ["dump", "lines", "doc_id", "word_count", "title", "text_attributes", "corpus", "corpus_id"]
 
     def setUp(self):
