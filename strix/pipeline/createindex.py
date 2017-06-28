@@ -129,7 +129,7 @@ class CreateIndex:
         m.field("dump", Keyword(index=False, doc_values=False))
         m.field("lines", Object(enabled=False))
         m.field("word_count", Integer())
-        m.field("similarity_tags", Text(analyzer=similarity_tags_analyzer()), term_vector="yes")
+        m.field("similarity_tags", Text(analyzer=similarity_tags_analyzer(), term_vector="yes"))
 
         title_field = Text(
             analyzer=get_swedish_analyzer(),
