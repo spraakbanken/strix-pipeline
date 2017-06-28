@@ -16,14 +16,13 @@ _logger = logging.getLogger(__name__)
 
 
 def search(doc_type, corpora=(), text_query_field=None, text_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None, simple_highlight=False, token_lookup_from=None, token_lookup_to=None):
-    simple_highlight_type = None
     add_fuzzy_query = False
     search_queries = []
     if text_query:
         if text_query_field:
             search_queries.append(Q("span_term", **{"text." + text_query_field: text_query}))
         else:
-            query, simple_highlight_type = analyze_and_create_span_query(text_query, term_query=simple_highlight)
+            query = analyze_and_create_span_query(text_query)
             search_queries.append(query)
             add_fuzzy_query = True
     else:
@@ -43,7 +42,7 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
             s.aggs.bucket("corpora", "terms", field="_index", size=ALL_BUCKETS, order={"_term": "asc"})
         return s
 
-    res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, before_send=before_send)
+    res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, before_send=before_send)
 
     if "aggregations" in res:
         corpora_buckets = []
@@ -96,12 +95,16 @@ def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevan
         return {}
 
 
-def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_field=None, before_send=None):
+def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, sort_field=None, before_send=None):
     if to_hit > 10000:
         raise RuntimeError("Paging error. \"to\" cannot be larger than 10000")
     if to_hit < from_hit:
         raise RuntimeError("Paging error. \"to\" cannot be smaller than \"from\"")
-    s = get_search_query(corpora, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, simple_highlight_type=simple_highlight_type, sort_fields=sort_field)
+
+    if simple_highlight:
+        highlight = {"number_of_fragments": 5}
+
+    s = get_search_query(corpora, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, sort_fields=sort_field)
 
     if before_send:
         s = before_send(s)
@@ -111,11 +114,12 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
     for hit in hits:
         hit_corpus = corpus_id_to_alias(hit.meta.index)
         item = hit.to_dict()
-        if simple_highlight:
-            if hasattr(hit.meta, "highlight"):
-                item["highlight"] = process_simple_highlight(hit.meta.highlight)
-        elif highlight:
-            item["highlight"] = process_hit(hit_corpus, hit, 5)
+        if highlight or simple_highlight:
+            highlights = process_hit(hit_corpus, hit, 5, include_annotations=not simple_highlight)
+            if simple_highlight:
+                item["highlight"] = process_simple_highlight(highlights)
+            else:
+                item["highlight"] = highlights
 
         if "doc_id" in item:
             item["doc_id"] = hit["doc_id"]
@@ -171,16 +175,13 @@ def join_queries(text_filter, search_queries):
         return None
 
 
-def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, simple_highlight_type=None, sort_fields=None):
+def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_fields=None):
     s = Search(index=indices, doc_type=doc_type)
     if query:
         s = s.query(query)
 
     if highlight:
         s = s.highlight('strix', options={"number_of_fragments": highlight["number_of_fragments"]})
-
-    if simple_highlight:
-        s = s.highlight("text.lemgram", type=simple_highlight_type or "plain", fragment_size=2500)
 
     new_includes, new_excludes = fix_includes_excludes(includes, excludes, indices)
 
@@ -246,20 +247,21 @@ def put_document(index, doc_type, doc):
     return es.index(index=index, doc_type=doc_type, body=doc)
 
 
-def process_hit(corpus, hit, context_size):
+def process_hit(corpus, hit, context_size, include_annotations=True):
     """
     takes a hit and extracts positions from highlighting and extracts
     tokens + attributes using termvectors (to be replaced with something more effective)
     :param corpus: the corpus of the hit
     :param hit: a non-parsed hit that has used the strix-highlighting
     :param context_size: how many tokens should be shown to each side of the highlight
+    :param include_annotations: if all annotations should be returned or just word + whitespace
     :return: hit-element with added highlighting
     """
     doc_id = hit["doc_id"]
     doc_type = hit.meta.doc_type
 
     if hasattr(hit.meta, "highlight"):
-        highlights = get_highlights(corpus, doc_id, doc_type, hit.meta.highlight.positions, context_size)
+        highlights = get_highlights(corpus, doc_id, doc_type, hit.meta.highlight.positions, context_size, include_annotations=include_annotations)
     else:
         highlights = []
 
@@ -272,23 +274,18 @@ def process_hit(corpus, hit, context_size):
 
 def process_simple_highlight(highlights):
     result = []
-    highlights = highlights["text.lemgram"]
-    for highlight in highlights:
-        sub_result = []
-        for token in highlight.split("\u241D")[1:-1]:
-            if token.startswith("<em>"):
-                sub_result.append("<em>" + token[4:-5].split("\u241E")[0] + "</em>")
-            else:
-                sub_result.append(token.split("\u241E")[0])
-
-        result.append(" ".join(sub_result))
-    return {
-        "highlight": result
-    }
+    for highlight in highlights["highlight"]:
+        left = "".join([token["word"] + token.get("whitespace", "").replace("\n"," ") for token in highlight["left_context"]])
+        match_start = "<em>" + "".join([token["word"] + token.get("whitespace", "").replace("\n"," ") for token in highlight["match"][0:len(highlight["match"]) - 1]])
+        match_end = highlight["match"][-1]["word"] + "</em>" + highlight["match"][-1].get("whitespace", "").replace("\n"," ")
+        right = "".join([token["word"] + token.get("whitespace", "").replace("\n"," ") for token in highlight["right_context"]])
+        result.append(left + match_start + match_end + right.rstrip())
+    highlights["highlight"] = result
+    return highlights
 
 
-def get_highlights(corpus, doc_id, doc_type, spans, context_size):
-    term_index = get_term_index(corpus, doc_id, doc_type, spans, context_size)
+def get_highlights(corpus, doc_id, doc_type, spans, context_size, include_annotations=True):
+    term_index = get_term_index(corpus, doc_id, doc_type, spans, context_size, include_annotations=include_annotations)
     if not term_index:
         raise RuntimeError("It was not possible to fetch term index for corpus: " + corpus + ", doc_id: " + doc_id + ", doc_type: " + doc_type)
 
@@ -315,7 +312,7 @@ def get_highlights(corpus, doc_id, doc_type, spans, context_size):
     return highlights
 
 
-def get_term_index(corpus, doc_id, doc_type, spans, context_size):
+def get_term_index(corpus, doc_id, doc_type, spans, context_size, include_annotations=True):
     positions = set()
     for span in spans:
         [_from, _to] = span.split('-')
@@ -328,10 +325,10 @@ def get_term_index(corpus, doc_id, doc_type, spans, context_size):
             positions.update(set(range(from_int - context_size, from_int)))
             positions.update(set(range(to_int, to_int + context_size)))
 
-    return get_terms(corpus, doc_type, doc_id, positions=list(positions))
+    return get_terms(corpus, doc_type, doc_id, positions=list(positions), include_annotaitons=include_annotations)
 
 
-def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None):
+def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None, include_annotaitons=True):
     term_index = {}
 
     must_clauses = []
@@ -353,36 +350,28 @@ def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None):
     s = Search(index=corpus + "_terms", doc_type="term").query(query)
     s.sort("_doc")
 
+    if not include_annotaitons:
+        s = s.source(includes=("position", "term.word", "term.whitespace"))
+
     for hit in s.scan():
         source = hit.to_dict()
-        term_index[source['position']] = source['term']
+        term_index[source["position"]] = source["term"]
 
     return term_index
 
 
-def analyze_and_create_span_query(search_term, word_form_only=False, term_query=False):
+def analyze_and_create_span_query(search_term, word_form_only=False):
     tokens = []
     terms = tokenize_search_string(search_term)
-    if not term_query or len(terms) > 1:
-        for term in terms:
-            words = []
-            lemgrams = []
-            word = term[0]
-            words.append(word)
-            if not (term[1] or word_form_only or ("*" in word)):
-                lemgrams.extend(lemgrammify(word))
-            tokens.append({"lemgram": lemgrams, "word": words})
-        return create_span_query(tokens), "plain"
-    else:
-        term = terms[0]
-        if term[1]:
-            return Q("term", **{"text": term[0]})
-        else:
-            # TODO replace term with terms-query
-            should = []
-            for lemgram in lemgrammify(term):
-                should.append(Q("term", **{"text.lemgram": lemgram}))
-            return Q("bool", should=should), "fvh"
+    for term in terms:
+        words = []
+        lemgrams = []
+        word = term[0]
+        words.append(word)
+        if not (term[1] or word_form_only or ("*" in word)):
+            lemgrams.extend(lemgrammify(word))
+        tokens.append({"lemgram": lemgrams, "word": words})
+    return create_span_query(tokens)
 
 
 def tokenize_search_string(search_term):
@@ -431,7 +420,7 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
     if text_query_field and text_query:
         span_query = Q("span_term", **{"text." + text_query_field: text_query})
     elif text_query:
-        span_query, _ = analyze_and_create_span_query(text_query)
+        span_query = analyze_and_create_span_query(text_query)
     else:
         span_query = None
     if span_query:

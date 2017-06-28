@@ -44,5 +44,19 @@ class FacetetSearchTest(unittest.TestCase):
         result = self.do_request("/search?text_query=framtid&corpora=vivill&exclude=dump,token_lookup,lines&simple_highlight=true")
         for hit in result["data"]:
             assert "highlight" in hit
-            for highlight in hit["highlight"]["highlight"]:
+            highlights = hit["highlight"]["highlight"]
+            assert len(highlights) <= 5
+            for highlight in highlights:
                 assert "<em>" in highlight
+                word = highlight.split("<em>")[1].split("</em>")[0].lower()
+                assert word.startswith("framtid")
+        hit = result["data"][1]
+        assert hit["highlight"]["highlight"][3] == "inte förstörs och investera i <em>framtidens</em> hållbara jobb. Under mandatperioden"
+
+    def test_simple_highlight2(self):
+        result = self.do_request("/search?text_query=Därför måste fler&corpora=vivill&exclude=dump,token_lookup,lines&simple_highlight=true")
+        hit = result["data"][0]
+        assert hit["highlight"]["highlight"][0] == "skapar morgondagens omistliga klassiker. <em>Därför måste många</em> få möjlighet att skapa."
+        assert hit["highlight"]["highlight"][1] == "och utan långa väntetider. <em>Därför måste fler</em> åtgärder prövas för att locka"
+        hit = result["data"][1]
+        assert hit["highlight"]["highlight"][0] == "enskild såväl som gemensam. <em>Därför måste fler</em> få jobb eller skapa sitt"

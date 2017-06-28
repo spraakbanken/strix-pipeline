@@ -91,7 +91,8 @@ def parse_pipeline_xml(file_name,
                        token_count_id=False,
                        text_attributes=None,
                        process_token=lambda x: None,
-                       add_similarity_tags=False):
+                       add_similarity_tags=False,
+                       save_whitespace_per_token=False):
     """
     split_document: everything under this node will go into separate documents
     word_annotations: a map of tag names and the attributes of those tags that
@@ -99,7 +100,7 @@ def parse_pipeline_xml(file_name,
     """
     if text_attributes is None:
         text_attributes = {}
-    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags)
+    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token)
     if parser == "htmlparser":
         strixHTMLParser = StrixHTMLParser(strix_parser)
 
@@ -123,7 +124,7 @@ def parse_pipeline_xml(file_name,
 
 class StrixParser:
 
-    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags):
+    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token):
         #input
         self.split_document = split_document
         self.word_annotations = word_annotations
@@ -132,6 +133,7 @@ class StrixParser:
         self.text_attributes = text_attributes
         self.process_token = process_token
         self.add_similarity_tags = add_similarity_tags
+        self.save_whitespace_per_token = save_whitespace_per_token
 
         #state
         self.current_part_tokens = []
@@ -216,7 +218,12 @@ class StrixParser:
             self.lines = [[0]]
             self.similarity_tags = []
         elif tag in self.struct_annotations:
+            # at close we go thorugh each <w>-tag in the structural element and
+            # assign the length (which can't be known until the element closes)
+            # TODO do this once for ALL structural elements to avoid editing each token more than one
+            #   (save all structs and do this when the document is done)
             annotation_length = self.current_struct_annotations[tag]["length"]
+
             for token in self.current_token_lookup[-annotation_length:]:
                 token["attrs"][tag]["length"] = annotation_length
             del self.current_struct_annotations[tag]
@@ -287,6 +294,11 @@ class StrixParser:
             whitespaces = data.splitlines(True)
             for ws in whitespaces:
                 self.dump[-1] += ws
+                if self.save_whitespace_per_token:
+                    try:
+                        self.current_token_lookup[-1]["whitespace"] = ws
+                    except IndexError:
+                        pass
                 if ws[-1] == "\n":
                     current_token = self.token_count - 1
                     self.dump.append("")

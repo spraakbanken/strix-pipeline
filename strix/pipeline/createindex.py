@@ -78,6 +78,7 @@ class CreateIndex:
                     }
                 }
             ])
+        m.meta("_source", excludes=["text"])
 
         m.field("position", "integer")
         m.field("term", "object", dynamic=True)

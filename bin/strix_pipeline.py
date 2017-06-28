@@ -24,12 +24,6 @@ if __name__ == '__main__':
             strix.loghelper.setup_pipeline_logging("|".join(indices) + "-reindex")
             pipeline.recreate_indices(indices)
 
-    def do_reindex(args):
-        indices = args.index
-        if indices:
-            strix.loghelper.setup_pipeline_logging("|".join(indices) + "-reindex-data")
-            pipeline.reindex(indices)
-
     # Parse command line arguments
 
     parser = argparse.ArgumentParser(description='Run the pipeline.')
@@ -56,10 +50,6 @@ if __name__ == '__main__':
                               help="Deletes index and everything in it, then recreates it.")
 
     reset_parser.set_defaults(func=do_recreate)
-
-    reindex_parser = subparsers.add_parser("reindex", help="Reindex all data from old index into new index")
-    reindex_parser.add_argument("--index", nargs="+", help="Copy this index to a new index")
-    reindex_parser.set_defaults(func=do_reindex)
 
     args = parser.parse_args()
 

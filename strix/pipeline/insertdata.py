@@ -97,7 +97,7 @@ class InsertData:
         for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations,
                                                  parser=self.corpus_conf.get("parser"),
                                                  struct_annotations=struct_annotations, text_attributes=text_attributes,
-                                                 token_count_id=True, add_similarity_tags=True):
+                                                 token_count_id=True, add_similarity_tags=True, save_whitespace_per_token=True):
             doc_id = get_id(task_id, text)
             text["doc_id"] = doc_id
             self.generate_title(text, text_attributes)
