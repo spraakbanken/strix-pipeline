@@ -165,6 +165,6 @@ Get an aggregation of the current set of documents (as decided by `text_filter` 
 
 ### Values of (non-text) attributes in a document
 
-**GET** `/aggs/<corpus>/<doc_id>/<field>
+**GET** `/aggs/<corpus>/<doc_id>/<field>`
 
 Get a list of values available in the given document.
