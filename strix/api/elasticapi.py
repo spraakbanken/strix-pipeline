@@ -8,6 +8,7 @@ from elasticsearch_dsl.connections import connections
 
 from strix.config import config
 import strix.corpusconf as corpusconf
+from strix.api.elasticapihelpers import page_size
 
 ALL_BUCKETS = "2147483647"
 
@@ -15,7 +16,7 @@ es = connections.create_connection(hosts=config.elastic_hosts if config.has_attr
 _logger = logging.getLogger(__name__)
 
 
-def search(doc_type, corpora=(), text_query_field=None, text_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, text_filter=None, simple_highlight=False, token_lookup_from=None, token_lookup_to=None):
+def search(doc_type, corpora=(), text_query_field=None, text_query=None, includes=(), excludes=(), size=None, highlight=None, text_filter=None, simple_highlight=False, token_lookup_size=None):
     add_fuzzy_query = False
     search_queries = []
     if text_query:
@@ -42,7 +43,7 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
             s.aggs.bucket("corpora", "terms", field="_index", size=ALL_BUCKETS, order={"_term": "asc"})
         return s
 
-    res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, simple_highlight=simple_highlight, before_send=before_send)
+    res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, size=size, highlight=highlight, simple_highlight=simple_highlight, before_send=before_send)
 
     if "aggregations" in res:
         corpora_buckets = []
@@ -50,14 +51,14 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
             corpora_buckets.append({"doc_count": bucket["doc_count"], "key": corpus_id_to_alias(bucket["key"])})
         res["aggregations"]["corpora"]["buckets"] = corpora_buckets
 
-    if token_lookup_from is not None and token_lookup_to is not None:
+    if token_lookup_size:
         for document in res["data"]:
-            get_token_lookup(document, document["corpus"], doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
+            get_token_lookup(document, document["corpus"], doc_type, document["doc_id"], includes, excludes, token_lookup_size)
 
     return res
 
 
-def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), from_hit=0, to_hit=10, token_lookup_from=None, token_lookup_to=None):
+def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), size=None, token_lookup_size=None):
     query = None
     s = Search(index=corpus, doc_type=doc_type)
     s = s.query(Q("term", doc_id=doc_id))
@@ -85,26 +86,22 @@ def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevan
             raise RuntimeError("No document with ID " + doc_id)
 
     if query:
-        res = do_search_query(search_corpora if search_corpora else corpus, doc_type, search_query=query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit)
-        if token_lookup_from is not None and token_lookup_to is not None:
+        res = do_search_query(search_corpora if search_corpora else corpus, doc_type, search_query=query, includes=includes, excludes=excludes, size=size)
+        if token_lookup_size:
             for document in res["data"]:
-                get_token_lookup(document, corpus, doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
+                get_token_lookup(document, corpus, doc_type, document["doc_id"], includes, excludes, token_lookup_size)
 
         return res
     else:
         return {}
 
 
-def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, simple_highlight=None, sort_field=None, before_send=None):
-    if to_hit > 10000:
-        raise RuntimeError("Paging error. \"to\" cannot be larger than 10000")
-    if to_hit < from_hit:
-        raise RuntimeError("Paging error. \"to\" cannot be smaller than \"from\"")
+def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=(), size=None, highlight=None, simple_highlight=None, sort_field=None, before_send=None):
 
     if simple_highlight:
         highlight = {"number_of_fragments": 5}
 
-    s = get_search_query(corpora, doc_type, search_query, includes=includes, excludes=excludes, from_hit=from_hit, to_hit=to_hit, highlight=highlight, sort_fields=sort_field)
+    s = get_search_query(corpora, doc_type, search_query, includes=includes, excludes=excludes, size=size, highlight=highlight, sort_fields=sort_field)
 
     if before_send:
         s = before_send(s)
@@ -175,7 +172,7 @@ def join_queries(text_filter, search_queries):
         return None
 
 
-def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), from_hit=0, to_hit=10, highlight=None, sort_fields=None):
+def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), size=None, highlight=None, sort_fields=None):
     s = Search(index=indices, doc_type=doc_type)
     if query:
         s = s.query(query)
@@ -190,10 +187,13 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
         s = s.sort(*sort_fields)
     elif sort_fields:
         s = s.sort(sort_fields)
-    return s[from_hit:to_hit]
+    if size:
+        return s[size["from"]:size["to"]]
+    else:
+        return s
 
 
-def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, includes=(), excludes=(), token_lookup_from=None, token_lookup_to=None):
+def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, includes=(), excludes=(), token_lookup_size=None):
     if not excludes:
         excludes = []
     excludes += ("text", "original_file", "similarity_tags")
@@ -219,7 +219,7 @@ def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, include
         else:
             document["doc_id"] = hit.meta.id
         hit_corpus = corpus_id_to_alias(hit.meta.index)
-        get_token_lookup(document, indices, doc_type, document["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
+        get_token_lookup(document, indices, doc_type, document["doc_id"], includes, excludes, token_lookup_size)
         document["corpus"] = hit_corpus
         move_text_attributes(hit_corpus, document, includes, excludes)
         return {"data": document}
@@ -420,7 +420,7 @@ def lemgrammify(term):
     return lemgrams
 
 
-def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None, forward=True, text_query=None, text_query_field=None, includes=(), excludes=(), token_lookup_from=None, token_lookup_to=None):
+def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None, forward=True, text_query=None, text_query_field=None, includes=(), excludes=(), token_lookup_size=None):
     s = Search(index=corpus, doc_type=doc_type)
     id_query = Q("term", doc_id=doc_id)
     if text_query_field and text_query:
@@ -472,7 +472,7 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
         else:
             obj["highlight"] = []
 
-        get_token_lookup(obj, corpus, doc_type, obj["doc_id"], includes, excludes, token_lookup_from, token_lookup_to)
+        get_token_lookup(obj, corpus, doc_type, obj["doc_id"], includes, excludes, token_lookup_size)
 
         return obj
 
@@ -535,13 +535,13 @@ def mask_field(query, field="text"):
     return Q("field_masking_span", query=query, field=field)
 
 
-def get_token_lookup(document, corpus, doc_type, doc_id, includes, excludes, token_lookup_from, token_lookup_to):
+def get_token_lookup(document, corpus, doc_type, doc_id, includes, excludes, token_lookup_size):
     if should_include("token_lookup", includes, excludes):
         kwargs = {}
-        if token_lookup_from:
-            kwargs["from_pos"] = token_lookup_from
-        if token_lookup_to:
-            kwargs["size"] = token_lookup_to - token_lookup_from
+        if token_lookup_size:
+            from_ = token_lookup_size["from"]
+            kwargs["from_pos"] = from_
+            kwargs["size"] = token_lookup_size["to"] - from_
         document["token_lookup"] = get_terms(corpus, doc_type, doc_id, **kwargs)
 
 
@@ -610,7 +610,7 @@ def date_histogram(index, doc_type, field, params):
     response = do_search_query(index,
                                doc_type,
                                date_range & Q("exists", field=date_field) & Q("exists", field="text"),
-                               to_hit=0,
+                               size=page_size(size=0),
                                before_send=add_aggs)
 
     output = []

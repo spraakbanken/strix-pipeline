@@ -9,6 +9,7 @@ from flask import Flask, request
 from strix.api.flask_util import crossdomain, jsonify_response
 import strix.api.elasticapi as elasticapi
 from strix.config import config
+from strix.api.elasticapihelpers import page_size
 app = Flask(__name__)
 
 _logger = logging.getLogger("strix.api.web")
@@ -22,12 +23,18 @@ def get_includes_excludes(request_obj):
 
 
 def get_token_lookup_sizes(request_obj):
-    token_lookup_from = request.args.get("token_lookup_from")
-    token_lookup_to = request.args.get("token_lookup_to")
-    if token_lookup_from:
-        request_obj["token_lookup_from"] = int(token_lookup_from)
-    if token_lookup_to:
-        request_obj["token_lookup_to"] = int(token_lookup_to)
+    try:
+        token_lookup_from = request.args.get("token_lookup_from")
+        if token_lookup_from:
+            token_lookup_from = int(token_lookup_from)
+            token_lookup_to = request.args.get("token_lookup_to")
+            if token_lookup_to:
+                token_lookup_to = int(token_lookup_to)
+            else:
+                token_lookup_to = None
+            request_obj["token_lookup_size"] = page_size(token_lookup_from, token_lookup_to, limit=False)
+    except ValueError:
+        raise ValueError("token lookup sizes must be integers")
 
 
 def get_material_selection(request_obj):
@@ -51,6 +58,19 @@ def get_search(request_obj):
         request_obj["text_query_field"] = request.args.get("text_query_field").replace(".", "_")
 
     return can_use_highlight
+
+
+def get_result_size(request_obj):
+    try:
+        from_param = request.args.get("from")
+        if from_param:
+            kwargs = {"from_hit": int(from_param)}
+            to_param = request.args.get("to")
+            if to_param:
+                kwargs["to_hit"] = int(to_param)
+            request_obj["size"] = page_size(**kwargs)
+    except ValueError:
+        raise ValueError("from / to must be integers")
 
 
 @app.route("/document/<corpus>/sentence/<sentence_id>")
@@ -79,10 +99,7 @@ def search():
 
     use_highlight = get_search(kwargs)
 
-    if request.args.get("from"):
-        kwargs["from_hit"] = int(request.args.get("from"))
-    if request.args.get("to"):
-        kwargs["to_hit"] = int(request.args.get("to"))
+    get_result_size(kwargs)
 
     if request.args.get("simple_highlight") and request.args.get("simple_highlight") == "true":
         if use_highlight:
@@ -147,10 +164,7 @@ def get_related_documents(corpus, doc_id):
 
     get_includes_excludes(kwargs)
     get_token_lookup_sizes(kwargs)
-    if request.args.get("from"):
-        kwargs["from_hit"] = int(request.args.get("from"))
-    if request.args.get("to"):
-        kwargs["to_hit"] = int(request.args.get("to"))
+    get_result_size(kwargs)
     return elasticapi.get_related_documents(corpus, "text", doc_id, **kwargs)
 
 

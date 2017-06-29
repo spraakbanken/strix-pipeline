@@ -8,6 +8,7 @@ myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../../')
 
 import strix.api.elasticapi as api
+from strix.api.elasticapihelpers import page_size
 
 connections.create_connection(hosts=["localhost"], timeout=120)
 
@@ -38,16 +39,21 @@ class ElasticApiTest(unittest.TestCase):
         assert result['hits'] == 0
 
     def test_paging(self):
-        result = api.search("text", corpora="vivill", from_hit=25, to_hit=27)
+        result = api.search("text", corpora="vivill", size=page_size(25, 27))
         assert result['hits'] == 90
         assert len(result['data']) == 2
 
     def test_malformed_paging(self):
         with pytest.raises(RuntimeError):
-            api.search("text", corpora="vivill", from_hit=29, to_hit=27)
+            api.search("text", corpora="vivill", size=page_size(29, 27))
+
+    def test_paging_zero_docs(self):
+        result = api.search("text", corpora="vivill", size=page_size(to_hit=0))
+        assert result['hits'] == 90
+        assert len(result['data']) == 0
 
     def test_get_document(self):
-        result = api.search("text", corpora="vivill", from_hit=28, to_hit=29)
+        result = api.search("text", corpora="vivill", size=page_size(28, 29))
         item = result['data'][0]
         id = item['doc_id']
         result = api.get_document_by_id("vivill", "text", doc_id=id)
