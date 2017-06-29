@@ -16,7 +16,7 @@ class InsertData:
         self.index = index
         self.corpus_conf = corpusconf.get_corpus_conf(self.index)
 
-    def get_id_func(self):
+    def get_id_func(self, doc_count):
         """
         the supported strategies for "document_id" are:
         - "filename" - use the filename / task id. Each file must contain only
@@ -32,7 +32,17 @@ class InsertData:
                 return task_id
             get_id = task_id_fun
         elif id_strategy == "generated":
-            id_generator = self.get_id_generator()
+            def get_id_generator():
+                ids = None
+                while True:
+                    if ids is None:
+                        ids = idgenerator.get_id_sequence(self.index, doc_count)
+                    try:
+                        yield str(next(ids))
+                    except StopIteration:
+                        ids = None
+
+            id_generator = get_id_generator()
 
             def generated_id(_, __):
                 return next(id_generator)
@@ -78,7 +88,6 @@ class InsertData:
         return tasks, time.time() - process_t
 
     def process_work(self, task_id, task, _):
-        get_id = self.get_id_func()
         word_annotations = {"w": self.corpus_conf["analyze_config"]["word_attributes"]}
         struct_annotations = self.corpus_conf["analyze_config"]["struct_attributes"]
         text_attributes = {}
@@ -91,13 +100,17 @@ class InsertData:
         split_document = "text"
         file_name = task["text"]
 
-        tasks = []
-        terms = []
-
+        texts = []
         for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations,
                                                  parser=self.corpus_conf.get("parser"),
                                                  struct_annotations=struct_annotations, text_attributes=text_attributes,
                                                  token_count_id=True, add_similarity_tags=True, save_whitespace_per_token=True):
+            texts.append(text)
+
+        tasks = []
+        terms = []
+        get_id = self.get_id_func(len(texts))
+        for text in texts:
             doc_id = get_id(task_id, text)
             text["doc_id"] = doc_id
             self.generate_title(text, text_attributes)
@@ -112,16 +125,6 @@ class InsertData:
             terms.extend(task_terms)
 
         return itertools.chain(tasks, terms or [])
-
-    def get_id_generator(self):
-        ids = None
-        while True:
-            if ids is None:
-                ids = idgenerator.get_id_sequence(self.index, 10)
-            try:
-                yield str(next(ids))
-            except StopIteration:
-                ids = None
 
     def generate_title(self, text, text_attributes):
         if "title" in self.corpus_conf:
