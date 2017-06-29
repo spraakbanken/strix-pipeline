@@ -131,9 +131,9 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
         items.append(item)
 
     output = {"hits": hits.hits.total, "data": items}
-    if 'suggest' in hits:
-        output['suggest'] = list(hits.to_dict()['suggest'].values())[0][0]["options"]
-    if 'aggregations' in hits:
+    if "suggest" in hits:
+        output["suggest"] = list(hits.to_dict()["suggest"].values())[0][0]["options"]
+    if "aggregations" in hits:
         output["aggregations"] = hits.to_dict()["aggregations"]
     return output
 
@@ -181,7 +181,7 @@ def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), fr
         s = s.query(query)
 
     if highlight:
-        s = s.highlight('strix', options={"number_of_fragments": highlight["number_of_fragments"]})
+        s = s.highlight("strix", options={"number_of_fragments": highlight["number_of_fragments"]})
 
     new_includes, new_excludes = fix_includes_excludes(includes, excludes, indices)
 
@@ -298,7 +298,7 @@ def get_highlights(corpus, doc_id, doc_type, spans, context_size, include_annota
     highlights = []
 
     for span in spans:
-        [_from, _to] = span.split('-')
+        [_from, _to] = span.split("-")
         left = []
         match = []
         right = []
@@ -321,7 +321,7 @@ def get_highlights(corpus, doc_id, doc_type, spans, context_size, include_annota
 def get_term_index(corpus, doc_id, doc_type, spans, context_size, include_annotations=True):
     positions = set()
     for span in spans:
-        [_from, _to] = span.split('-')
+        [_from, _to] = span.split("-")
         from_int = int(_from)
         to_int = int(_to)
 
@@ -339,19 +339,19 @@ def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None, 
 
     must_clauses = []
     if positions:
-        must_clauses.append(Q('terms', position=positions))
+        must_clauses.append(Q("terms", position=positions))
     elif from_pos or size:
         if not from_pos:
             from_pos = 0
         position_range = {"gte": from_pos}
         if size:
             position_range["lte"] = from_pos + size - 1
-        must_clauses.append(Q('range', position=position_range))
+        must_clauses.append(Q("range", position=position_range))
 
-    must_clauses.append(Q('term', doc_id=doc_id))
-    must_clauses.append(Q('term', doc_type=doc_type))
+    must_clauses.append(Q("term", doc_id=doc_id))
+    must_clauses.append(Q("term", doc_type=doc_type))
 
-    query = Q('constant_score', filter=Q('bool', must=must_clauses))
+    query = Q("constant_score", filter=Q("bool", must=must_clauses))
 
     s = Search(index=corpus + "_terms", doc_type="term").query(query)
     s.sort("_doc")
@@ -509,7 +509,7 @@ def create_span_query(tokens):
                 span_ors.append(Q("span_term", **{"text.lemgram": lemgram.lower()}))
         if token_dict["word"]:
             for word in token_dict["word"]:
-                if '*' in word:
+                if "*" in word:
                     span_ors.append(mask_field(Q("span_multi", match={"wildcard": {"text": {"value": word}}}), field="text.lemgram"))
                 else:
                     span_ors.append(mask_field(Q("span_term", **{"text": word}), field="text.lemgram"))

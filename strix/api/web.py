@@ -55,7 +55,7 @@ def get_search(request_obj):
 
 @app.route("/document/<corpus>/sentence/<sentence_id>")
 @app.route("/document/<corpus>/<doc_id>")
-@crossdomain(origin='*')
+@crossdomain(origin="*")
 @jsonify_response
 def get_document(corpus, doc_id=None, sentence_id=None):
     kwargs = {}
@@ -68,7 +68,7 @@ def get_document(corpus, doc_id=None, sentence_id=None):
 
 
 @app.route("/search")
-@crossdomain(origin='*')
+@crossdomain(origin="*")
 @jsonify_response
 def search():
     kwargs = {}
@@ -117,7 +117,7 @@ def search_in_document(corpus, doc_id):
         kwargs["current_position"] = int(request.args.get("current_position"))
 
     if request.args.get("forward"):
-        kwargs["forward"] = request.args.get('forward').lower() == 'true'
+        kwargs["forward"] = request.args.get("forward").lower() == "true"
 
     get_search(kwargs)
 
@@ -125,7 +125,7 @@ def search_in_document(corpus, doc_id):
 
 
 @app.route("/related/<corpus>/<doc_id>")
-@crossdomain(origin='*')
+@crossdomain(origin="*")
 @jsonify_response
 def get_related_documents(corpus, doc_id):
     kwargs = {}
@@ -155,7 +155,7 @@ def get_related_documents(corpus, doc_id):
 
 
 @app.route("/lemgramify/<terms>")
-@crossdomain(origin='*')
+@crossdomain(origin="*")
 @jsonify_response
 def autocomplete(terms):
     lemgrams = []
@@ -213,4 +213,4 @@ def get_documentation():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', threaded=True)
+    app.run(debug=True, host="0.0.0.0", threaded=True)
