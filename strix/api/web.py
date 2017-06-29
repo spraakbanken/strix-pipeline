@@ -41,12 +41,16 @@ def get_material_selection(request_obj):
 
 
 def get_search(request_obj):
+    can_use_highlight = False
     if "text_query" in request.args:
         # TODO remove lowercase-filter in mappingutil, then remove this
         request_obj["text_query"] = request.args.get("text_query").lower()
+        can_use_highlight = True
 
     if "text_query_field" in request.args:
         request_obj["text_query_field"] = request.args.get("text_query_field").replace(".", "_")
+
+    return can_use_highlight
 
 
 @app.route("/document/<corpus>/sentence/<sentence_id>")
@@ -73,20 +77,19 @@ def search():
 
     get_material_selection(kwargs)
 
-    get_search(kwargs)
+    use_highlight = get_search(kwargs)
 
     if request.args.get("from"):
         kwargs["from_hit"] = int(request.args.get("from"))
     if request.args.get("to"):
         kwargs["to_hit"] = int(request.args.get("to"))
 
-    use_highlight = True
-    if request.args.get("highlight") and request.args.get("highlight") == "false":
-        use_highlight = False
-
     if request.args.get("simple_highlight") and request.args.get("simple_highlight") == "true":
+        if use_highlight:
+            use_highlight = False
+            kwargs["simple_highlight"] = True
+    elif request.args.get("highlight") and request.args.get("highlight") == "false":
         use_highlight = False
-        kwargs["simple_highlight"] = True
 
     if use_highlight:
         if request.args.get("highlight_number_of_fragments"):
