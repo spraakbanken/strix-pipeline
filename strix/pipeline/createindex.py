@@ -14,11 +14,9 @@ class CreateIndex:
     terms_number_of_shards = config.terms_number_of_shards
     terms_number_of_replicas = config.terms_number_of_replicas
 
-    def __init__(self, index, reindexing=False):
+    def __init__(self, index):
         """
         :param index: name of index (alias name, date and time will be appended)
-        :param reindexing: if true, terms-index will not be created (only necessary when creating index from scratch)
-                            also no need for sequences
         """
         self.es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 
@@ -33,7 +31,6 @@ class CreateIndex:
                 self.word_attributes.append(new_attr)
 
         self.text_attributes = filter(lambda x: not x["ignore"] if "ignore" in x else True, corpus_config["analyze_config"]["text_attributes"])
-        self.reindexing = reindexing
         self.alias = index
 
     def create_index(self):
@@ -43,10 +40,10 @@ class CreateIndex:
         self.es.indices.close(index=index_name)
         self.create_text_type(index_name)
         self.es.indices.open(index=index_name)
-        if not self.reindexing:
-            self.create_term_position_index()
-            idgenerator.create_sequence_index()
-            idgenerator.reset_sequence(self.alias)
+
+        self.create_term_position_index()
+        idgenerator.create_sequence_index()
+        idgenerator.reset_sequence(self.alias)
         return index_name
 
     def get_unique_index(self, suffix=""):
@@ -69,7 +66,7 @@ class CreateIndex:
         m.meta("date_detection", False)
         m.meta("dynamic_templates", [
                 {
-                    "just_a_name": {
+                    "term_object_dynamic_template": {
                         "path_match": "term.*",
                         "match_mapping_type": "string",
                         "mapping": {
@@ -86,7 +83,8 @@ class CreateIndex:
         m.field("doc_type", "keyword", index="not_analyzed")
         m.save(self.alias + "_terms", using=self.es)
 
-    def set_settings(self, index, number_shards):
+    @staticmethod
+    def set_settings(index, number_shards):
         index.settings(
             number_of_shards=number_shards,
             number_of_replicas=0,

@@ -4,6 +4,7 @@ from datetime import timedelta
 from flask import make_response, request, current_app
 from functools import wraps
 
+
 # Decorator for allowing cross site http request etc.
 # http://flask.pocoo.org/snippets/56/
 def crossdomain(origin=None, methods=None, headers=None,
@@ -14,7 +15,7 @@ def crossdomain(origin=None, methods=None, headers=None,
     if headers is None:
         # Set standard headers here
         # TODO figure out which ones that are meaningful (when)
-        headers = ['Content-Type','Authorization']
+        headers = ['Content-Type', 'Authorization']
     if headers is not None and not isinstance(headers, str):
         headers = ', '.join(x.upper() for x in headers)
     if not isinstance(origin, str):

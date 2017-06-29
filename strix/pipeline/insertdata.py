@@ -28,13 +28,13 @@ class InsertData:
         """
         id_strategy = self.corpus_conf["document_id"]
         if id_strategy == "filename":
-            def task_id(task_id, text):
+            def task_id_fun(task_id, _):
                 return task_id
-            get_id = task_id
+            get_id = task_id_fun
         elif id_strategy == "generated":
             id_generator = self.get_id_generator()
 
-            def generated_id(task_id, text):
+            def generated_id(_, __):
                 return next(id_generator)
 
             get_id = generated_id
@@ -46,12 +46,12 @@ class InsertData:
             if not found:
                 raise ValueError("\"" + id_strategy + "\" is not a text attribute, not possible to use for IDs")
             if "document_id_hash" in self.corpus_conf and self.corpus_conf["document_id_hash"]:
-                def attribute_id(task_id, text):
+                def attribute_id(_, text):
                     m = hashlib.md5()
                     m.update(text[id_strategy].encode("utf-8"))
                     return str(int(m.hexdigest(), 16))[0:12]
             else:
-                def attribute_id(task_id, text):
+                def attribute_id(_, text):
                     return text[id_strategy]
             get_id = attribute_id
         return get_id
@@ -72,12 +72,12 @@ class InsertData:
                 _logger.info(text)
         return urls, tot_size
 
-    def process(self, task_type, task_id, task_data, corpus_data):
+    def process(self, _, task_id, task_data, corpus_data):
         process_t = time.time()
         tasks = self.process_work(task_id, task_data, corpus_data)
         return tasks, time.time() - process_t
 
-    def process_work(self, task_id, task, corpus_data):
+    def process_work(self, task_id, task, _):
         get_id = self.get_id_func()
         word_annotations = {"w": self.corpus_conf["analyze_config"]["word_attributes"]}
         struct_annotations = self.corpus_conf["analyze_config"]["struct_attributes"]

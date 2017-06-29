@@ -192,6 +192,7 @@ def aggs():
 def document_aggs(corpus, doc_id, field):
     return elasticapi.get_doc_aggs(corpus, doc_id, field)
 
+
 @app.route("/config")
 @crossdomain(origin="*")
 @jsonify_response

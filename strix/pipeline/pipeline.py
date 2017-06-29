@@ -65,7 +65,6 @@ def process_task(insert_data, task_queue, size, process_args):
         tasks = []
         delta_t = -1
 
-
     try:
         task_queue.put((tasks, delta_t, size), block=True)
 

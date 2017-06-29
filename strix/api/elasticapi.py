@@ -270,11 +270,21 @@ def process_hit(corpus, hit, context_size, include_annotations=True):
 
 def process_simple_highlight(highlights):
     result = []
+
+    def get_whitespace(token):
+        return token.get("whitespace", "").replace("\n", " ")
+
+    def get_token(token, sep=""):
+        return token["word"] + sep + get_whitespace(token)
+
+    def stringify(highlight_part):
+        return "".join([get_token(token) for token in highlight_part])
+
     for highlight in highlights["highlight"]:
-        left = "".join([token["word"] + token.get("whitespace", "").replace("\n"," ") for token in highlight["left_context"]])
-        match_start = "<em>" + "".join([token["word"] + token.get("whitespace", "").replace("\n"," ") for token in highlight["match"][0:len(highlight["match"]) - 1]])
-        match_end = highlight["match"][-1]["word"] + "</em>" + highlight["match"][-1].get("whitespace", "").replace("\n"," ")
-        right = "".join([token["word"] + token.get("whitespace", "").replace("\n"," ") for token in highlight["right_context"]])
+        left = stringify(highlight["left_context"])
+        match_start = "<em>" + stringify(highlight["match"][0:len(highlight["match"]) - 1])
+        match_end = get_token(highlight["match"][-1], sep="</em>")
+        right = stringify(highlight["right_context"])
         result.append(left + match_start + match_end + right.rstrip())
     highlights["highlight"] = result
     return highlights
