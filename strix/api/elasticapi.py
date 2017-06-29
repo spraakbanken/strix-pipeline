@@ -657,7 +657,7 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
 
     s = Search(index="*", doc_type="text")
 
-    corpus_filter = Q("terms", _index=corpus_alias_to_id(corpora))
+    corpus_filter = Q("terms", corpus_id=corpora)
     text_filters = get_text_filters(text_filter)
 
     (use_text_attributes, additional_text_attributes) = get_most_common_text_attributes(corpora, facet_count - 1, include_facets)
@@ -707,15 +707,6 @@ def get_doc_aggs(corpus, doc_id, field):
     s = s[0:0]
     result = s.execute()
     return {"aggregations": result.to_dict()["aggregations"]}
-
-
-def corpus_alias_to_id(corpora):
-    expanded_corpus_names = []
-    indices = es.cat.indices(h="index").split("\n")[:-1]
-    for index in indices:
-        if index.split("_")[0] in corpora:
-            expanded_corpus_names.append(index)
-    return expanded_corpus_names
 
 
 def corpus_id_to_alias(corpus):
