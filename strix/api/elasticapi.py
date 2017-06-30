@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
+import concurrent.futures
 import requests
 
 from elasticsearch_dsl import Search, Q
@@ -418,6 +419,22 @@ def lemgrammify(term):
         if "_" not in lemgram[1:]:
             lemgrams.append(lemgram.lower())  # .lower() here is because we accidentally have lowercase active in the mapping
     return lemgrams
+
+
+def lemgrammify_many(terms):
+    result = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+        future_map = {}
+
+        for term in terms:
+            future = executor.submit(lemgrammify, term)
+            future_map[future] = term
+
+        for future in concurrent.futures.as_completed(future_map):
+            term = future_map.pop(future)
+            if future.exception() is None:
+                result[term] = future.result()
+    return result
 
 
 def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None, forward=True, text_query=None, text_query_field=None, includes=(), excludes=(), token_lookup_size=None):

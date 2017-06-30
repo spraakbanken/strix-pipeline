@@ -172,10 +172,7 @@ def get_related_documents(corpus, doc_id):
 @crossdomain(origin="*")
 @jsonify_response
 def autocomplete(terms):
-    lemgrams = []
-    for term in terms.split(","):
-        lemgrams.extend(elasticapi.lemgrammify(term))
-    return lemgrams
+    return elasticapi.lemgrammify_many(terms.split(","))
 
 
 # TODO this should support the same filtering as any other call?
