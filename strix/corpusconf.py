@@ -91,8 +91,6 @@ def _merge_configs(target, source):
                             target[k][k2][k3] = v3
                     else:
                         raise ValueError("Key: " + k + "." + k2 + ", not allowed in parent configuration.")
-            else:
-                target[k] = v
         else:
             target[k] = v
 

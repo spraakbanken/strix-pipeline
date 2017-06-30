@@ -116,6 +116,7 @@ def parse_pipeline_xml(file_name,
         with open(file_name, "r") as file:
             for piece in read_in_chunks(file):
                 strixHTMLParser.feed(piece)
+            strixHTMLParser.close()
     else:
         iterparse_parser(file_name, strix_parser)
     res = strix_parser.get_result()
@@ -148,6 +149,7 @@ class StrixParser:
 
         self.in_word = False
         self.word_attrs = {}
+        self.current_word_content = ""
 
         self.current_parts = []
 
@@ -228,10 +230,6 @@ class StrixParser:
                 token["attrs"][tag]["length"] = annotation_length
             del self.current_struct_annotations[tag]
         elif tag == "w":
-            self.in_word = False
-
-    def handle_data(self, data):
-        if self.in_word:
             token_data = dict(self.current_word_annotations)
             for annotation in self.word_annotations.get("w", []):
                 annotation_name = annotation["name"]
@@ -271,7 +269,7 @@ class StrixParser:
                     v = "\u241F" + "\u241F".join(v) + "\u241F" if len(v) > 0 else "\u241F"
                 str_attrs.append(attr + "=" + str(v))
 
-            token = data.strip()
+            token = self.current_word_content.strip()
             self.dump[-1] += token
             word = token + "\u241E" + "\u241E".join(str_attrs) + "\u241E"
             self.current_part_tokens.append(word)
@@ -290,6 +288,12 @@ class StrixParser:
                 if not annotation_value:
                     annotation_value = [token]
                 self.similarity_tags.extend(annotation_value)
+            self.in_word = False
+            self.current_word_content = ""
+
+    def handle_data(self, data):
+        if self.in_word:
+            self.current_word_content += data.strip()
         else:
             whitespaces = data.splitlines(True)
             for ws in whitespaces:
@@ -343,9 +347,9 @@ def iterparse_parser(file_name, strix_parser):
 class StrixHTMLParser(HTMLParser):
 
     def __init__(self, strix_parser):
+        HTMLParser.__init__(self, convert_charrefs=False)
         self.strix_parser = strix_parser
-        super(HTMLParser, self).__init__()
-        HTMLParser.__init__(self)
+        # super(HTMLParser, self).__init__()
 
     def handle_starttag(self, tag, attrs):
         self.strix_parser.handle_starttag(tag, dict(attrs))
@@ -355,3 +359,9 @@ class StrixHTMLParser(HTMLParser):
 
     def handle_data(self, data):
         self.strix_parser.handle_data(data)
+
+    def handle_charref(self, name):
+        self.strix_parser.handle_data(name)
+
+    def handle_entityref(self, name):
+        self.strix_parser.handle_data(name)

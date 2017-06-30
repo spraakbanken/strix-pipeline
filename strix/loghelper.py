@@ -70,10 +70,6 @@ def setup_pipeline_logging(task_name):
     errh = logging.FileHandler("logs/pipeline-err-" + file_name, mode="w", encoding="UTF-8", delay=True)
     errh.setLevel(logging.ERROR)
 
-    ch = logging.StreamHandler(stream=sys.stdout)
-    ch.setFormatter(formatter)
-
-    logging.root.addHandler(ch)
     logging.root.addHandler(fh)
     logging.root.addHandler(errh)
     logging.root.addHandler(logcounter)
