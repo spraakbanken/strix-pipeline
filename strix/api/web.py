@@ -168,13 +168,6 @@ def get_related_documents(corpus, doc_id):
     return elasticapi.get_related_documents(corpus, "text", doc_id, **kwargs)
 
 
-@app.route("/lemgramify/<terms>")
-@crossdomain(origin="*")
-@jsonify_response
-def autocomplete(terms):
-    return elasticapi.lemgrammify_many(terms.split(","))
-
-
 # TODO this should support the same filtering as any other call?
 # DEPRACATED use aggs?corpora=corpus&include_facets=field
 @app.route("/date_histogram/<corpus>/<field>")

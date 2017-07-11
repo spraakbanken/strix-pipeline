@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 import logging
-
-import concurrent.futures
-import requests
-
 from elasticsearch_dsl import Search, Q
 from elasticsearch_dsl.connections import connections
 
 from strix.config import config
 import strix.corpusconf as corpusconf
+import strix.api.karp as karp
 from strix.api.elasticapihelpers import page_size
 
 ALL_BUCKETS = "2147483647"
@@ -370,13 +367,18 @@ def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None, 
 def analyze_and_create_span_query(search_term, word_form_only=False):
     tokens = []
     terms = tokenize_search_string(search_term)
+    if not word_form_only:
+        res = karp.lemgrammify([term[0] for term in terms if not (term[1] or "*" in term[0])])
+    else:
+        res = {}
     for term in terms:
         words = []
         lemgrams = []
         word = term[0]
+        term_word_form_only = term[1]
         words.append(word)
-        if not (term[1] or word_form_only or ("*" in word)):
-            lemgrams.extend(lemgrammify(word))
+        if not (term_word_form_only or ("*" in word)):
+            lemgrams.extend(res[word])
         tokens.append({"lemgram": lemgrams, "word": words})
     return create_span_query(tokens)
 
@@ -403,38 +405,6 @@ def tokenize_search_string(search_term):
         terms.append([term, in_quotes])
         in_quotes = still_in_quotes
     return terms
-
-
-def lemgrammify(term):
-    lemgrams = []
-    response = requests.get("https://ws.spraakbanken.gu.se/ws/karp/v3/autocomplete?mode=external&q=" + term + "&resource=saldom")
-    try:
-        response.raise_for_status()
-    except requests.exceptions.HTTPError:
-        _logger.exception("Unable to use Karp autocomplete service")
-        raise RuntimeError("Unable to use Karp autocomplete service")
-    result = response.json()
-    for hit in result["hits"]["hits"]:
-        lemgram = hit["_source"]["FormRepresentations"][0]["lemgram"]
-        if "_" not in lemgram[1:]:
-            lemgrams.append(lemgram.lower())  # .lower() here is because we accidentally have lowercase active in the mapping
-    return lemgrams
-
-
-def lemgrammify_many(terms):
-    result = {}
-    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-        future_map = {}
-
-        for term in terms:
-            future = executor.submit(lemgrammify, term)
-            future_map[future] = term
-
-        for future in concurrent.futures.as_completed(future_map):
-            term = future_map.pop(future)
-            if future.exception() is None:
-                result[term] = future.result()
-    return result
 
 
 def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None, forward=True, text_query=None, text_query_field=None, includes=(), excludes=(), token_lookup_size=None):
