@@ -1,5 +1,5 @@
 elastic_hosts: [{host: localhost, port: 9200}]
-texts_dir: "resources/test_data/raw"
+texts_dir: "resources/test_data"
 base_dir: "../../"
 
 concurrency_upload_threads: 10
