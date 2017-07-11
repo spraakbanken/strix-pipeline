@@ -1,11 +1,10 @@
 {
-    "parent": "all-parent",
+    "parent": "time-parent",
     "analyze_config": {
         "text_attributes": [
             {
                 "name": "datatyp",
                 "include_in_aggregation": true,
-                "has_translation": true,
                 "translation": {
                     "huvuddokument": "Huvuddokument",
                     "forslag": "Förslag",

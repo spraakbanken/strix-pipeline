@@ -83,6 +83,8 @@ def _merge_configs(target, source):
             if k == "analyze_config":
                 for k2, v2 in source[k].items():
                     if k2 == "text_attributes" or "word_attributes":
+                        if k2 not in target[k]:
+                            target[k][k2] = []
                         v2.extend(target[k][k2])
                         target[k][k2] = v2
                     elif k2 == "struct_attributes":

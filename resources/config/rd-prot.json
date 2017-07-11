@@ -199,14 +199,6 @@
         ],
         "word_attributes": [
             {
-                "set": false,
-                "name": "pos"
-            },
-            {
-                "set": false,
-                "name": "msd"
-            },
-            {
                 "set": true,
                 "name": "lemma"
             },

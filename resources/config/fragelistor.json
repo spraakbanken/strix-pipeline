@@ -1,5 +1,5 @@
 {
-    "parent": "all-parent",
+    "parent": "time-parent",
     "analyze_config": {
         "struct_attributes": {
             "ne": [
@@ -60,14 +60,6 @@
             }
         ],
         "word_attributes": [
-            {
-                "set": false,
-                "name": "pos"
-            },
-            {
-                "set": false,
-                "name": "msd"
-            },
             {
                 "set": true,
                 "name": "lemma"

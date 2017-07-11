@@ -12,5 +12,6 @@
         "include_in_aggregation": true
       }
     ]
-  }
+  },
+  "parent": "word-parent"
 }

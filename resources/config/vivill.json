@@ -1,5 +1,5 @@
 {
-    "parent": "all-parent",
+    "parent": "time-parent",
     "corpus_id": "vivill",
     "corpus_name": {
         "eng": "Swedish party programs and election manifestos",
@@ -13,14 +13,6 @@
         "word_attributes": [
             {
                 "name": "wid",
-                "set": false
-            },
-            {
-                "name": "pos",
-                "set": false
-            },
-            {
-                "name": "msd",
                 "set": false
             },
             {
@@ -73,7 +65,6 @@
             {
                 "name": "party",
                 "type": "enum",
-                "has_translation": true,
                 "include_in_aggregation": true,
                 "translation": {
                     "all": "Alliansen",

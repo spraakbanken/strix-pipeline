@@ -17,14 +17,6 @@
           "set": false
       },
       {
-          "name": "pos",
-          "set": false
-      },
-      {
-          "name": "msd",
-          "set": false
-      },
-      {
           "nodeName": "lex",
           "name": "lemgram",
           "set": true
@@ -77,6 +69,7 @@
       }
     ]
   },
+  "parent": "word-parent",
   "document_id": "title",
   "document_id_hash": true
 }
