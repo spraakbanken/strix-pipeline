@@ -108,6 +108,11 @@
                 "set": false,
                 "name": "attitude",
                 "type": "integer"
+            },
+            {
+                "set": false,
+                "name": "sentiment",
+                "type": "integer"
             }
         ]
     },

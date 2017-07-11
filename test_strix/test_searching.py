@@ -21,14 +21,14 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_quote_search(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"bok\"")
-        assert result["hits"] == 7
+        assert result["hits"] == 8
         for hit in result["data"]:
             for highlight in hit["highlight"]["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "bok"
 
     def test_only_quote(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"")
-        assert result["hits"] == 144
+        assert result["hits"] == 146
         for hit in result["data"]:
             for highlight in hit["highlight"]["highlight"]:
                 assert highlight["match"][0]["word"] == '"'
