@@ -28,7 +28,7 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_only_quote(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"")
-        assert result["hits"] == 142
+        assert result["hits"] == 144
         for hit in result["data"]:
             for highlight in hit["highlight"]["highlight"]:
                 assert highlight["match"][0]["word"] == '"'

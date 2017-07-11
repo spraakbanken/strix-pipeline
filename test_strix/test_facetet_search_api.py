@@ -53,7 +53,7 @@ class FacetetSearchTest(unittest.TestCase):
         for key in keys:
             assert key in buckets
 
-        assert buckets["huvuddokument"] == 1137
+        assert buckets["huvuddokument"] == 1139
         assert buckets["anforande"] == 1520
 
     def test_rd_datatyp_bucket_corpora_filter(self):
