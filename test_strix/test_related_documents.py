@@ -42,3 +42,11 @@ class WebApiTest(unittest.TestCase):
         assert result["hits"] == 6
         for doc in result["data"]:
             assert doc["text_attributes"]["party"] == "v"
+
+    def test_no_hits_text_query(self):
+        result = self.do_request("/related/vivill/m-1991v?exclude=text,dump,lines,token_lookup&text_query=asdf qwerty lol")
+        assert result["hits"] == 0
+
+    def test_hits_text_query(self):
+        result = self.do_request("/related/vivill/m-1991v?exclude=text,dump,lines,token_lookup&text_query=framtid")
+        assert result["hits"] == 56

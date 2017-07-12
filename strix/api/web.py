@@ -151,6 +151,7 @@ def get_related_documents(corpus, doc_id):
     kwargs = {}
 
     get_material_selection(kwargs)
+    get_search(kwargs)
 
     if request.args.get("relevance_function"):
         # possible_values: "more_like_this", "disjunctive_query"

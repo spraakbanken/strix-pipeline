@@ -15,21 +15,9 @@ _logger = logging.getLogger(__name__)
 
 
 def search(doc_type, corpora=(), text_query_field=None, text_query=None, includes=(), excludes=(), size=None, highlight=None, text_filter=None, simple_highlight=False, token_lookup_size=None):
-    add_fuzzy_query = False
-    search_queries = []
-    if text_query:
-        if text_query_field:
-            search_queries.append(Q("span_term", **{"text." + text_query_field: text_query}))
-        else:
-            query = analyze_and_create_span_query(text_query)
-            search_queries.append(query)
-            add_fuzzy_query = True
-    else:
+    query, use_highlight = get_search_query(text_query_field, text_query, text_filter)
+    if not use_highlight:
         highlight = None
-
-    if add_fuzzy_query:
-        search_queries.append(Q("fuzzy", title={"value": text_query, "boost": 50}))
-    query = join_queries(text_filter, search_queries)
 
     def before_send(s):
         if "aggregations" in includes:
@@ -38,16 +26,16 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
                 for text_attribute, value in text_attributes[index].items():
                     if value.get("include_in_aggregation"):
                         s.aggs.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"})
-            s.aggs.bucket("corpora", "terms", field="_index", size=ALL_BUCKETS, order={"_term": "asc"})
+            s.aggs.bucket("corpus_id", "terms", field="corpus_id", size=ALL_BUCKETS, order={"_term": "asc"})
         return s
 
     res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, size=size, highlight=highlight, simple_highlight=simple_highlight, before_send=before_send)
 
     if "aggregations" in res:
         corpora_buckets = []
-        for bucket in res["aggregations"]["corpora"]["buckets"]:
+        for bucket in res["aggregations"]["corpus_id"]["buckets"]:
             corpora_buckets.append({"doc_count": bucket["doc_count"], "key": corpus_id_to_alias(bucket["key"])})
-        res["aggregations"]["corpora"]["buckets"] = corpora_buckets
+        res["aggregations"]["corpus_id"]["buckets"] = corpora_buckets
 
     if token_lookup_size:
         for document in res["data"]:
@@ -56,8 +44,8 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
     return res
 
 
-def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_filter=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), size=None, token_lookup_size=None):
-    query = None
+def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_field=None, text_query=None, text_filter=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), size=None, token_lookup_size=None):
+    related_query = None
     s = Search(index=corpus, doc_type=doc_type)
     s = s.query(Q("term", doc_id=doc_id))
 
@@ -65,7 +53,7 @@ def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_filter=No
         s = s.source(False)
         hits = s.execute()
         es_id = [hit.meta.id for hit in hits][0]
-        query = Q("more_like_this",
+        related_query = Q("more_like_this",
                   fields=["similarity_tags"],
                   like=[{"_index": corpus, "_type": doc_type, "_id": es_id}],
                   min_term_freq=min_term_freq,
@@ -79,14 +67,17 @@ def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_filter=No
                 shoulds = []
                 for tag in similarity_tags.split(" "):
                     shoulds.append(Q("term", similarity_tags=tag))
-                query = Q("bool", should=shoulds, must_not=Q("term", _id=doc_id))
+                related_query = Q("bool", should=shoulds, must_not=Q("term", _id=doc_id))
                 break
         else:
             raise RuntimeError("No document with ID " + doc_id)
 
-    if query:
-        query = join_queries(text_filter, [query])
-        res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, size=size)
+    if related_query:
+        doc_query, _ = get_search_query(text_query_field, text_query, text_filter)
+        if doc_query:
+            related_query = Q("bool", must=[related_query], filter=[doc_query])
+
+        res = do_search_query(corpora, doc_type, search_query=related_query, includes=includes, excludes=excludes, size=size)
         if token_lookup_size:
             for document in res["data"]:
                 get_token_lookup(document, corpus, doc_type, document["doc_id"], includes, excludes, token_lookup_size)
@@ -96,12 +87,31 @@ def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_filter=No
         return {}
 
 
+def get_search_query(text_query_field, text_query, text_filter):
+    add_fuzzy_query = False
+    search_queries = []
+    if text_query:
+        use_highlight = True
+        if text_query_field:
+            search_queries.append(Q("span_term", **{"text." + text_query_field: text_query}))
+        else:
+            query = analyze_and_create_span_query(text_query)
+            search_queries.append(query)
+            add_fuzzy_query = True
+    else:
+        use_highlight = False
+
+    if add_fuzzy_query:
+        search_queries.append(Q("fuzzy", title={"value": text_query, "boost": 50}))
+    return join_queries(text_filter, search_queries), use_highlight
+
+
 def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=(), size=None, highlight=None, simple_highlight=None, sort_field=None, before_send=None):
 
     if simple_highlight:
         highlight = {"number_of_fragments": 5}
 
-    s = get_search_query(corpora, doc_type, search_query, includes=includes, excludes=excludes, size=size, highlight=highlight, sort_fields=sort_field)
+    s = get_search(corpora, doc_type, search_query, includes=includes, excludes=excludes, size=size, highlight=highlight, sort_fields=sort_field)
 
     if before_send:
         s = before_send(s)
@@ -172,7 +182,7 @@ def join_queries(text_filter, search_queries):
         return None
 
 
-def get_search_query(indices, doc_type, query=None, includes=(), excludes=(), size=None, highlight=None, sort_fields=None):
+def get_search(indices, doc_type, query=None, includes=(), excludes=(), size=None, highlight=None, sort_fields=None):
     s = Search(index=indices, doc_type=doc_type)
     if query:
         s = s.query(query)

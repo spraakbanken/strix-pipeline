@@ -134,10 +134,11 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-mlt-qu
 * `exclude`
 * `token_lookup_from`
 * `token_lookup_to`
-* `from` - For pagination through the results (default: 0) 
+* `from` - For pagination through the results (default: 0)
 * `to` - For pagination through the results (default: 10)
 * `corpora` - List of corpora to search for related documents in (default: all corpora)
-* `text_filter` - Same as `/search` and `/aggs` 
+* `text_filter` - Same as `/search` and `/aggs`
+* `text_query` - Same as `/search`
 * `relevance_function` - Possible values are: `more_like_this`, `disjunctive_query` (default: `more_like_this`)
 * `max_query_terms` - Only applicable for `more_like_this`, see elasticsearch documentation (default: 30)
 * `min_term_freq` - Only applicable for `more_like_this`, see elasticsearch documentation (default: 1)
