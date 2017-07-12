@@ -60,6 +60,7 @@ def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_filter=No
     query = None
     s = Search(index=corpus, doc_type=doc_type)
     s = s.query(Q("term", doc_id=doc_id))
+
     if relevance_function == "more_like_this":
         s = s.source(False)
         hits = s.execute()
@@ -84,6 +85,7 @@ def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_filter=No
             raise RuntimeError("No document with ID " + doc_id)
 
     if query:
+        query = join_queries(text_filter, [query])
         res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, size=size)
         if token_lookup_size:
             for document in res["data"]:

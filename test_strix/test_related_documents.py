@@ -36,3 +36,9 @@ class WebApiTest(unittest.TestCase):
         result = self.do_request("/related/vivill/m-1991v?exclude=text,dump,lines,token_lookup&from=0&to=10&text_filter={\"corpus_id\": \"vivill\"}")
         assert result["hits"] == 48
         assert len(result["data"]) == 10
+
+    def test_related_text_filter(self):
+        result = self.do_request("/related/vivill/m-1991v?exclude=text,dump,lines,token_lookup&text_filter={\"party\": [\"v\"], \"corpus_id\": \"vivill\"}")
+        assert result["hits"] == 6
+        for doc in result["data"]:
+            assert doc["text_attributes"]["party"] == "v"
