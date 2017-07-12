@@ -24,7 +24,7 @@ class FacetetSearchTest(unittest.TestCase):
 
         vivill_bucket = {}
         rdflista_bucket = {}
-        for bucket in result["aggregations"]["corpora"]["buckets"]:
+        for bucket in result["aggregations"]["corpus_id"]["buckets"]:
             if bucket["key"] == "vivill":
                 vivill_bucket = bucket
             elif bucket["key"] == "rd-flista":
@@ -85,7 +85,7 @@ class FacetetSearchTest(unittest.TestCase):
 
         rdflista_found = False
         wikipedia_found = False
-        for corpus_bucket in result["aggregations"]["corpora"]["buckets"]:
+        for corpus_bucket in result["aggregations"]["corpus_id"]["buckets"]:
             if corpus_bucket["key"] == "rd-flista":
                 assert corpus_bucket["doc_count"] == 632
                 rdflista_found = True
@@ -98,7 +98,7 @@ class FacetetSearchTest(unittest.TestCase):
     def test_text_filter_1(self):
         result = self.do_request('/aggs?text_filter={"party": ["v","m"]}&corpora=vivill&include_facets=year,type,party')
         found_vivill = False
-        for bucket in result["aggregations"]["corpora"]["buckets"]:
+        for bucket in result["aggregations"]["corpus_id"]["buckets"]:
             if bucket["key"] == "vivill":
                 assert bucket["doc_count"] == 23
                 found_vivill = True
@@ -180,7 +180,7 @@ class FacetetSearchTest(unittest.TestCase):
         assert "party" in facets
         assert "year" in facets
         assert "type" in facets
-        assert "corpora" in facets
+        assert "corpus_id" in facets
 
     def test_unused_facets(self):
         result = self.do_request("/aggs?include_facets=party,year,type")

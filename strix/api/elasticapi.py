@@ -644,15 +644,15 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
 
     s = Search(index="*", doc_type="text")
 
-    corpus_filter = Q("terms", corpus_id=corpora)
     text_filters = get_text_filters(text_filter)
+    text_filters["corpus_id"] = Q("terms", corpus_id=corpora)
 
     (use_text_attributes, additional_text_attributes) = get_most_common_text_attributes(corpora, facet_count - 1, include_facets)
+    use_text_attributes.append(("corpus_id", "keyword"))
 
     date_aggs = []
     for (text_attribute, attr_type) in use_text_attributes:
         filters = [value for text_filter, value in text_filters.items() if text_filter != text_attribute]
-        filters.append(corpus_filter)
         a = s.aggs.bucket(text_attribute + "_all", "filter", filter=Q("bool", filter=filters))
         if attr_type == "date":
             a = a.bucket(text_attribute, "date_histogram", field=text_attribute, interval="year",  min_doc_count=min_doc_count)
@@ -660,9 +660,6 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
             date_aggs.append(text_attribute)
         else:
             a.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
-
-    a = s.aggs.bucket("corpora_all", "filter", filter=Q("bool", filter=list(text_filters.values())))
-    a.bucket("corpora", "terms", field="corpus_id", size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
 
     s = s[0:0]
     result = s.execute().to_dict()
