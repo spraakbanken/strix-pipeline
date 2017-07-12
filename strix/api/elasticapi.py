@@ -56,7 +56,7 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
     return res
 
 
-def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), size=None, token_lookup_size=None):
+def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_filter=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), size=None, token_lookup_size=None):
     query = None
     s = Search(index=corpus, doc_type=doc_type)
     s = s.query(Q("term", doc_id=doc_id))
@@ -84,7 +84,7 @@ def get_related_documents(corpus, doc_type, doc_id, search_corpora=None, relevan
             raise RuntimeError("No document with ID " + doc_id)
 
     if query:
-        res = do_search_query(search_corpora if search_corpora else corpus, doc_type, search_query=query, includes=includes, excludes=excludes, size=size)
+        res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, size=size)
         if token_lookup_size:
             for document in res["data"]:
                 get_token_lookup(document, corpus, doc_type, document["doc_id"], includes, excludes, token_lookup_size)

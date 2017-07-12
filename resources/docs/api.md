@@ -136,7 +136,8 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-mlt-qu
 * `token_lookup_to`
 * `from` - For pagination through the results (default: 0) 
 * `to` - For pagination through the results (default: 10)
-* `search_corpora` - List of corpora to search for related documents in (default: same corpus as query document)
+* `corpora` - List of corpora to search for related documents in (default: all corpora)
+* `text_filter` - Not implemented yet, but using `corpus_id` in filter will work
 * `relevance_function` - Possible values are: `more_like_this`, `disjunctive_query` (default: `more_like_this`)
 * `max_query_terms` - Only applicable for `more_like_this`, see elasticsearch documentation (default: 30)
 * `min_term_freq` - Only applicable for `more_like_this`, see elasticsearch documentation (default: 1)

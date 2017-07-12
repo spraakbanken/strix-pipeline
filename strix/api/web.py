@@ -38,13 +38,16 @@ def get_token_lookup_sizes(request_obj):
 
 
 def get_material_selection(request_obj):
-    if "corpora" in request.args:
-        request_obj["corpora"] = request.args.get("corpora").split(",")
-    else:
-        request_obj["corpora"] = elasticapi.get_all_corpora_ids()
-
     if "text_filter" in request.args:
         request_obj["text_filter"] = json.loads(request.args.get("text_filter"))
+
+    if "corpora" in request.args:
+        request_obj["corpora"] = request.args.get("corpora").split(",")
+    elif "text_filter" in request_obj and "corpus_id" in request_obj["text_filter"]:
+        request_obj["corpora"] = request_obj["text_filter"]["corpus_id"]
+        del request_obj["text_filter"]["corpus_id"]
+    else:
+        request_obj["corpora"] = elasticapi.get_all_corpora_ids()
 
 
 def get_search(request_obj):
@@ -147,8 +150,7 @@ def search_in_document(corpus, doc_id):
 def get_related_documents(corpus, doc_id):
     kwargs = {}
 
-    if request.args.get("search_corpora"):
-        kwargs["search_corpora"] = request.args.get("search_corpora")
+    get_material_selection(kwargs)
 
     if request.args.get("relevance_function"):
         # possible_values: "more_like_this", "disjunctive_query"

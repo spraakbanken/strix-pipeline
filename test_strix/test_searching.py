@@ -81,3 +81,11 @@ class FacetetSearchTest(unittest.TestCase):
         assert found_den
         assert found_ett
         assert found_en
+
+    def test_search_corpus_id1(self):
+        result = self.do_request("/search?exclude=dump,lines&text_query=\"det är en\"&text_filter={\"corpus_id\": \"vivill\"}")
+        assert result["hits"] == 23
+
+    def test_search_corpus_id2(self):
+        result = self.do_request("/search?exclude=dump,lines&text_query=\"det är en\"&text_filter={\"corpus_id\": [\"rd-sou\", \"vivill\"]}")
+        assert result["hits"] == 25
