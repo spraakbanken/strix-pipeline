@@ -44,7 +44,10 @@ def get_material_selection(request_obj):
     if "corpora" in request.args:
         request_obj["corpora"] = request.args.get("corpora").split(",")
     elif "text_filter" in request_obj and "corpus_id" in request_obj["text_filter"]:
-        request_obj["corpora"] = request_obj["text_filter"]["corpus_id"]
+        corpora = request_obj["text_filter"]["corpus_id"]
+        if not isinstance(corpora, list):
+            corpora = [corpora]
+        request_obj["corpora"] = corpora
         del request_obj["text_filter"]["corpus_id"]
     else:
         request_obj["corpora"] = elasticapi.get_all_corpora_ids()

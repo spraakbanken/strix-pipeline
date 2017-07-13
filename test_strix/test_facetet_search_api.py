@@ -189,3 +189,7 @@ class FacetetSearchTest(unittest.TestCase):
         assert "talare" in unused_facets
         assert "datatyp" in unused_facets
         assert len(unused_facets) == 7
+
+    def test_corpus_id_filter_without_brackets(self):
+        result = self.do_request("/aggs?text_filter={\"corpus_id\":\"rd-sou\"}")
+        assert len(result["aggregations"].values()) == 4
