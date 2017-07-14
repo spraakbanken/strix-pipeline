@@ -243,8 +243,6 @@ class StrixParser:
                     values = [v.split(":")[0] for v in annotation_value]
                     token_data[annotation_name + "_alt"] = values
                     annotation_value = values[0] if values else None
-                if annotation_value is None:
-                    annotation_value = ""  # TODO change to \u2205 for stop word filtering
                 token_data[annotation_name] = annotation_value
 
             if self.token_count_id:
@@ -273,6 +271,8 @@ class StrixParser:
             for attr, v in sorted(all_data.items()):
                 if isinstance(v, list):
                     v = "\u241F" + "\u241F".join(v) + "\u241F" if len(v) > 0 else "\u241F"
+                if v is None:
+                    v = "\u2205"
                 str_attrs.append(attr + "=" + str(v))
 
             token = self.current_word_content.strip()

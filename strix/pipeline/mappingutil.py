@@ -13,12 +13,15 @@ def annotation_analyzer(annotation_name, is_set=False, remove_alternatives=True)
     filter_name = annotation_name + "_filter"
     analyzer_name = annotation_name + "_analyzer"
 
-    annotation_filter = analysis.token_filter(filter_name, "pattern_capture", preserve_original=False, patterns=["\u241E" + annotation_name + "=(.+?)\u241E"])
+    annotation_filter = analysis.token_filter(filter_name, "pattern_capture", preserve_original=False, patterns=["\u241E" + annotation_name + "=(.*?)\u241E"])
     token_filters = ["lowercase", annotation_filter]
 
     if is_set:
         set_filter = analysis.token_filter("set_token_filter", "set_delimiter_token_filter", delimiter="\u241F", remove_alternatives=True)
         token_filters.append(set_filter)
+    else:
+        stop_empty_filter = analysis.token_filter("stop", "stop", stopwords=["\u2205"])
+        token_filters.append(stop_empty_filter)
 
     return analysis.analyzer(analyzer_name, tokenizer=pattern_tokenizer(), filter=token_filters)
 
