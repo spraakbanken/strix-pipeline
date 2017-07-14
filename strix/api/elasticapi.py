@@ -657,7 +657,8 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
     s = Search(index="*", doc_type="text")
 
     text_filters = get_text_filters(text_filter)
-    text_filters["corpus_id"] = Q("terms", corpus_id=corpora)
+    if "corpus_id" not in text_filters:
+        text_filters["corpus_id"] = Q("terms", corpus_id=corpora)
 
     (use_text_attributes, additional_text_attributes) = get_most_common_text_attributes(corpora, facet_count - 1, include_facets)
     use_text_attributes.append(("corpus_id", "keyword"))
