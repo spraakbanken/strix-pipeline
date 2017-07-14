@@ -44,6 +44,13 @@ def get_paths_for_corpus(corpus_id):
     return glob.glob(os.path.join(texts_dir, "**/*.xml")) + glob.glob(os.path.join(texts_dir, "*.xml"))
 
 
+def is_ranked(word_attribute):
+    try:
+        return _word_attributes[word_attribute].get("ranked", False)
+    except KeyError:
+        raise ValueError("\"" + word_attribute + "\" is not configured")
+
+
 def _get_all_config_files():
     config_files = {}
     for file in glob.glob(_get_config_file("*")):
@@ -96,4 +103,15 @@ def _merge_configs(target, source):
         else:
             target[k] = v
 
+
+def _get_all_word_attributes():
+    word_attributes = {}
+    for config in _all_config_files.values():
+        for word_attribute in config.get("analyze_config", {}).get("word_attributes", []):
+            if word_attribute["name"] not in word_attributes:
+                word_attributes[word_attribute["name"]] = word_attribute
+    return word_attributes
+
+
 _all_config_files = _get_all_config_files()
+_word_attributes = _get_all_word_attributes()

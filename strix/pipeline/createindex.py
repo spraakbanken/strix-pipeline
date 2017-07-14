@@ -75,7 +75,6 @@ class CreateIndex:
                     }
                 }
             ])
-        m.meta("_source", excludes=["text"])
 
         m.field("position", "integer")
         m.field("term", "object", dynamic=True)
@@ -101,6 +100,7 @@ class CreateIndex:
         m = Mapping("text")
         m.meta("_all", enabled=False)
         m.meta("dynamic", "strict")
+        m.meta("_source", excludes=["text"])
 
         text_field = Text(
             analyzer=get_standard_analyzer(),
@@ -111,7 +111,13 @@ class CreateIndex:
 
         for attr in self.word_attributes:
             annotation_name = attr["name"]
-            text_field.fields[annotation_name] = Text(analyzer=annotation_analyzer(annotation_name, attr["set"]))
+            if "ranked" in attr and attr["ranked"]:
+                text_field.fields[annotation_name] = Text(analyzer=annotation_analyzer(annotation_name, is_set=False))
+                annotation_name += "_alt"
+                is_set = True
+            else:
+                is_set = attr.get("set", False)
+            text_field.fields[annotation_name] = Text(analyzer=annotation_analyzer(annotation_name, is_set=is_set))
 
         m.field("text", text_field)
 

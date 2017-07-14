@@ -63,6 +63,11 @@ def get_search(request_obj):
     if "text_query_field" in request.args:
         request_obj["text_query_field"] = request.args.get("text_query_field").replace(".", "_")
 
+    if "include_alternatives" in request.args:
+        request_obj["include_alternatives"] = True
+    else:
+        request_obj["include_alternatives"] = False
+
     return can_use_highlight
 
 

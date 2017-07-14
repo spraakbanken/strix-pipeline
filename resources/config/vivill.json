@@ -26,11 +26,6 @@
                 "set": true
             },
             {
-                "name": "sense",
-                "set": true,
-                "type": "sense"
-            },
-            {
                 "name": "prefix",
                 "set": true,
                 "type": "lemgram"

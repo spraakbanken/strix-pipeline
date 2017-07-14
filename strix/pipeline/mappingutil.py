@@ -2,7 +2,7 @@
 from elasticsearch_dsl import analysis, analyzer
 
 
-def annotation_analyzer(annotation_name, is_set=False):
+def annotation_analyzer(annotation_name, is_set=False, remove_alternatives=True):
     """
     create an analyzer for a specific annotation found a token s.a. framtid|wid=12|page=3||
     for example passing "wid" as parameter and using anayzer on a field in a type "text "will enable
@@ -17,7 +17,7 @@ def annotation_analyzer(annotation_name, is_set=False):
     token_filters = ["lowercase", annotation_filter]
 
     if is_set:
-        set_filter = analysis.token_filter("set_token_filter", "set_delimiter_token_filter", delimiter="\u241F")
+        set_filter = analysis.token_filter("set_token_filter", "set_delimiter_token_filter", delimiter="\u241F", remove_alternatives=True)
         token_filters.append(set_filter)
 
     return analysis.analyzer(analyzer_name, tokenizer=pattern_tokenizer(), filter=token_filters)

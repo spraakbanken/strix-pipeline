@@ -1,14 +1,26 @@
 {
-  "analyze_config": {
-    "word_attributes": [
-      {
-        "set": false,
-        "name": "pos"
-      },
-      {
-        "set": false,
-        "name": "msd"
-      }
-    ]
-  }
+    "analyze_config": {
+        "word_attributes": [
+            {
+                "name": "pos"
+            },
+            {
+                "name": "msd"
+            },
+            {
+                "set": true,
+                "name": "sense",
+                "ranked": true
+            },
+            {
+                "set": true,
+                "name": "compwf"
+            },
+            {
+                "set": true,
+                "name": "complemgram",
+                "ranked": true
+            }
+        ]
+    }
 }

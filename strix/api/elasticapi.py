@@ -14,8 +14,8 @@ es = connections.create_connection(hosts=config.elastic_hosts if config.has_attr
 _logger = logging.getLogger(__name__)
 
 
-def search(doc_type, corpora=(), text_query_field=None, text_query=None, includes=(), excludes=(), size=None, highlight=None, text_filter=None, simple_highlight=False, token_lookup_size=None):
-    query, use_highlight = get_search_query(text_query_field, text_query, text_filter)
+def search(doc_type, corpora=(), text_query_field=None, text_query=None, includes=(), excludes=(), size=None, highlight=None, text_filter=None, simple_highlight=False, token_lookup_size=None, include_alternatives=False):
+    query, use_highlight = get_search_query(text_query_field, text_query, text_filter, include_alternatives)
     if not use_highlight:
         highlight = None
 
@@ -44,7 +44,8 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
     return res
 
 
-def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_field=None, text_query=None, text_filter=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), size=None, token_lookup_size=None):
+def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_field=None, text_query=None, text_filter=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), size=None, token_lookup_size=None, include_alternatives=False):
+    # TODO use include_alternatives
     related_query = None
     s = Search(index=corpus, doc_type=doc_type)
     s = s.query(Q("term", doc_id=doc_id))
@@ -73,7 +74,7 @@ def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_fie
             raise RuntimeError("No document with ID " + doc_id)
 
     if related_query:
-        doc_query, _ = get_search_query(text_query_field, text_query, text_filter)
+        doc_query, _ = get_search_query(text_query_field, text_query, text_filter, include_alternatives=include_alternatives)
         if doc_query:
             related_query = Q("bool", must=[related_query], filter=[doc_query])
 
@@ -87,12 +88,14 @@ def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_fie
         return {}
 
 
-def get_search_query(text_query_field, text_query, text_filter):
+def get_search_query(text_query_field, text_query, text_filter, include_alternatives=False):
     add_fuzzy_query = False
     search_queries = []
     if text_query:
         use_highlight = True
         if text_query_field:
+            if include_alternatives and corpusconf.is_ranked(text_query_field):
+                text_query_field = text_query_field + "_alt"
             search_queries.append(Q("span_term", **{"text." + text_query_field: text_query}))
         else:
             query = analyze_and_create_span_query(text_query)

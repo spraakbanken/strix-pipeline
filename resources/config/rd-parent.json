@@ -26,10 +26,6 @@
             },
             {
                 "set": true,
-                "name": "sense"
-            },
-            {
-                "set": true,
                 "name": "prefix",
                 "type": "lemgram"
             },
@@ -37,14 +33,6 @@
                 "set": true,
                 "name": "suffix",
                 "type": "lemgram"
-            },
-            {
-                "set": true,
-                "name": "compwf"
-            },
-            {
-                "set": true,
-                "name": "complemgram"
             },
             {
                 "set": false,

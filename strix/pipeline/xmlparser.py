@@ -237,8 +237,14 @@ class StrixParser:
                     annotation_value = self.word_attrs.get(annotation["nodeName"])
                 else:
                     annotation_value = self.word_attrs.get(annotation_name)
-                if annotation["set"]:
+                if annotation.get("set", False):
                     annotation_value = list(filter(bool, annotation_value.split("|")))
+                if annotation.get("ranked", False):
+                    values = [v.split(":")[0] for v in annotation_value]
+                    token_data[annotation_name + "_alt"] = values
+                    annotation_value = values[0] if values else None
+                if annotation_value is None:
+                    annotation_value = ""  # TODO change to \u2205 for stop word filtering
                 token_data[annotation_name] = annotation_value
 
             if self.token_count_id:
