@@ -1,6 +1,6 @@
 import time
 
-from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date
+from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date, GeoPoint, Nested
 from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer, get_swedish_analyzer, similarity_tags_analyzer
 from strix.config import config
 import strix.pipeline.idgenerator as idgenerator
@@ -24,12 +24,15 @@ class CreateIndex:
         self.word_attributes = []
         for attr in corpus_config["analyze_config"]["word_attributes"]:
             self.word_attributes.append(attr)
-        for nodeName, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
+        self.fixed_structs = []
+        for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
             for attr in attributes:
-                new_attr = dict(attr)
-                new_attr["name"] = nodeName + "_" + attr["name"]
-                self.word_attributes.append(new_attr)
-
+                if attr.get("index_in_text", True):
+                    new_attr = dict(attr)
+                    new_attr["name"] = node_name + "_" + attr["name"]
+                    self.word_attributes.append(new_attr)
+                else:
+                    self.fixed_structs.append((node_name, attr))
         self.text_attributes = filter(lambda x: not x["ignore"] if "ignore" in x else True, corpus_config["analyze_config"]["text_attributes"])
         self.alias = index
 
@@ -77,7 +80,19 @@ class CreateIndex:
             ])
 
         m.field("position", "integer")
-        m.field("term", "object", dynamic=True)
+
+        fixed_props = {}
+        for (node_name, attr) in self.fixed_structs:
+            props = {}
+            for prop_name, prop_value in attr["properties"].items():
+                if prop_value["type"] == "geopoint":
+                    props[prop_name] = GeoPoint()
+                else:
+                    props[prop_name] = Keyword()
+            something = {attr["name"]: Nested(properties=props)}
+            fixed_props[node_name] = Object(properties={"attrs": Object(properties=something)})
+
+        m.field("term", "object", dynamic=True, properties={"attrs": Object("attrs", properties=fixed_props)})
         m.field("doc_id", "keyword", index="not_analyzed")
         m.field("doc_type", "keyword", index="not_analyzed")
         m.save(self.alias + "_terms", using=self.es)

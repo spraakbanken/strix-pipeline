@@ -23,13 +23,6 @@
       }
     ],
     "struct_attributes": {
-      "paragraph": [
-        {
-          "name": "geocontext",
-          "nodeName": "_geocontext",
-          "set": true
-        }
-      ],
       "sentence": [
         {
           "name": "id",
@@ -38,7 +31,29 @@
         {
           "name": "geocontext",
           "nodeName": "_geocontext",
-          "set": true
+          "set": true,
+          "index_in_text": false,
+          "properties": {
+            "country": {
+              "value": ";(.*);.*;",
+              "type": "keyword"
+            },
+            "place": {
+              "value": "(.*);.*;.*;",
+              "type": "keyword"
+            },
+            "geopoint": {
+              "type": "geopoint",
+              "properties": {
+                "lat": {
+                  "value": ";.*;(.*);"
+                },
+                "lon": {
+                  "value": ".*;(.*)"
+                }
+              }
+            }
+          }
         }
       ],
       "ne": [

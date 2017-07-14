@@ -123,6 +123,17 @@ def parse_pipeline_xml(file_name,
     return res
 
 
+def parse_properties(annotation, in_value):
+    out_value = {}
+    for prop_name, prop in annotation["properties"].items():
+        if "properties" in prop:
+            out_value[prop_name] = parse_properties(prop, in_value)
+        else:
+            lol = prop["value"]
+            out_value[prop_name] = re.search(lol, in_value).group(1)
+    return out_value
+
+
 class StrixParser:
 
     def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token):
@@ -180,6 +191,12 @@ class StrixParser:
 
                 if annotation.get("set", False):
                     a_value = list(filter(bool, a_value.split("|")))
+
+                if "properties" in annotation:
+                    if annotation.get("set", False):
+                        a_value = [parse_properties(annotation, x) for x in a_value]
+                    else:
+                        a_value = parse_properties(annotation, a_value)
 
                 self.current_struct_annotations[tag]["attrs"][annotation_name] = a_value
 
@@ -264,7 +281,14 @@ class StrixParser:
 
                 if "attrs" in annotations:
                     for annotation_name, v in annotations["attrs"].items():
-                        struct_data[tag_name + "_" + annotation_name] = v
+                        index = True
+                        # TODO don't loop
+                        for annotation in self.struct_annotations[tag_name]:
+                            if annotation["name"] == annotation_name:
+                                index = annotation.get("index_in_text", True)
+                                break
+                        if index:
+                            struct_data[tag_name + "_" + annotation_name] = v
 
             self.process_token(token_data)
             all_data = dict(token_data)

@@ -697,6 +697,8 @@ def get_doc_aggs(corpus, doc_id, field):
     s = Search(index=corpus + "_terms", doc_type="term")
     s = s.query(Q("term", doc_id=doc_id))
     split = field.split(".")
+    if corpusconf.is_object(split):
+        raise NotImplementedError("aggs on \"" + field + "\" not implemented yet")
     if len(split) > 1:
         es_field = ".attrs.".join(split)
         is_start_q = "term.attrs." + split[0] + ".is_start"
