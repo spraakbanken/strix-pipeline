@@ -178,6 +178,9 @@ class StrixParser:
                 else:
                     a_value = attrs[annotation_name]
 
+                if annotation.get("set", False):
+                    a_value = list(filter(bool, a_value.split("|")))
+
                 self.current_struct_annotations[tag]["attrs"][annotation_name] = a_value
 
         elif tag != "w" and tag in self.word_annotations:
