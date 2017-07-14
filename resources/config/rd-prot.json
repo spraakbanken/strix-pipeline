@@ -196,52 +196,6 @@
             {
                 "name": "kammaren"
             }
-        ],
-        "word_attributes": [
-            {
-                "set": true,
-                "name": "lemma"
-            },
-            {
-                "set": true,
-                "nodeName": "lex",
-                "name": "lemgram",
-                "type": "lemgram"
-            },
-            {
-                "set": true,
-                "name": "sense"
-            },
-            {
-                "set": true,
-                "name": "prefix",
-                "type": "lemgram"
-            },
-            {
-                "set": true,
-                "name": "suffix",
-                "type": "lemgram"
-            },
-            {
-                "set": true,
-                "name": "compwf"
-            },
-            {
-                "set": true,
-                "name": "complemgram"
-            },
-            {
-                "set": false,
-                "name": "ref"
-            },
-            {
-                "set": false,
-                "name": "dephead"
-            },
-            {
-                "set": false,
-                "name": "deprel"
-            }
         ]
     },
     "corpus_id": "rd-prot",
