@@ -57,7 +57,7 @@ def is_object(path):
             return not _struct_attributes[path[0]][path[1]].get("index_in_text", True)
         return False
     except KeyError:
-        raise ValueError("\"" + word_attribute + "\" is not configured")
+        raise ValueError("\"" + ".".join(path) + "\" is not configured")
 
 
 def _get_all_config_files():
