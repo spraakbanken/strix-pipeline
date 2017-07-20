@@ -641,7 +641,15 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
     if "corpus_id" not in text_filters:
         text_filters["corpus_id"] = Q("terms", corpus_id=corpora)
 
-    (use_text_attributes, additional_text_attributes) = get_most_common_text_attributes(corpora, facet_count - 1, include_facets)
+    # first find out which corpora that will actually match the query
+    corpora_search = Search(index=corpora, doc_type="text")
+    corpora_search = corpora_search.query(Q("bool", filter=list(text_filters.values())))
+    corpora_search.aggs.bucket("corpus_id", "terms", field="corpus_id", size=ALL_BUCKETS)
+    corpora_search = corpora_search[0:0]
+    result = corpora_search.execute().to_dict()
+    hit_corpora = [bucket["key"] for bucket in result["aggregations"]["corpus_id"]["buckets"]]
+
+    (use_text_attributes, additional_text_attributes) = get_most_common_text_attributes(hit_corpora, facet_count - 1, include_facets)
     use_text_attributes.append(("corpus_id", "keyword"))
 
     date_aggs = []

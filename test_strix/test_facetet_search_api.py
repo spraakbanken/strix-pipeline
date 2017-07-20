@@ -143,6 +143,15 @@ class FacetetSearchTest(unittest.TestCase):
                 type_count += 1
         assert type_count == 1
 
+    def test_text_filter_3(self):
+        result = self.do_request('/aggs?text_filter={"party": ["v","m"]}&facet_count=6')
+        aggregation_keys = result["aggregations"].keys()
+        assert len(aggregation_keys) == 6
+        assert "type" in aggregation_keys
+        assert "party" in aggregation_keys
+        assert "year" in aggregation_keys
+        assert "datatyp" not in aggregation_keys
+
     def test_expected_number_of_aggs_1(self):
         result = self.do_request("/aggs?facet_count=1")
 
