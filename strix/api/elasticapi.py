@@ -120,7 +120,7 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
         else:
             item["doc_id"] = hit.meta.id
         item["doc_type"] = hit.meta.doc_type
-        item["corpus"] = hit_corpus
+        item["corpus_id"] = hit_corpus
         move_text_attributes(hit_corpus, item, includes, excludes)
         items.append(item)
 
@@ -190,7 +190,7 @@ def get_search(indices, doc_type, query=None, includes=(), excludes=(), size=Non
         return s
 
 
-def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, includes=(), excludes=(), token_lookup_size=None):
+def get_document_by_id(corpus_id, doc_type, doc_id=None, sentence_id=None, includes=(), excludes=(), token_lookup_size=None):
     if not excludes:
         excludes = []
     excludes += ("text", "original_file", "similarity_tags")
@@ -203,22 +203,18 @@ def get_document_by_id(indices, doc_type, doc_id=None, sentence_id=None, include
     else:
         raise ValueError("Document id or or sentence id must be given")
 
-    s = Search(index=indices, doc_type=doc_type)
-    s = s.source(includes=includes, excludes=excludes)
+    s = Search(index=corpus_id, doc_type=doc_type)
+    new_includes, new_excludes = fix_includes_excludes(includes, excludes, corpus_id)
+    s = s.source(includes=new_includes, excludes=new_excludes)
     s = s.query(query)
     s = s[0:1]
     result = s.execute()
 
     for hit in result:
         document = hit.to_dict()
-        if "doc_id" in hit:
-            document["doc_id"] = hit["doc_id"]
-        else:
-            document["doc_id"] = hit.meta.id
-        hit_corpus = corpus_id_to_alias(hit.meta.index)
-        get_token_lookup(document, indices, doc_type, document["doc_id"], includes, excludes, token_lookup_size)
-        document["corpus"] = hit_corpus
-        move_text_attributes(hit_corpus, document, includes, excludes)
+        document["doc_id"] = hit["doc_id"]
+        get_token_lookup(document, corpus_id, doc_type, document["doc_id"], includes, excludes, token_lookup_size)
+        move_text_attributes(corpus_id, document, includes, excludes)
         return {"data": document}
     return {}
 
@@ -429,11 +425,9 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
     result = s.execute()
     for hit in result:
         obj = hit.to_dict()
-        obj["doc_id"] = hit["doc_id"]
         obj["doc_type"] = hit.meta.doc_type
-        obj["corpus"] = corpus_id_to_alias(hit.meta.index)
 
-        move_text_attributes(obj["corpus"], obj, includes, excludes)
+        move_text_attributes(corpus, obj, includes, excludes)
 
         if size != 0 and hasattr(hit.meta, "highlight"):
             count = 0

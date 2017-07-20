@@ -21,7 +21,7 @@ class WebApiTest(unittest.TestCase):
 
     host = "http://localhost:5000"
     corpus_config = corpusconf.get_corpus_conf(corpus)
-    text_structures = ["dump", "lines", "doc_id", "word_count", "title", "text_attributes", "corpus", "corpus_id"]
+    text_structures = ["dump", "lines", "doc_id", "word_count", "title", "text_attributes", "corpus_id"]
 
     def setUp(self):
         self.app = web.app.test_client()
