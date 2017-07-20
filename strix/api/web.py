@@ -200,6 +200,7 @@ def aggs():
     if "include_facets" in request.args:
         kwargs["include_facets"] = request.args["include_facets"].split(",")
     get_material_selection(kwargs)
+    get_search(kwargs)
     res = elasticapi.get_aggs(**kwargs)
     return res
 

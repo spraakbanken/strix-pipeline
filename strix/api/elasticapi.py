@@ -631,11 +631,9 @@ def get_most_common_text_attributes(corpora, facet_count, include_facets):
     return all_attributes[0:facet_count], [x[0] for x in all_attributes[facet_count:]]
 
 
-def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min_doc_count=0):
+def get_aggs(corpora=(), text_query_field=None, text_query=None, text_filter=None, facet_count=4, include_facets=(), min_doc_count=0, include_alternatives=False):
     if len(corpora) == 0:
         raise ValueError("Something went wrong")
-
-    s = Search(index="*", doc_type="text")
 
     text_filters = get_text_filters(text_filter)
     if "corpus_id" not in text_filters:
@@ -646,15 +644,22 @@ def get_aggs(corpora=(), text_filter=None, facet_count=4, include_facets=(), min
     corpora_search = corpora_search.query(Q("bool", filter=list(text_filters.values())))
     corpora_search.aggs.bucket("corpus_id", "terms", field="corpus_id", size=ALL_BUCKETS)
     corpora_search = corpora_search[0:0]
+    doc_query, _ = get_search_query(text_query_field, text_query, text_filter, include_alternatives=include_alternatives)
+    if doc_query:
+        corpora_search = corpora_search.query(doc_query)
     result = corpora_search.execute().to_dict()
     hit_corpora = [bucket["key"] for bucket in result["aggregations"]["corpus_id"]["buckets"]]
 
     (use_text_attributes, additional_text_attributes) = get_most_common_text_attributes(hit_corpora, facet_count - 1, include_facets)
     use_text_attributes.append(("corpus_id", "keyword"))
 
+    s = Search(index="*", doc_type="text")
+    doc_query, _ = get_search_query(text_query_field, text_query, {}, include_alternatives=include_alternatives)
     date_aggs = []
     for (text_attribute, attr_type) in use_text_attributes:
         filters = [value for text_filter, value in text_filters.items() if text_filter != text_attribute]
+        if doc_query:
+            filters.append(doc_query)
         a = s.aggs.bucket(text_attribute + "_all", "filter", filter=Q("bool", filter=filters))
         if attr_type == "date":
             a = a.bucket(text_attribute, "date_histogram", field=text_attribute, interval="year",  min_doc_count=min_doc_count)

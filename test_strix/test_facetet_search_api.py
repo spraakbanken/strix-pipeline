@@ -202,3 +202,26 @@ class FacetetSearchTest(unittest.TestCase):
     def test_corpus_id_filter_without_brackets(self):
         result = self.do_request("/aggs?text_filter={\"corpus_id\":\"rd-sou\"}")
         assert len(result["aggregations"].values()) == 4
+
+    def test_text_query(self):
+        # this matches only one document in rd-kammakt
+        result = self.do_request("/aggs?text_query=skaldjur")
+        assert len(result["aggregations"].values()) == 4
+        kammakt_found = False
+        vivill_found = False
+        for corp_bucket in result["aggregations"]["corpus_id"]["buckets"]:
+            if corp_bucket["key"] == "vivill":
+                vivill_found = True
+
+            if corp_bucket["key"] == "rd-kammakt":
+                kammakt_found = True
+                count = 1
+            else:
+                count = 0
+
+            assert corp_bucket["doc_count"] == count
+
+        assert kammakt_found
+        # since we did not send exclude_empty_buckets, all corpora should be included
+        # TODO this does not work yet
+        # assert vivill_found

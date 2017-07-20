@@ -164,6 +164,8 @@ Get an aggregation of the current set of documents (as decided by `text_filter` 
 * `facet_count` - Integer, the number of facets that will be generated
 * `include_facets` - List of attribute names to be included in the result. `facet_count` will be ignored.
 * `exclude_empty_buckets` - If included will remove all buckets that are empty from the result
+* `text_query` - Same as search osv
+* `text_query_field` - Same as search osv
 
 ### Values of (non-text) attributes in a document
 
