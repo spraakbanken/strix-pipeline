@@ -19,23 +19,7 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
     if not use_highlight:
         highlight = None
 
-    def before_send(s):
-        if "aggregations" in includes:
-            includes.remove("aggregations")
-            for index in corpora:
-                for text_attribute, value in text_attributes[index].items():
-                    if value.get("include_in_aggregation"):
-                        s.aggs.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"})
-            s.aggs.bucket("corpus_id", "terms", field="corpus_id", size=ALL_BUCKETS, order={"_term": "asc"})
-        return s
-
-    res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, size=size, highlight=highlight, simple_highlight=simple_highlight, before_send=before_send)
-
-    if "aggregations" in res:
-        corpora_buckets = []
-        for bucket in res["aggregations"]["corpus_id"]["buckets"]:
-            corpora_buckets.append({"doc_count": bucket["doc_count"], "key": corpus_id_to_alias(bucket["key"])})
-        res["aggregations"]["corpus_id"]["buckets"] = corpora_buckets
+    res = do_search_query(corpora, doc_type, search_query=query, includes=includes, excludes=excludes, size=size, highlight=highlight, simple_highlight=simple_highlight)
 
     if token_lookup_size:
         for document in res["data"]:
