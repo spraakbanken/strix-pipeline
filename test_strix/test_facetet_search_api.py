@@ -103,7 +103,7 @@ class FacetetSearchTest(unittest.TestCase):
                 assert bucket["doc_count"] == 23
                 found_vivill = True
             else:
-                assert False # no other corpora should support party and should therefore not appear in the list
+                assert bucket["doc_count"] == 0
         assert found_vivill
 
         # all parties should still appear in the list
