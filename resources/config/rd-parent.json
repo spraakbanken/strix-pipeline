@@ -48,7 +48,6 @@
             }
         ]
     },
-    "parser": "htmlparser",
     "title": [
         {
             "title": "titel"

@@ -129,8 +129,7 @@ def parse_properties(annotation, in_value):
         if "properties" in prop:
             out_value[prop_name] = parse_properties(prop, in_value)
         else:
-            lol = prop["value"]
-            out_value[prop_name] = re.search(lol, in_value).group(1)
+            out_value[prop_name] = re.search(prop["value"], in_value).group(1)
     return out_value
 
 
