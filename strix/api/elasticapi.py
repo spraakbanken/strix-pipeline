@@ -14,7 +14,8 @@ es = connections.create_connection(hosts=config.elastic_hosts if config.has_attr
 _logger = logging.getLogger(__name__)
 
 
-def search(doc_type, corpora=(), text_query_field=None, text_query=None, includes=(), excludes=(), size=None, highlight=None, text_filter=None, simple_highlight=False, token_lookup_size=None, include_alternatives=False):
+def search(doc_type, corpora=(), text_query_field=None, text_query=None, includes=(), excludes=(), size=None, highlight=None,
+           text_filter=None, simple_highlight=False, token_lookup_size=None, include_alternatives=False):
     query, use_highlight = get_search_query(text_query_field, text_query, text_filter, include_alternatives)
     if not use_highlight:
         highlight = None
@@ -28,7 +29,9 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
     return res
 
 
-def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_field=None, text_query=None, text_filter=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), size=None, token_lookup_size=None, include_alternatives=False):
+def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_field=None, text_query=None, text_filter=None,
+                          relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(),
+                          size=None, token_lookup_size=None, include_alternatives=False):
     related_query = None
     s = Search(index=corpus, doc_type=doc_type)
     s = s.query(Q("term", doc_id=doc_id))
@@ -38,10 +41,10 @@ def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_fie
         hits = s.execute()
         es_id = [hit.meta.id for hit in hits][0]
         related_query = Q("more_like_this",
-                  fields=["similarity_tags"],
-                  like=[{"_index": corpus, "_type": doc_type, "_id": es_id}],
-                  min_term_freq=min_term_freq,
-                  max_query_terms=max_query_terms)
+                          fields=["similarity_tags"],
+                          like=[{"_index": corpus, "_type": doc_type, "_id": es_id}],
+                          min_term_freq=min_term_freq,
+                          max_query_terms=max_query_terms)
     else:
         s = s.source(includes="similarity_tags")
         hits = s.execute()
@@ -92,7 +95,8 @@ def get_search_query(text_query_field, text_query, text_filter, include_alternat
     return join_queries(text_filter, search_queries), use_highlight
 
 
-def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=(), size=None, highlight=None, simple_highlight=None, sort_field=None, before_send=None):
+def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=(), size=None, highlight=None,
+                    simple_highlight=None, sort_field=None, before_send=None):
 
     if simple_highlight:
         highlight = {"number_of_fragments": 5}
@@ -401,7 +405,8 @@ def tokenize_search_string(search_term):
     return terms
 
 
-def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None, forward=True, text_query=None, text_query_field=None, includes=(), excludes=(), token_lookup_size=None):
+def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None, forward=True, text_query=None,
+                       text_query_field=None, includes=(), excludes=(), token_lookup_size=None):
     s = Search(index=corpus, doc_type=doc_type)
     id_query = Q("term", doc_id=doc_id)
     if text_query_field and text_query:
@@ -630,7 +635,8 @@ def get_most_common_text_attributes(corpora, facet_count, include_facets):
     return all_attributes[0:facet_count], [x[0] for x in all_attributes[facet_count:]]
 
 
-def get_aggs(corpora=(), text_query_field=None, text_query=None, text_filter=None, facet_count=4, include_facets=(), min_doc_count=0, include_alternatives=False):
+def get_aggs(corpora=(), text_query_field=None, text_query=None, text_filter=None, facet_count=4, include_facets=(),
+             min_doc_count=0, include_alternatives=False):
     if len(corpora) == 0:
         raise ValueError("Something went wrong")
 
