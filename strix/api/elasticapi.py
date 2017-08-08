@@ -29,7 +29,6 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
 
 
 def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_field=None, text_query=None, text_filter=None, relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(), size=None, token_lookup_size=None, include_alternatives=False):
-    # TODO use include_alternatives
     related_query = None
     s = Search(index=corpus, doc_type=doc_type)
     s = s.query(Q("term", doc_id=doc_id))
