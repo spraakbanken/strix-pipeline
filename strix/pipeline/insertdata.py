@@ -102,7 +102,6 @@ class InsertData:
 
         texts = []
         for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations,
-                                                 parser=self.corpus_conf.get("parser"),
                                                  struct_annotations=struct_annotations, text_attributes=text_attributes,
                                                  token_count_id=True, add_similarity_tags=True, save_whitespace_per_token=True):
             texts.append(text)

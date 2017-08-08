@@ -2,7 +2,6 @@
 import os
 import re
 import xml.etree.cElementTree as etree
-from html.parser import HTMLParser
 import logging
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
@@ -86,7 +85,6 @@ def xml_to_json(xml_root, parse_as_list=(), parse_as_sublist=(), parse_as_bool=(
 def parse_pipeline_xml(file_name,
                        split_document,
                        word_annotations,
-                       parser=None,
                        struct_annotations=(),
                        token_count_id=False,
                        text_attributes=None,
@@ -101,24 +99,7 @@ def parse_pipeline_xml(file_name,
     if text_attributes is None:
         text_attributes = {}
     strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token)
-    if parser == "htmlparser":
-        strixHTMLParser = StrixHTMLParser(strix_parser)
-
-        def read_in_chunks(file_object, chunk_size=1024):
-            """Lazy function (generator) to read a file piece by piece.
-            Default chunk size: 1k."""
-            while True:
-                data = file_object.read(chunk_size)
-                if not data:
-                    break
-                yield data
-
-        with open(file_name, "r") as file:
-            for piece in read_in_chunks(file):
-                strixHTMLParser.feed(piece)
-            strixHTMLParser.close()
-    else:
-        iterparse_parser(file_name, strix_parser)
+    iterparse_parser(file_name, strix_parser)
     res = strix_parser.get_result()
     return res
 
@@ -374,26 +355,3 @@ def iterparse_parser(file_name, strix_parser):
 
         if event == "start":
             strix_parser.handle_starttag(element.tag, element.attrib)
-
-
-class StrixHTMLParser(HTMLParser):
-
-    def __init__(self, strix_parser):
-        HTMLParser.__init__(self, convert_charrefs=False)
-        self.strix_parser = strix_parser
-        # super(HTMLParser, self).__init__()
-
-    def handle_starttag(self, tag, attrs):
-        self.strix_parser.handle_starttag(tag, dict(attrs))
-
-    def handle_endtag(self, tag):
-        self.strix_parser.handle_endtag(tag)
-
-    def handle_data(self, data):
-        self.strix_parser.handle_data(data)
-
-    def handle_charref(self, name):
-        self.strix_parser.handle_data(name)
-
-    def handle_entityref(self, name):
-        self.strix_parser.handle_data(name)
