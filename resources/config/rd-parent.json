@@ -13,6 +13,26 @@
                 }
             }
         ],
+        "struct_attributes": {
+            "ne": [
+                {
+                    "set": false,
+                    "name": "ex"
+                },
+                {
+                    "set": false,
+                    "name": "type"
+                },
+                {
+                    "set": false,
+                    "name": "subtype"
+                },
+                {
+                    "set": false,
+                    "name": "name"
+                }
+            ]
+        },
         "word_attributes": [
             {
                 "set": true,

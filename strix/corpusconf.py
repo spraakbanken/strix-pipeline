@@ -97,16 +97,19 @@ def _merge_configs(target, source):
     for k, v in source.items():
         if k in target:
             if k == "analyze_config":
-                for k2, v2 in source[k].items():
-                    if k2 == "text_attributes" or "word_attributes":
-                        if k2 not in target[k]:
-                            target[k][k2] = []
-                        v2.extend(target[k][k2])
-                        target[k][k2] = v2
+                for k2, v2 in source["analyze_config"].items():
+                    if k2 in ["text_attributes", "word_attributes"]:
+                        if k2 not in target["analyze_config"]:
+                            target["analyze_config"][k2] = []
+                        v2.extend(target["analyze_config"][k2])
+                        target["analyze_config"][k2] = v2
                     elif k2 == "struct_attributes":
-                        for k3, v3 in source[k][k2].items():
-                            v3.extend(target[k][k2][k3])
-                            target[k][k2][k3] = v3
+                        for k3, v3 in source["analyze_config"]["struct_attributes"].items():
+                            if "struct_attributes" not in target["analyze_config"]:
+                                target["analyze_config"]["struct_attributes"] = {}
+                            elif k3 in target["analyze_config"]["struct_attributes"]:
+                                v3.extend(target["analyze_config"]["struct_attributes"][k3])
+                            target["analyze_config"]["struct_attributes"][k3] = v3
                     else:
                         raise ValueError("Key: " + k + "." + k2 + ", not allowed in parent configuration.")
         else:
