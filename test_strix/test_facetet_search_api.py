@@ -53,8 +53,8 @@ class FacetetSearchTest(unittest.TestCase):
         for key in keys:
             assert key in buckets
 
-        assert buckets["huvuddokument"] == 1139
-        assert buckets["anforande"] == 1520
+        assert buckets["huvuddokument"] == 1136
+        assert buckets["anforande"] == 1518
 
     def test_rd_datatyp_bucket_corpora_filter(self):
         """
@@ -66,8 +66,8 @@ class FacetetSearchTest(unittest.TestCase):
         for bucket in result["aggregations"]["datatyp"]["buckets"]:
             if bucket["key"] in keys:
                 buckets[bucket["key"]] = bucket["doc_count"]
-        assert buckets["huvuddokument"] == 814
-        assert buckets["anforande"] == 1520
+        assert buckets["huvuddokument"] == 811
+        assert buckets["anforande"] == 1518
         assert "forslag" not in buckets
 
     def test_vivill_facets(self):

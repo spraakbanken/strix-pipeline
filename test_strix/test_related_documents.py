@@ -21,16 +21,15 @@ class WebApiTest(unittest.TestCase):
 
     def test_related_base(self):
         result = self.do_request("/related/vivill/m-1991v?exclude=text,dump,lines,token_lookup")
-        assert result["hits"] == 87
+        assert result["hits"] == 86
         assert len(result["data"]) == 10
 
     def test_related_paging(self):
         result = self.do_request("/related/vivill/m-1991v?exclude=text,dump,lines,token_lookup&from=0&to=10")
-        assert result["hits"] == 87
+        assert result["hits"] == 86
         assert len(result["data"]) == 10
         result = self.do_request("/related/vivill/m-1991v?exclude=text,dump,lines,token_lookup&from=80&to=90")
-        assert result["hits"] == 87
-        assert len(result["data"]) == 7
+        assert len(result["data"]) == 6
 
     def test_related_corpora_filter(self):
         result = self.do_request("/related/vivill/m-1991v?exclude=text,dump,lines,token_lookup&from=0&to=10&text_filter={\"corpus_id\": \"vivill\"}")
@@ -49,4 +48,4 @@ class WebApiTest(unittest.TestCase):
 
     def test_hits_text_query(self):
         result = self.do_request("/related/vivill/m-1991v?exclude=text,dump,lines,token_lookup&text_query=framtid")
-        assert result["hits"] == 56
+        assert result["hits"] == 55
