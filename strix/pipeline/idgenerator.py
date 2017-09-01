@@ -9,6 +9,7 @@ es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=60)
 def create_sequence_index():
     sequence_index = Index("sequence", using=es)
     if sequence_index.exists():
+        sequence_index.delete(ignore=404)
         return
 
     sequence_index.settings(
@@ -23,11 +24,9 @@ def create_sequence_index():
     m.save("sequence", using=es)
 
 
-def reset_sequence(index_name):
-    try:
-        es.delete(index="sequence", doc_type="sequence", id=index_name)
-    except elasticsearch.exceptions.NotFoundError:
-        pass
+def remove_sequence_index():
+    sequence_index = Index("sequence", using=es)
+    sequence_index.delete(ignore=404)
 
 
 def get_id_sequence(index_name, size):

@@ -3,7 +3,6 @@ import time
 from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date, GeoPoint, Nested
 from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer, get_swedish_analyzer, similarity_tags_analyzer
 from strix.config import config
-import strix.pipeline.idgenerator as idgenerator
 import strix.corpusconf as corpusconf
 import elasticsearch
 
@@ -45,8 +44,6 @@ class CreateIndex:
         self.es.indices.open(index=index_name)
 
         self.create_term_position_index()
-        idgenerator.create_sequence_index()
-        idgenerator.reset_sequence(self.alias)
         return index_name
 
     def get_unique_index(self, suffix=""):

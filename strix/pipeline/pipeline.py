@@ -9,8 +9,11 @@ import elasticsearch.exceptions
 from strix.config import config
 import strix.pipeline.insertdata as insert_data_strix
 import strix.pipeline.createindex as create_index_strix
+import strix.pipeline.runhistory
+import strix.pipeline.idgenerator as idgenerator
 import logging
 import queue
+import datetime
 
 QUEUE_SIZE = config.concurrency_queue_size
 MAX_UPLOAD_WORKERS = config.concurrency_upload_threads
@@ -231,10 +234,31 @@ def delete_index_by_prefix(prefix):
 
 
 def do_run(index, doc_ids=(), limit_to=None):
+    strix.pipeline.runhistory.create()
+    before_t = time.time()
+
+    idgenerator.create_sequence_index()
+
     ci = create_index_strix.CreateIndex(index)
     ci.enable_insert_settings()
     process_corpus(index, limit_to=limit_to, doc_ids=doc_ids)
     ci.enable_postinsert_settings()
+
+    idgenerator.remove_sequence_index()
+
+    total_t = time.time() - before_t
+    strix.pipeline.runhistory.put({
+        "index": index,
+        "total_time": total_t,
+        "doc_ids": doc_ids,
+        "limit_to": limit_to,
+        "group_size": GROUP_SIZE,
+        "queue_size": QUEUE_SIZE,
+        "upload_threads": MAX_UPLOAD_WORKERS,
+        "max_group_size": MAX_GROUP_SIZE_KB,
+        "elastic_hosts": config.elastic_hosts,
+        "timestamp": datetime.datetime.now()
+    })
 
 
 def recreate_indices(indices):
