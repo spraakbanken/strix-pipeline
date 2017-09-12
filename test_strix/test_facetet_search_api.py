@@ -197,7 +197,7 @@ class FacetetSearchTest(unittest.TestCase):
         assert "subtitel" in unused_facets
         assert "talare" in unused_facets
         assert "datatyp" in unused_facets
-        assert len(unused_facets) == 7
+        assert len(unused_facets) == 10
 
     def test_corpus_id_filter_without_brackets(self):
         result = self.do_request("/aggs?text_filter={\"corpus_id\":\"rd-sou\"}")
@@ -205,7 +205,7 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_text_query(self):
         # this matches only one document in rd-kammakt
-        result = self.do_request("/aggs?text_query=skaldjur")
+        result = self.do_request("/aggs?text_query=skaldjur&")
         assert len(result["aggregations"].values()) == 4
         kammakt_found = False
         vivill_found = False
@@ -216,12 +216,12 @@ class FacetetSearchTest(unittest.TestCase):
             if corp_bucket["key"] == "rd-kammakt":
                 kammakt_found = True
                 count = 1
+            elif corp_bucket["key"] == "attasidor":
+                count = 4
             else:
                 count = 0
 
             assert corp_bucket["doc_count"] == count
 
         assert kammakt_found
-        # since we did not send exclude_empty_buckets, all corpora should be included
-        # TODO this does not work yet
-        # assert vivill_found
+        assert vivill_found

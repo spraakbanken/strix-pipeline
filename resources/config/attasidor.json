@@ -1,0 +1,90 @@
+{
+  "corpus_id": "attasidor",
+  "corpus_name": {
+    "eng": "8 SIDOR",
+    "swe": "8 SIDOR"
+  },
+  "corpus_description": {
+    "eng": "News articles from 8 SIDOR.",
+    "swe": "Nyhetsartiklar från 8 SIDOR."
+  },
+  "file_name_pattern": "8sidor.xml",
+
+  "analyze_config": {
+    "word_attributes": [
+        {
+            "name": "blingbring",
+            "set": true
+        }
+    ],
+    "struct_attributes": {
+      "sentence": [
+        {
+          "name": "id",
+          "set": false
+        },
+        {
+          "name": "geocontext",
+          "nodeName": "_geocontext",
+          "set": true,
+          "index_in_text": false,
+          "properties": {
+            "country": {
+              "value": ";(.*);.*;",
+              "type": "keyword"
+            },
+            "place": {
+              "value": "(.*);.*;.*;",
+              "type": "keyword"
+            },
+            "geopoint": {
+              "type": "geopoint",
+              "properties": {
+                "lat": {
+                  "value": ";.*;(.*);"
+                },
+                "lon": {
+                  "value": ".*;(.*)"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "text_attributes": [
+        {
+            "name": "blingbring",
+            "set": true,
+            "ranked": true
+        },
+        {
+            "name": "title",
+            "include_in_aggregation": false
+        },
+        {
+            "name": "lix",
+            "include_in_aggregation": true,
+            "type": "double",
+            "aggs_interval": 10
+        },
+        {
+            "name": "ovix",
+            "include_in_aggregation": true,
+            "type": "double",
+            "aggs_interval": 25,
+            "has_infinite": true
+        },
+        {
+            "name": "nk",
+            "include_in_aggregation": true,
+            "type": "double",
+            "aggs_interval": 1,
+            "has_infinite": true
+        }
+    ]
+  },
+  "parent": "time-parent",
+  "document_id": "title",
+  "document_id_hash": true
+}

@@ -180,7 +180,7 @@ def bulk_insert(tasks):
     try:
         elasticsearch.helpers.bulk(es, tasks)
         return len(tasks), time.time() - insert_t
-    except:
+    except Exception as e:
         _logger.exception("Bulk upload error. Bulk contained:\n%s" % format_content_of_bulk(tasks))
         raise
 

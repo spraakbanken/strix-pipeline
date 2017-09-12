@@ -20,21 +20,21 @@ class FacetetSearchTest(unittest.TestCase):
         return json.loads(rv.data.decode())
 
     def test_quote_search(self):
-        result = self.do_request("/search?exclude=dump,lines&text_query=\"bok\"")
+        result = self.do_request("/search?exclude=dump,lines&text_query=\"bok\"&corpora=fragelistor,rd-eun,rd-flista,rd-kammakt,vivill,wikipedia,rd-sou")
         assert result["hits"] == 7
         for hit in result["data"]:
             for highlight in hit["highlight"]["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "bok"
 
     def test_only_quote(self):
-        result = self.do_request("/search?exclude=dump,lines&text_query=\"")
+        result = self.do_request("/search?exclude=dump,lines&text_query=\"&corpora=fragelistor,rd-eun,rd-flista,rd-kammakt,vivill,wikipedia,rd-sou")
         assert result["hits"] == 143
         for hit in result["data"]:
             for highlight in hit["highlight"]["highlight"]:
                 assert highlight["match"][0]["word"] == '"'
 
     def test_unlemmatizable(self):
-        result = self.do_request("/search?exclude=dump,lines&text_query=null")
+        result = self.do_request("/search?exclude=dump,lines&text_query=null&corpora=fragelistor,rd-eun,rd-flista,rd-kammakt,vivill,wikipedia,rd-sou")
         assert result["hits"] == 0
         assert len(result["data"]) == 0
 

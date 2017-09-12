@@ -616,11 +616,10 @@ def get_most_common_text_attributes(corpora, facet_count, include_facets):
     for index in corpora:
         for text_attribute, value in text_attributes[index].items():
             if value.get("include_in_aggregation"):
-                attr_type = value.get("type", "keyword")
                 if text_attribute in supported_text_attributes:
                     supported_text_attributes[text_attribute] = (supported_text_attributes[text_attribute][0] + 1, supported_text_attributes[text_attribute][1])
                 else:
-                    supported_text_attributes[text_attribute] = (1, attr_type)
+                    supported_text_attributes[text_attribute] = (1, value)
     if include_facets:
         all_attributes = []
         for facet in include_facets:
@@ -658,20 +657,26 @@ def get_aggs(corpora=(), text_query_field=None, text_query=None, text_filter=Non
     hit_corpora = [bucket["key"] for bucket in result["aggregations"]["corpus_id"]["buckets"]]
 
     (use_text_attributes, additional_text_attributes) = get_most_common_text_attributes(hit_corpora, facet_count - 1, include_facets)
-    use_text_attributes.append(("corpus_id", "keyword"))
+    use_text_attributes.append(("corpus_id", {"type": "keyword"}))
 
     s = Search(index="*", doc_type="text")
     doc_query, _ = get_search_query(text_query_field, text_query, {}, include_alternatives=include_alternatives)
     date_aggs = []
-    for (text_attribute, attr_type) in use_text_attributes:
+    for (text_attribute, attr_settings) in use_text_attributes:
         filters = [value for text_filter, value in text_filters.items() if text_filter != text_attribute]
         if doc_query:
             filters.append(doc_query)
         a = s.aggs.bucket(text_attribute + "_all", "filter", filter=Q("bool", filter=filters))
+        attr_type = attr_settings.get("type", "keyword")
         if attr_type == "date":
             a = a.bucket(text_attribute, "date_histogram", field=text_attribute, interval="year",  min_doc_count=min_doc_count)
             a.bucket("word_count", "sum", field="word_count")
             date_aggs.append(text_attribute)
+        if attr_type == "double":
+            interval = attr_settings.get("interval", 20)
+            if attr_settings.get("has_infinite", False):
+                min_doc_count = 1
+            a.bucket(text_attribute, "histogram", field=text_attribute, interval=interval, min_doc_count=min_doc_count)
         else:
             a.bucket(text_attribute, "terms", field=text_attribute, size=ALL_BUCKETS, order={"_term": "asc"}, min_doc_count=min_doc_count)
 
