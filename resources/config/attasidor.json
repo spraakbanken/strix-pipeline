@@ -15,6 +15,11 @@
         {
             "name": "blingbring",
             "set": true
+        },
+        {
+            "name": "sentiment",
+            "type": "double",
+            "interval": "0.1"
         }
     ],
     "struct_attributes": {
