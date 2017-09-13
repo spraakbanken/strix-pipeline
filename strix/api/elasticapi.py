@@ -672,7 +672,7 @@ def get_aggs(corpora=(), text_query_field=None, text_query=None, text_filter=Non
             a = a.bucket(text_attribute, "date_histogram", field=text_attribute, interval="year",  min_doc_count=min_doc_count)
             a.bucket("word_count", "sum", field="word_count")
             date_aggs.append(text_attribute)
-        if attr_type == "double":
+        elif attr_type == "double":
             interval = attr_settings.get("interval", 20)
             if attr_settings.get("has_infinite", False):
                 min_doc_count = 1
