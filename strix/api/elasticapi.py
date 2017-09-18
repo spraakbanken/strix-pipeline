@@ -554,15 +554,16 @@ def get_config(only_ids=False):
         descriptions = config_json.get("corpus_description")
         analyze_config = config_json["analyze_config"]
 
-        analyze_config["word_attributes"] = [corpusconf.get_word_attribute(word_attr)for word_attr in analyze_config["word_attributes"]]
-        analyze_config["text_attributes"] = [corpusconf.get_text_attribute(word_attr) for word_attr in analyze_config["text_attributes"]]
-        for struct_node, struct_attrs in analyze_config["struct_attributes"].items():
-            analyze_config["struct_attributes"][struct_node] = [corpusconf.get_struct_attribute(word_attr) for word_attr in struct_attrs]
+        word_attrs = [corpusconf.get_word_attribute(attr)for attr in analyze_config["word_attributes"]]
+        text_attrs = [corpusconf.get_text_attribute(attr) for attr in analyze_config["text_attributes"]]
+        struct_attrs = {}
+        for struct_node, struct_config in analyze_config["struct_attributes"].items():
+            struct_attrs[struct_node] = [corpusconf.get_struct_attribute(attr) for attr in struct_config]
 
         indices[index] = {
             "name": names,
             "description": descriptions,
-            "attributes": analyze_config
+            "attributes": {"word_attributes": word_attrs, "text_attributes": text_attrs, "struct_attributes": struct_attrs}
         }
     return indices
 
