@@ -1,40 +1,14 @@
 {
-    "ne_ex": {
-        "set": false,
-        "name": "ex"
-    },
-    "ne_type": {
-        "set": false,
-        "name": "type"
-    },
-    "ne_subtype": {
-        "set": false,
-        "name": "subtype"
-    },
-    "ne_name": {
-        "set": false,
-        "name": "name"
-    },
-    "id": {
-        "name": "id",
-        "set": false
-    },
     "geocontext": {
+        "index_in_text": false,
         "name": "geocontext",
         "nodeName": "_geocontext",
-        "set": true,
-        "index_in_text": false,
         "properties": {
             "country": {
-                "value": ";(.*);.*;",
-                "type": "keyword"
-            },
-            "place": {
-                "value": "(.*);.*;.*;",
-                "type": "keyword"
+                "type": "keyword",
+                "value": ";(.*);.*;"
             },
             "geopoint": {
-                "type": "geopoint",
                 "properties": {
                     "lat": {
                         "value": ";.*;(.*);"
@@ -42,8 +16,58 @@
                     "lon": {
                         "value": ".*;(.*)"
                     }
-                }
+                },
+                "type": "geopoint"
+            },
+            "place": {
+                "type": "keyword",
+                "value": "(.*);.*;.*;"
             }
+        },
+        "set": true,
+        "translation_name": {
+            "eng": "geographical co-occurrence",
+            "swe": "geografisk samförekomst"
+        }
+    },
+    "id": {
+        "name": "id",
+        "set": false,
+        "translation_name": {
+            "eng": "id",
+            "swe": "id"
+        }
+    },
+    "ne_ex": {
+        "name": "ex",
+        "set": false,
+        "translation_name": {
+            "eng": "expression",
+            "swe": "uttryck"
+        }
+    },
+    "ne_name": {
+        "name": "name",
+        "set": false,
+        "translation_name": {
+            "eng": "name",
+            "swe": "namn"
+        }
+    },
+    "ne_subtype": {
+        "name": "subtype",
+        "set": false,
+        "translation_name": {
+            "eng": "name subtype",
+            "swe": "namnundertyp"
+        }
+    },
+    "ne_type": {
+        "name": "type",
+        "set": false,
+        "translation_name": {
+            "eng": "name type",
+            "swe": "namntyp"
         }
     }
 }

@@ -1,67 +1,127 @@
 {
-    "pos": {
-        "name": "pos"
-    },
-    "msd": {
-        "name": "msd"
-    },
-    "sense": {
+    "blingbring": {
+        "name": "blingbring",
         "set": true,
-        "name": "sense",
-        "ranked": true
-    },
-    "compwf": {
-        "set": true,
-        "name": "compwf"
+        "translation_name": {
+            "eng": "blingbring",
+            "swe": "blingbring"
+        }
     },
     "complemgram": {
-        "set": true,
         "name": "complemgram",
-        "ranked": true
+        "ranked": true,
+        "set": false,
+        "translation_name": {
+            "eng": "compound lemgrams",
+            "swe": "sammansatta lemgram"
+        }
     },
-    "lemma": {
+    "compwf": {
+        "name": "compwf",
         "set": true,
-        "name": "lemma"
+        "translation_name": {
+            "eng": "compound word forms",
+            "swe": "sammansatta ordformer"
+        }
+    },
+    "dephead": {
+        "name": "dephead",
+        "set": false,
+        "translation_name": {
+            "eng": "dephead",
+            "swe": "dephead"
+        }
+    },
+    "deprel": {
+        "name": "deprel",
+        "set": false,
+        "translation_name": {
+            "eng": "dependency relation",
+            "swe": "dependensrelation"
+        }
     },
     "lemgram": {
-        "set": true,
-        "nodeName": "lex",
         "name": "lemgram",
+        "nodeName": "lex",
+        "set": true,
+        "translation_name": {
+            "eng": "lemgram",
+            "swe": "lemgram"
+        },
         "type": "lemgram"
+    },
+    "lemma": {
+        "name": "lemma",
+        "set": true,
+        "translation_name": {
+            "eng": "baseform",
+            "swe": "grundform"
+        }
+    },
+    "msd": {
+        "name": "msd",
+        "translation_name": {
+            "eng": "msd",
+            "swe": "msd"
+        }
+    },
+    "pos": {
+        "name": "pos",
+        "translation_name": {
+            "eng": "part-of-speech",
+            "swe": "ordklass"
+        }
     },
     "prefix": {
-        "set": true,
         "name": "prefix",
-        "type": "lemgram"
-    },
-    "suffix": {
         "set": true,
-        "name": "suffix",
+        "translation_name": {
+            "eng": "initial part",
+            "swe": "förled"
+        },
         "type": "lemgram"
     },
     "ref": {
+        "name": "ref",
         "set": false,
-        "name": "ref"
+        "translation_name": {
+            "eng": "ref",
+            "swe": "ref"
+        }
     },
-    "dephead": {
+    "sense": {
+        "name": "sense",
+        "ranked": true,
         "set": false,
-        "name": "dephead"
-    },
-    "deprel": {
-        "set": false,
-        "name": "deprel"
-    },
-    "blingbring": {
-        "name": "blingbring",
-        "set": true
+        "translation_name": {
+            "eng": "sense",
+            "swe": "betydelse"
+        }
     },
     "sentiment": {
+        "interval": "0.1",
         "name": "sentiment",
-        "type": "double",
-        "interval": "0.1"
+        "translation_name": {
+            "eng": "sentiment",
+            "swe": "attityd"
+        },
+        "type": "double"
+    },
+    "suffix": {
+        "name": "suffix",
+        "set": true,
+        "translation_name": {
+            "eng": "final part",
+            "swe": "efterled"
+        },
+        "type": "lemgram"
     },
     "wid": {
         "name": "wid",
-        "set": false
+        "set": false,
+        "translation_name": {
+            "eng": "word id",
+            "swe": "ord id"
+        }
     }
 }

@@ -1,309 +1,637 @@
 {
-    "datefrom": {
-        "name": "datefrom",
-        "type": "date",
-        "include_in_aggregation": true
+    "_id": {
+        "ignore": true,
+        "name": "_id",
+        "translation_name": {
+            "eng": "id",
+            "swe": "id"
+        }
     },
-    "dateto": {
-        "name": "dateto",
-        "type": "date",
-        "include_in_aggregation": true
+    "amount_answers": {
+        "name": "amount_answers",
+        "translation_name": {
+            "eng": "amount of answers",
+            "swe": "antal svar"
+        }
     },
-    "datatyp": {
-        "name": "datatyp",
-        "include_in_aggregation": true,
-        "translation": {
-            "huvuddokument": "Huvuddokument",
-            "forslag": "Förslag",
-            "anforande": "Anförande",
-            "utskottsforslag": "Utskottsförslag"
+    "anf_beteckning": {
+        "name": "anf_beteckning",
+        "translation_name": {
+            "eng": "speech name",
+            "swe": "anförande-beteckning"
+        }
+    },
+    "anf_datum": {
+        "name": "anf_datum",
+        "translation_name": {
+            "eng": "speech date",
+            "swe": "anförande-datum"
+        }
+    },
+    "anf_hangar_id": {
+        "name": "anf_hangar_id",
+        "translation_name": {
+            "eng": "speech hangar ID",
+            "swe": "anförande-hangar-ID"
+        }
+    },
+    "anf_klockslag": {
+        "name": "anf_klockslag",
+        "translation_name": {
+            "eng": "speech time",
+            "swe": "anförande-klockslag"
+        }
+    },
+    "anf_nummer": {
+        "name": "anf_nummer",
+        "translation_name": {
+            "eng": "speech number",
+            "swe": "anförande-nummer"
+        }
+    },
+    "anf_rm": {
+        "name": "anf_rm",
+        "translation_name": {
+            "eng": "speech rm",
+            "swe": "anförande-rm"
+        }
+    },
+    "anf_sekunder": {
+        "name": "anf_sekunder",
+        "translation_name": {
+            "eng": "speech seconds",
+            "swe": "anförande-sekunder"
+        }
+    },
+    "anf_typ": {
+        "name": "anf_typ",
+        "translation_name": {
+            "eng": "speech type",
+            "swe": "anförande-typ"
+        }
+    },
+    "anf_video_id": {
+        "name": "anf_video_id",
+        "translation_name": {
+            "eng": "speech video ID",
+            "swe": "anförande-video-ID"
+        }
+    },
+    "author_signature": {
+        "name": "author_signature",
+        "translation_name": {
+            "eng": "author signature",
+            "swe": "författarsignatur"
+        }
+    },
+    "avsnitt": {
+        "name": "avsnitt",
+        "translation_name": {
+            "eng": "section",
+            "swe": "avsnitt"
+        }
+    },
+    "behandlas_i": {
+        "name": "behandlas_i",
+        "translation_name": {
+            "eng": "treated in",
+            "swe": "behandlas i"
+        }
+    },
+    "beslutstyp": {
+        "name": "beslutstyp",
+        "translation_name": {
+            "eng": "decision type",
+            "swe": "beslutstyp"
+        }
+    },
+    "bet": {
+        "name": "bet",
+        "translation_name": {
+            "eng": "name",
+            "swe": "beteckning"
+        }
+    },
+    "beteckning": {
+        "name": "beteckning",
+        "translation_name": {
+            "eng": "name",
+            "swe": "beteckning"
         }
     },
     "blingbring": {
         "name": "blingbring",
+        "ranked": true,
         "set": true,
-        "ranked": true
+        "translation_name": {
+            "eng": "blingbring",
+            "swe": "blingbring"
+        }
     },
-    "lix": {
-        "name": "lix",
+    "datatyp": {
         "include_in_aggregation": true,
-        "type": "double",
-        "aggs_interval": 10
+        "name": "datatyp",
+        "translation": {
+            "anforande": "Anförande",
+            "forslag": "Förslag",
+            "huvuddokument": "Huvuddokument",
+            "utskottsforslag": "Utskottsförslag"
+        },
+        "translation_name": {
+            "eng": "datatype",
+            "swe": "datatyp"
+        }
     },
-    "ovix": {
-        "name": "ovix",
+    "datefrom": {
         "include_in_aggregation": true,
-        "type": "double",
-        "aggs_interval": 25,
-        "has_infinite": true
+        "name": "datefrom",
+        "translation_name": {
+            "eng": "date from",
+            "swe": "från datum"
+        },
+        "type": "date"
     },
-    "nk": {
-        "name": "nk",
+    "dateto": {
         "include_in_aggregation": true,
-        "type": "double",
-        "aggs_interval": 1,
-        "has_infinite": true
-    },
-    "timefrom": {
-        "name": "timefrom"
-    },
-    "timeto": {
-        "name": "timeto"
-    },
-    "topicid": {
-        "name": "topicid"
-    },
-    "topicname": {
-        "name": "topicname",
-        "include_in_aggregation": true
-    },
-    "source": {
-        "name": "source"
-    },
-    "year": {
-        "name": "year",
-        "include_in_aggregation": true
-    },
-    "amount_answers": {
-        "name": "amount_answers"
-    },
-    "author_signature": {
-        "name": "author_signature"
-    },
-    "_id": {
-        "name": "_id",
-        "ignore": true
-    },
-    "vinnare": {
-        "name": "vinnare"
-    },
-    "subtitel": {
-        "name": "subtitel",
-        "include_in_aggregation": true
-    },
-    "tumnagel": {
-        "name": "tumnagel"
-    },
-    "typ": {
-        "name": "typ"
-    },
-    "anf_rm": {
-        "name": "anf_rm"
-    },
-    "motforslag_partier": {
-        "name": "motforslag_partier"
-    },
-    "startpos": {
-        "name": "startpos"
-    },
-    "anf_sekunder": {
-        "name": "anf_sekunder"
-    },
-    "datumtid": {
-        "name": "datumtid"
-    },
-    "anf_video_id": {
-        "name": "anf_video_id"
-    },
-    "anf_klockslag": {
-        "name": "anf_klockslag"
-    },
-    "doktyp": {
-        "name": "doktyp"
-    },
-    "tumnagel_stor": {
-        "name": "tumnagel_stor"
-    },
-    "organ": {
-        "name": "organ",
-        "include_in_aggregation": true
-    },
-    "subtyp": {
-        "name": "subtyp"
-    },
-    "tempbeteckning": {
-        "name": "tempbeteckning"
-    },
-    "votering_ledamot_url_xml": {
-        "name": "votering_ledamot_url_xml"
-    },
-    "relaterat_id": {
-        "name": "relaterat_id"
-    },
-    "slutnummer": {
-        "name": "slutnummer"
-    },
-    "anf_beteckning": {
-        "name": "anf_beteckning"
-    },
-    "beteckning": {
-        "name": "beteckning"
-    },
-    "rubrik": {
-        "name": "rubrik"
-    },
-    "video_url": {
-        "name": "video_url"
-    },
-    "sourceid": {
-        "name": "sourceid"
-    },
-    "video_id": {
-        "name": "video_id"
-    },
-    "anf_datum": {
-        "name": "anf_datum"
-    },
-    "titel": {
-        "name": "titel"
-    },
-    "nummer": {
-        "name": "nummer"
-    },
-    "systemdatum": {
-        "name": "systemdatum"
-    },
-    "bet": {
-        "name": "bet"
-    },
-    "rubriker": {
-        "name": "rubriker"
-    },
-    "utskottsforslag_url_xml": {
-        "name": "utskottsforslag_url_xml"
-    },
-    "intressent_id": {
-        "name": "intressent_id"
-    },
-    "talare": {
-        "name": "talare",
-        "include_in_aggregation": true
-    },
-    "htmlformat": {
-        "name": "htmlformat"
-    },
-    "votering_id": {
-        "name": "votering_id"
-    },
-    "status": {
-        "name": "status",
-        "include_in_aggregation": true
-    },
-    "hangar_id": {
-        "name": "hangar_id"
-    },
-    "dokument_url_html": {
-        "name": "dokument_url_html"
-    },
-    "parti": {
-        "name": "parti",
-        "include_in_aggregation": true
-    },
-    "dokument_url_text": {
-        "name": "dokument_url_text"
-    },
-    "beslutstyp": {
-        "name": "beslutstyp"
-    },
-    "anf_hangar_id": {
-        "name": "anf_hangar_id"
-    },
-    "anf_typ": {
-        "name": "anf_typ"
-    },
-    "rm": {
-        "name": "rm"
-    },
-    "publicerad": {
-        "name": "publicerad"
+        "name": "dateto",
+        "translation_name": {
+            "eng": "date to",
+            "swe": "till datum"
+        },
+        "type": "date"
     },
     "datum": {
-        "name": "datum"
+        "name": "datum",
+        "translation_name": {
+            "eng": "date",
+            "swe": "datum"
+        }
     },
-    "pretext": {
-        "name": "pretext"
-    },
-    "motforslag_nummer": {
-        "name": "motforslag_nummer"
-    },
-    "punkt": {
-        "name": "punkt"
-    },
-    "anf_nummer": {
-        "name": "anf_nummer"
+    "datumtid": {
+        "name": "datumtid",
+        "translation_name": {
+            "eng": "date and time",
+            "swe": "datum och tid"
+        }
     },
     "debattnamn": {
-        "name": "debattnamn"
+        "name": "debattnamn",
+        "translation_name": {
+            "eng": "debate name",
+            "swe": "debattnamn"
+        }
+    },
+    "doktyp": {
+        "name": "doktyp",
+        "translation_name": {
+            "eng": "dokument type",
+            "swe": "dokumenttyp"
+        }
+    },
+    "dokument_url_html": {
+        "name": "dokument_url_html",
+        "translation_name": {
+            "eng": "dokument URL (HTML)",
+            "swe": "dokument-URL (HTML)"
+        }
+    },
+    "dokument_url_text": {
+        "name": "dokument_url_text",
+        "translation_name": {
+            "eng": "dokument URL (text)",
+            "swe": "dokument-URL (text)"
+        }
     },
     "forslag": {
-        "name": "forslag"
+        "name": "forslag",
+        "translation_name": {
+            "eng": "proposal",
+            "swe": "förslag"
+        }
     },
-    "kammaren": {
-        "name": "kammaren"
+    "hangar_id": {
+        "name": "hangar_id",
+        "translation_name": {
+            "eng": "hangar ID",
+            "swe": "hangar-ID"
+        }
+    },
+    "htmlformat": {
+        "name": "htmlformat",
+        "translation_name": {
+            "eng": "HTML format",
+            "swe": "HTML-format"
+        }
     },
     "intressent": {
-        "name": "intressent"
+        "name": "intressent",
+        "translation_name": {
+            "eng": "interested",
+            "swe": "intressent"
+        }
+    },
+    "intressent_id": {
+        "name": "intressent_id",
+        "translation_name": {
+            "eng": "interested ID",
+            "swe": "intressent-ID"
+        }
     },
     "kammarbeslutstyp": {
-        "name": "kammarbeslutstyp"
+        "name": "kammarbeslutstyp",
+        "translation_name": {
+            "eng": "chamber decision type",
+            "swe": "kammarbeslutstyp"
+        }
     },
-    "utskottet": {
-        "name": "utskottet"
+    "kammaren": {
+        "name": "kammaren",
+        "translation_name": {
+            "eng": "chamber",
+            "swe": "kammaren"
+        }
+    },
+    "lix": {
+        "aggs_interval": 10,
+        "include_in_aggregation": true,
+        "name": "lix",
+        "translation_name": {
+            "eng": "LIX",
+            "swe": "läsbarhetsindex"
+        },
+        "type": "double"
+    },
+    "lydelse": {
+        "name": "lydelse",
+        "translation_name": {
+            "eng": "wording",
+            "swe": "lydelse"
+        }
+    },
+    "lydelse2": {
+        "name": "lydelse2",
+        "translation_name": {
+            "eng": "wording 2",
+            "swe": "lydelse 2"
+        }
+    },
+    "motforslag_nummer": {
+        "name": "motforslag_nummer",
+        "translation_name": {
+            "eng": "counterproposal number",
+            "swe": "motförslagsnummer"
+        }
+    },
+    "motforslag_partier": {
+        "name": "motforslag_partier",
+        "translation_name": {
+            "eng": "counterproposal parties",
+            "swe": "motförslagspartier"
+        }
     },
     "mottagare": {
         "include_in_aggregation": true,
-        "name": "mottagare"
+        "name": "mottagare",
+        "translation_name": {
+            "eng": "recipient",
+            "swe": "mottagare"
+        }
     },
-    "behandlas_i": {
-        "name": "behandlas_i"
+    "nk": {
+        "aggs_interval": 1,
+        "has_infinite": true,
+        "include_in_aggregation": true,
+        "name": "nk",
+        "translation_name": {
+            "eng": "nk",
+            "swe": "nk"
+        },
+        "type": "double"
     },
-    "lydelse2": {
-        "name": "lydelse2"
+    "nummer": {
+        "name": "nummer",
+        "translation_name": {
+            "eng": "number",
+            "swe": "nummer"
+        }
     },
-    "lydelse": {
-        "name": "lydelse"
+    "organ": {
+        "include_in_aggregation": true,
+        "name": "organ",
+        "translation_name": {
+            "eng": "organ",
+            "swe": "organ"
+        }
     },
-    "avsnitt": {
-        "name": "avsnitt"
+    "ovix": {
+        "aggs_interval": 25,
+        "has_infinite": true,
+        "include_in_aggregation": true,
+        "name": "ovix",
+        "translation_name": {
+            "eng": "ovix",
+            "swe": "ovix"
+        },
+        "type": "double"
+    },
+    "parti": {
+        "include_in_aggregation": true,
+        "name": "parti",
+        "translation_name": {
+            "eng": "party",
+            "swe": "parti"
+        }
     },
     "party": {
-        "name": "party",
-        "type": "enum",
         "include_in_aggregation": true,
+        "name": "party",
         "translation": {
             "all": "Alliansen",
             "c": "Centerpartiet",
-            "rg": "De rödgröna",
             "fi": "Feministiskt initiativ",
             "fp": "Folkpartiet liberalerna",
             "jr": "Jordbrukarnas riksförbund",
+            "k_h": "Sveriges kommunistiska parti, Höglundarna",
+            "k_k": "Sverges kommunistiska parti, Kilbommarna",
             "kd": "Kristdemokraterna",
             "la": "Lantmannapartiet",
             "labp": "Lantmanna- och borgarepartiet",
             "lisp": "Liberala samlingspartiet",
-            "mp": "Miljöpartiet de gröna",
+            "lp": "Sveriges liberala parti",
             "m": "Moderata samlingspartiet",
+            "mp": "Miljöpartiet de gröna",
             "npf": "Nationella framstegspartiet",
             "nyd": "Ny demokrati",
             "pp": "Piratpartiet",
-            "sd": "Sverigedemokraterna",
-            "k_h": "Sveriges kommunistiska parti, Höglundarna",
-            "k_k": "Sverges kommunistiska parti, Kilbommarna",
-            "svp": "Sverges socialdemokratiska vänsterparti",
-            "lp": "Sveriges liberala parti",
+            "rg": "De rödgröna",
             "s": "Sveriges socialdemokratiska arbetareparti",
+            "sd": "Sverigedemokraterna",
+            "svp": "Sverges socialdemokratiska vänsterparti",
             "v": "Vänsterpartiet"
+        },
+        "translation_name": {
+            "eng": "party",
+            "swe": "parti"
+        },
+        "type": "enum"
+    },
+    "pretext": {
+        "name": "pretext",
+        "translation_name": {
+            "eng": "pretext",
+            "swe": "pretext"
+        }
+    },
+    "publicerad": {
+        "name": "publicerad",
+        "translation_name": {
+            "eng": "published",
+            "swe": "publicerat"
+        }
+    },
+    "punkt": {
+        "name": "punkt",
+        "translation_name": {
+            "eng": "point",
+            "swe": "punkt"
+        }
+    },
+    "relaterat_id": {
+        "name": "relaterat_id",
+        "translation_name": {
+            "eng": "related ID",
+            "swe": "relaterat-ID"
+        }
+    },
+    "rm": {
+        "name": "rm",
+        "translation_name": {
+            "eng": "rm",
+            "swe": "rm"
+        }
+    },
+    "rubrik": {
+        "name": "rubrik",
+        "translation_name": {
+            "eng": "headline",
+            "swe": "rubrik"
+        }
+    },
+    "rubriker": {
+        "name": "rubriker",
+        "translation_name": {
+            "eng": "headlines",
+            "swe": "rubriker"
+        }
+    },
+    "slutnummer": {
+        "name": "slutnummer",
+        "translation_name": {
+            "eng": "end number",
+            "swe": "slutnummer"
+        }
+    },
+    "source": {
+        "name": "source",
+        "translation_name": {
+            "eng": "source",
+            "swe": "källa"
+        }
+    },
+    "sourceid": {
+        "name": "sourceid",
+        "translation_name": {
+            "eng": "source ID",
+            "swe": "käll-ID"
+        }
+    },
+    "startpos": {
+        "name": "startpos",
+        "translation_name": {
+            "eng": "startpos",
+            "swe": "startpos"
+        }
+    },
+    "status": {
+        "include_in_aggregation": true,
+        "name": "status",
+        "translation_name": {
+            "eng": "status",
+            "swe": "status"
+        }
+    },
+    "subtitel": {
+        "include_in_aggregation": true,
+        "name": "subtitel",
+        "translation_name": {
+            "eng": "sub title",
+            "swe": "subtitel"
+        }
+    },
+    "subtyp": {
+        "name": "subtyp",
+        "translation_name": {
+            "eng": "subtype",
+            "swe": "subtyp"
+        }
+    },
+    "systemdatum": {
+        "name": "systemdatum",
+        "translation_name": {
+            "eng": "system date",
+            "swe": "systemdatum"
+        }
+    },
+    "talare": {
+        "include_in_aggregation": true,
+        "name": "talare",
+        "translation_name": {
+            "eng": "speaker",
+            "swe": "talare"
+        }
+    },
+    "tempbeteckning": {
+        "name": "tempbeteckning",
+        "translation_name": {
+            "eng": "temporary name",
+            "swe": "tempbeteckning"
+        }
+    },
+    "timefrom": {
+        "name": "timefrom",
+        "translation_name": {
+            "eng": "time from",
+            "swe": "från tid"
+        }
+    },
+    "timeto": {
+        "name": "timeto",
+        "translation_name": {
+            "eng": "time to",
+            "swe": "från tid"
+        }
+    },
+    "titel": {
+        "name": "titel",
+        "translation_name": {
+            "eng": "title",
+            "swe": "titel"
+        }
+    },
+    "title": {
+        "name": "title",
+        "translation_name": {
+            "eng": "title",
+            "swe": "titel"
+        }
+    },
+    "topicid": {
+        "name": "topicid",
+        "translation_name": {
+            "eng": "topic ID",
+            "swe": "ämnes-ID"
+        }
+    },
+    "topicname": {
+        "include_in_aggregation": true,
+        "name": "topicname",
+        "translation_name": {
+            "eng": "topic",
+            "swe": "ämne"
+        }
+    },
+    "tumnagel": {
+        "name": "tumnagel",
+        "translation_name": {
+            "eng": "thumbnail",
+            "swe": "tumnagel"
+        }
+    },
+    "tumnagel_stor": {
+        "name": "tumnagel_stor",
+        "translation_name": {
+            "eng": "thumbnail large",
+            "swe": "tumnagel stor"
+        }
+    },
+    "typ": {
+        "name": "typ",
+        "translation_name": {
+            "eng": "type",
+            "swe": "typ"
         }
     },
     "type": {
-        "name": "type",
         "include_in_aggregation": true,
+        "name": "type",
+        "translation_name": {
+            "eng": "type",
+            "swe": "typ"
+        },
         "type": "enum"
     },
-    "title": {
-        "name": "title"
-    },
     "url": {
-        "name": "url"
+        "name": "url",
+        "translation_name": {
+            "eng": "url",
+            "swe": "url"
+        }
+    },
+    "utskottet": {
+        "name": "utskottet",
+        "translation_name": {
+            "eng": "committee",
+            "swe": "utskottet"
+        }
+    },
+    "utskottsforslag_url_xml": {
+        "name": "utskottsforslag_url_xml",
+        "translation_name": {
+            "eng": "committee proposal URL (XML)",
+            "swe": "utskottsförslag-URL (XML)"
+        }
+    },
+    "video_id": {
+        "name": "video_id",
+        "translation_name": {
+            "eng": "video ID",
+            "swe": "video-ID"
+        }
+    },
+    "video_url": {
+        "name": "video_url",
+        "translation_name": {
+            "eng": "video URL",
+            "swe": "video-URL"
+        }
+    },
+    "vinnare": {
+        "name": "vinnare",
+        "translation_name": {
+            "eng": "winner",
+            "swe": "vinnare"
+        }
+    },
+    "votering_id": {
+        "name": "votering_id",
+        "translation_name": {
+            "eng": "voting ID",
+            "swe": "votering-ID"
+        }
+    },
+    "votering_ledamot_url_xml": {
+        "name": "votering_ledamot_url_xml",
+        "translation_name": {
+            "eng": "voting member URL (XML)",
+            "swe": "votering ledamot-URL (XML)"
+        }
+    },
+    "year": {
+        "include_in_aggregation": true,
+        "name": "year",
+        "translation_name": {
+            "eng": "year",
+            "swe": "år"
+        }
     }
 }
