@@ -8,8 +8,8 @@ _logger = logging.getLogger(__name__)
 
 
 def insert_test_data_from_xml():
-    pipeline.recreate_indices(corpora)
     for corpus in corpora:
+        pipeline.recreate_indices([corpus])
         pipeline.do_run(corpus)
 
 
