@@ -1,0 +1,24 @@
+{
+  "parents": ["base", "dep", "time", "name_tagging", "readability", "sense"],
+  "corpus_id": "attasidor",
+  "corpus_name": {
+    "eng": "8 SIDOR",
+    "swe": "8 SIDOR"
+  },
+  "corpus_description": {
+    "eng": "News articles from 8 SIDOR.",
+    "swe": "Nyhetsartiklar från 8 SIDOR."
+  },
+  "file_name_pattern": "8sidor.xml",
+
+  "analyze_config": {
+    "word_attributes": ["blingbring", "sentiment"],
+    "struct_attributes": {
+      "sentence": ["id", "geocontext"],
+      "paragraph": ["geocontext"]
+    },
+    "text_attributes": ["blingbring", "title"]
+  },
+  "document_id": "title",
+  "document_id_hash": true
+}

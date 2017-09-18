@@ -1,0 +1,24 @@
+{
+  "parents": ["name_tagging", "sense"],
+  "corpus_id": "wikipedia",
+  "corpus_name": {
+    "eng": "Swedish Wikipedia Corpus",
+    "swe": "Svenska Wikipedia-korpusen"
+  },
+  "corpus_description": {
+    "eng": "Corpus of Swedish Wikipedia",
+    "swe": "Svenska Wikipedia-korpusen"
+  },
+  "file_name_pattern": "*wiki*.xml",
+
+  "analyze_config": {
+    "word_attributes": ["wid", "pos", "lemgram", "msd"],
+    "struct_attributes": {
+      "sentence": ["id", "geocontext"]
+    },
+    "text_attributes": ["title", "url"]
+  },
+  "parent": "word-parent",
+  "document_id": "title",
+  "document_id_hash": true
+}

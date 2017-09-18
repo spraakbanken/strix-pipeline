@@ -1,0 +1,309 @@
+{
+    "datefrom": {
+        "name": "datefrom",
+        "type": "date",
+        "include_in_aggregation": true
+    },
+    "dateto": {
+        "name": "dateto",
+        "type": "date",
+        "include_in_aggregation": true
+    },
+    "datatyp": {
+        "name": "datatyp",
+        "include_in_aggregation": true,
+        "translation": {
+            "huvuddokument": "Huvuddokument",
+            "forslag": "Förslag",
+            "anforande": "Anförande",
+            "utskottsforslag": "Utskottsförslag"
+        }
+    },
+    "blingbring": {
+        "name": "blingbring",
+        "set": true,
+        "ranked": true
+    },
+    "lix": {
+        "name": "lix",
+        "include_in_aggregation": true,
+        "type": "double",
+        "aggs_interval": 10
+    },
+    "ovix": {
+        "name": "ovix",
+        "include_in_aggregation": true,
+        "type": "double",
+        "aggs_interval": 25,
+        "has_infinite": true
+    },
+    "nk": {
+        "name": "nk",
+        "include_in_aggregation": true,
+        "type": "double",
+        "aggs_interval": 1,
+        "has_infinite": true
+    },
+    "timefrom": {
+        "name": "timefrom"
+    },
+    "timeto": {
+        "name": "timeto"
+    },
+    "topicid": {
+        "name": "topicid"
+    },
+    "topicname": {
+        "name": "topicname",
+        "include_in_aggregation": true
+    },
+    "source": {
+        "name": "source"
+    },
+    "year": {
+        "name": "year",
+        "include_in_aggregation": true
+    },
+    "amount_answers": {
+        "name": "amount_answers"
+    },
+    "author_signature": {
+        "name": "author_signature"
+    },
+    "_id": {
+        "name": "_id",
+        "ignore": true
+    },
+    "vinnare": {
+        "name": "vinnare"
+    },
+    "subtitel": {
+        "name": "subtitel",
+        "include_in_aggregation": true
+    },
+    "tumnagel": {
+        "name": "tumnagel"
+    },
+    "typ": {
+        "name": "typ"
+    },
+    "anf_rm": {
+        "name": "anf_rm"
+    },
+    "motforslag_partier": {
+        "name": "motforslag_partier"
+    },
+    "startpos": {
+        "name": "startpos"
+    },
+    "anf_sekunder": {
+        "name": "anf_sekunder"
+    },
+    "datumtid": {
+        "name": "datumtid"
+    },
+    "anf_video_id": {
+        "name": "anf_video_id"
+    },
+    "anf_klockslag": {
+        "name": "anf_klockslag"
+    },
+    "doktyp": {
+        "name": "doktyp"
+    },
+    "tumnagel_stor": {
+        "name": "tumnagel_stor"
+    },
+    "organ": {
+        "name": "organ",
+        "include_in_aggregation": true
+    },
+    "subtyp": {
+        "name": "subtyp"
+    },
+    "tempbeteckning": {
+        "name": "tempbeteckning"
+    },
+    "votering_ledamot_url_xml": {
+        "name": "votering_ledamot_url_xml"
+    },
+    "relaterat_id": {
+        "name": "relaterat_id"
+    },
+    "slutnummer": {
+        "name": "slutnummer"
+    },
+    "anf_beteckning": {
+        "name": "anf_beteckning"
+    },
+    "beteckning": {
+        "name": "beteckning"
+    },
+    "rubrik": {
+        "name": "rubrik"
+    },
+    "video_url": {
+        "name": "video_url"
+    },
+    "sourceid": {
+        "name": "sourceid"
+    },
+    "video_id": {
+        "name": "video_id"
+    },
+    "anf_datum": {
+        "name": "anf_datum"
+    },
+    "titel": {
+        "name": "titel"
+    },
+    "nummer": {
+        "name": "nummer"
+    },
+    "systemdatum": {
+        "name": "systemdatum"
+    },
+    "bet": {
+        "name": "bet"
+    },
+    "rubriker": {
+        "name": "rubriker"
+    },
+    "utskottsforslag_url_xml": {
+        "name": "utskottsforslag_url_xml"
+    },
+    "intressent_id": {
+        "name": "intressent_id"
+    },
+    "talare": {
+        "name": "talare",
+        "include_in_aggregation": true
+    },
+    "htmlformat": {
+        "name": "htmlformat"
+    },
+    "votering_id": {
+        "name": "votering_id"
+    },
+    "status": {
+        "name": "status",
+        "include_in_aggregation": true
+    },
+    "hangar_id": {
+        "name": "hangar_id"
+    },
+    "dokument_url_html": {
+        "name": "dokument_url_html"
+    },
+    "parti": {
+        "name": "parti",
+        "include_in_aggregation": true
+    },
+    "dokument_url_text": {
+        "name": "dokument_url_text"
+    },
+    "beslutstyp": {
+        "name": "beslutstyp"
+    },
+    "anf_hangar_id": {
+        "name": "anf_hangar_id"
+    },
+    "anf_typ": {
+        "name": "anf_typ"
+    },
+    "rm": {
+        "name": "rm"
+    },
+    "publicerad": {
+        "name": "publicerad"
+    },
+    "datum": {
+        "name": "datum"
+    },
+    "pretext": {
+        "name": "pretext"
+    },
+    "motforslag_nummer": {
+        "name": "motforslag_nummer"
+    },
+    "punkt": {
+        "name": "punkt"
+    },
+    "anf_nummer": {
+        "name": "anf_nummer"
+    },
+    "debattnamn": {
+        "name": "debattnamn"
+    },
+    "forslag": {
+        "name": "forslag"
+    },
+    "kammaren": {
+        "name": "kammaren"
+    },
+    "intressent": {
+        "name": "intressent"
+    },
+    "kammarbeslutstyp": {
+        "name": "kammarbeslutstyp"
+    },
+    "utskottet": {
+        "name": "utskottet"
+    },
+    "mottagare": {
+        "include_in_aggregation": true,
+        "name": "mottagare"
+    },
+    "behandlas_i": {
+        "name": "behandlas_i"
+    },
+    "lydelse2": {
+        "name": "lydelse2"
+    },
+    "lydelse": {
+        "name": "lydelse"
+    },
+    "avsnitt": {
+        "name": "avsnitt"
+    },
+    "party": {
+        "name": "party",
+        "type": "enum",
+        "include_in_aggregation": true,
+        "translation": {
+            "all": "Alliansen",
+            "c": "Centerpartiet",
+            "rg": "De rödgröna",
+            "fi": "Feministiskt initiativ",
+            "fp": "Folkpartiet liberalerna",
+            "jr": "Jordbrukarnas riksförbund",
+            "kd": "Kristdemokraterna",
+            "la": "Lantmannapartiet",
+            "labp": "Lantmanna- och borgarepartiet",
+            "lisp": "Liberala samlingspartiet",
+            "mp": "Miljöpartiet de gröna",
+            "m": "Moderata samlingspartiet",
+            "npf": "Nationella framstegspartiet",
+            "nyd": "Ny demokrati",
+            "pp": "Piratpartiet",
+            "sd": "Sverigedemokraterna",
+            "k_h": "Sveriges kommunistiska parti, Höglundarna",
+            "k_k": "Sverges kommunistiska parti, Kilbommarna",
+            "svp": "Sverges socialdemokratiska vänsterparti",
+            "lp": "Sveriges liberala parti",
+            "s": "Sveriges socialdemokratiska arbetareparti",
+            "v": "Vänsterpartiet"
+        }
+    },
+    "type": {
+        "name": "type",
+        "include_in_aggregation": true,
+        "type": "enum"
+    },
+    "title": {
+        "name": "title"
+    },
+    "url": {
+        "name": "url"
+    }
+}

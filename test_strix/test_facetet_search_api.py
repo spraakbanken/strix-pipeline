@@ -50,9 +50,6 @@ class FacetetSearchTest(unittest.TestCase):
             if bucket["key"] in keys:
                 buckets[bucket["key"]] = bucket["doc_count"]
 
-        for key in keys:
-            assert key in buckets
-
         assert buckets["huvuddokument"] == 1136
         assert buckets["anforande"] == 1518
 
@@ -197,7 +194,7 @@ class FacetetSearchTest(unittest.TestCase):
         assert "subtitel" in unused_facets
         assert "talare" in unused_facets
         assert "datatyp" in unused_facets
-        assert len(unused_facets) == 10
+        assert len(unused_facets) == 13
 
     def test_corpus_id_filter_without_brackets(self):
         result = self.do_request("/aggs?text_filter={\"corpus_id\":\"rd-sou\"}")

@@ -15,6 +15,18 @@ def get_corpus_conf(corpus_id):
     return _all_config_files[corpus_id]
 
 
+def get_word_attribute(attr_name):
+    return _word_attributes[attr_name]
+
+
+def get_struct_attribute(attr_name):
+    return _struct_attributes[attr_name]
+
+
+def get_text_attribute(attr_name):
+    return _text_attributes[attr_name]
+
+
 def get_text_attributes():
     """
     :return: a dict containing all text attributes by corpora
@@ -22,7 +34,7 @@ def get_text_attributes():
     text_attributes = {}
     for key, conf in _all_config_files.items():
         try:
-            text_attributes[key] = dict((attr["name"], attr) for attr in conf["analyze_config"]["text_attributes"])
+            text_attributes[key] = dict((attr, _text_attributes[attr]) for attr in conf["analyze_config"]["text_attributes"])
         except KeyError:
             _logger.info("No text attributes for corpus: %s" % key)
             continue
@@ -53,8 +65,8 @@ def is_ranked(word_attribute):
 
 def is_object(path):
     try:
-        if path[0] in _struct_attributes:
-            return not _struct_attributes[path[0]][path[1]].get("index_in_text", True)
+        if path[-1] in _struct_attributes:
+            return not _struct_attributes[path[-1]].get("index_in_text", True)
         return False
     except KeyError:
         raise ValueError("\"" + ".".join(path) + "\" is not configured")
@@ -68,23 +80,29 @@ def _get_all_config_files():
     return config_files
 
 
-def _fetch_corpus_conf(corpus_id):
+def _fetch_corpus_conf(corpus_id, config_type="corpora"):
     """
     Open requested corpus settings file and recursively fetch and merge
     with parent config file, if there is one.
     :param corpus_id: id of corpus to fetch
     :return: a dict containing configuration for corpus
     """
-    config_file = _get_config_file(corpus_id)
-    config_obj = json.load(open(config_file))
-    if "parent" in config_obj:
-        parent_obj = _fetch_corpus_conf(config_obj["parent"])
+    config_file = _get_config_file(corpus_id, config_type)
+    try:
+        config_obj = json.load(open(config_file))
+    except:
+        _logger.error("Could not read config file: " + config_file)
+        raise
+
+    parents = config_obj.get("parents", [])
+    for parent in parents:
+        parent_obj = _fetch_corpus_conf(parent, config_type="corpora_templates")
         _merge_configs(config_obj, parent_obj)
     return config_obj
 
 
-def _get_config_file(corpus_id):
-    return os.path.join(config.base_dir, "resources/config/" + corpus_id + ".json")
+def _get_config_file(corpus_id, config_type="corpora"):
+    return os.path.join(config.base_dir, "resources/config", config_type, corpus_id + ".json")
 
 
 def _merge_configs(target, source):
@@ -116,26 +134,11 @@ def _merge_configs(target, source):
             target[k] = v
 
 
-def _get_all_word_attributes():
-    word_attributes = {}
-    for config in _all_config_files.values():
-        for word_attribute in config.get("analyze_config", {}).get("word_attributes", []):
-            if word_attribute["name"] not in word_attributes:
-                word_attributes[word_attribute["name"]] = word_attribute
-    return word_attributes
+def _get_attributes(attr_type):
+    return json.load(open(os.path.join(config.base_dir, "resources/config/attributes", attr_type + ".json")))
 
-
-def _get_all_struct_attributes():
-    struct_attributes = {}
-    for config in _all_config_files.values():
-        for node_name, struct_attribute in config.get("analyze_config", {}).get("struct_attributes", {}).items():
-            if node_name not in struct_attributes:
-                struct_attributes[node_name] = {}
-            for attr in struct_attribute:
-                if attr["name"] not in struct_attributes[node_name]:
-                    struct_attributes[node_name][attr["name"]] = attr
-    return struct_attributes
 
 _all_config_files = _get_all_config_files()
-_word_attributes = _get_all_word_attributes()
-_struct_attributes = _get_all_struct_attributes()
+_word_attributes = _get_attributes("word_attributes")
+_struct_attributes = _get_attributes("struct_attributes")
+_text_attributes = _get_attributes("text_attributes")

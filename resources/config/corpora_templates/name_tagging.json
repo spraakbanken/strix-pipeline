@@ -1,0 +1,12 @@
+{
+    "analyze_config": {
+        "struct_attributes": {
+            "ne": [
+                "ne_ex",
+                "ne_type",
+                "ne_subtype",
+                "ne_name"
+            ]
+        }
+    }
+}

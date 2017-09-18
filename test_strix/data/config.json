@@ -1,0 +1,1757 @@
+{
+    "attasidor": {
+        "attributes": {
+            "struct_attributes": {
+                "sentence": [
+                    {
+                        "name": "id",
+                        "set": false
+                    },
+                    {
+                        "index_in_text": false,
+                        "name": "geocontext",
+                        "nodeName": "_geocontext",
+                        "properties": {
+                            "country": {
+                                "type": "keyword",
+                                "value": ";(.*);.*;"
+                            },
+                            "geopoint": {
+                                "properties": {
+                                    "lat": {
+                                        "value": ";.*;(.*);"
+                                    },
+                                    "lon": {
+                                        "value": ".*;(.*)"
+                                    }
+                                },
+                                "type": "geopoint"
+                            },
+                            "place": {
+                                "type": "keyword",
+                                "value": "(.*);.*;.*;"
+                            }
+                        },
+                        "set": true
+                    }
+                ],
+                "ne": [
+                    {
+                        "set": false,
+                        "name": "ex"
+                    },
+                    {
+                        "set": false,
+                        "name": "type"
+                    },
+                    {
+                        "set": false,
+                        "name": "subtype"
+                    },
+                    {
+                        "set": false,
+                        "name": "name"
+                    }
+                ],
+                "paragraph": [
+                    {
+                        "name": "geocontext",
+                        "nodeName": "_geocontext",
+                        "set": true,
+                        "index_in_text": false,
+                        "properties": {
+                            "country": {
+                                "value": ";(.*);.*;",
+                                "type": "keyword"
+                            },
+                            "place": {
+                                "value": "(.*);.*;.*;",
+                                "type": "keyword"
+                            },
+                            "geopoint": {
+                                "type": "geopoint",
+                                "properties": {
+                                    "lat": {
+                                        "value": ";.*;(.*);"
+                                    },
+                                    "lon": {
+                                        "value": ".*;(.*)"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "text_attributes": [
+                {
+                    "include_in_aggregation": true,
+                    "name": "datefrom",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "dateto",
+                    "type": "date"
+                },
+                {
+                    "name": "blingbring",
+                    "ranked": true,
+                    "set": true
+                },
+                {
+                    "name": "title"
+                },
+                {
+                    "aggs_interval": 10,
+                    "include_in_aggregation": true,
+                    "name": "lix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 25,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "ovix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 1,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "nk",
+                    "type": "double"
+                },
+                {
+                    "name": "timefrom"
+                },
+                {
+                    "name": "timeto"
+                }
+            ],
+            "word_attributes": [
+                {
+                    "name": "pos"
+                },
+                {
+                    "name": "msd"
+                },
+                {
+                    "name": "sense",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "compwf",
+                    "set": true
+                },
+                {
+                    "name": "complemgram",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "blingbring",
+                    "set": true
+                },
+                {
+                    "interval": "0.1",
+                    "name": "sentiment",
+                    "type": "double"
+                },
+                {
+                    "set": true,
+                    "nodeName": "lex",
+                    "name": "lemgram",
+                    "type": "lemgram"
+                },
+                {
+                    "name": "lemma",
+                    "set": true
+                },
+                {
+                    "set": true,
+                    "name": "prefix",
+                    "type": "lemgram"
+                },
+                {
+                    "set": true,
+                    "name": "suffix",
+                    "type": "lemgram"
+                },
+                {
+                    "set": false,
+                    "name": "ref"
+                },
+                {
+                    "set": false,
+                    "name": "dephead"
+                },
+                {
+                    "set": false,
+                    "name": "deprel"
+                }
+            ]
+        },
+        "description": {
+            "eng": "News articles from 8 SIDOR.",
+            "swe": "Nyhetsartiklar fr\u00e5n 8 SIDOR."
+        },
+        "name": {
+            "eng": "8 SIDOR",
+            "swe": "8 SIDOR"
+        }
+    },
+    "fragelistor": {
+        "attributes": {
+            "struct_attributes": {
+                "document": [
+                    {
+                        "name": "id",
+                        "set": false
+                    }
+                ],
+                "ne": [
+                    {
+                        "name": "ex",
+                        "set": false
+                    },
+                    {
+                        "name": "type",
+                        "set": false
+                    },
+                    {
+                        "name": "subtype",
+                        "set": false
+                    },
+                    {
+                        "name": "name",
+                        "set": false
+                    }
+                ]
+            },
+            "text_attributes": [
+                {
+                    "include_in_aggregation": true,
+                    "name": "datefrom",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "dateto",
+                    "type": "date"
+                },
+                {
+                    "name": "timefrom"
+                },
+                {
+                    "name": "timeto"
+                },
+                {
+                    "name": "topicid"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "topicname"
+                },
+                {
+                    "name": "source"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "year"
+                },
+                {
+                    "name": "amount_answers"
+                },
+                {
+                    "name": "author_signature"
+                },
+                {
+                    "ignore": true,
+                    "name": "_id"
+                }
+            ],
+            "word_attributes": [
+                {
+                    "name": "pos"
+                },
+                {
+                    "name": "msd"
+                },
+                {
+                    "name": "sense",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "compwf",
+                    "set": true
+                },
+                {
+                    "name": "complemgram",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "lemma",
+                    "set": true
+                },
+                {
+                    "name": "lemgram",
+                    "nodeName": "lex",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "prefix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "suffix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "ref",
+                    "set": false
+                },
+                {
+                    "name": "dephead",
+                    "set": false
+                },
+                {
+                    "name": "deprel",
+                    "set": false
+                },
+                {
+                    "name": "sentiment",
+                    "type": "double",
+                    "interval": "0.1"
+                }
+            ]
+        },
+        "description": {
+            "eng": "Question lists of the Nordic Museum",
+            "swe": "Nordiska museets fr\u00e5gelistor"
+        },
+        "name": {
+            "eng": "Ethnological question lists",
+            "swe": "Etnologiska fr\u00e5gelistor"
+        }
+    },
+    "rd-eun": {
+        "attributes": {
+            "struct_attributes": {
+                "ne": [
+                    {
+                        "name": "ex",
+                        "set": false
+                    },
+                    {
+                        "name": "type",
+                        "set": false
+                    },
+                    {
+                        "name": "subtype",
+                        "set": false
+                    },
+                    {
+                        "name": "name",
+                        "set": false
+                    }
+                ]
+            },
+            "text_attributes": [
+                {
+                    "include_in_aggregation": true,
+                    "name": "datefrom",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "dateto",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "datatyp",
+                    "translation": {
+                        "anforande": "Anf\u00f6rande",
+                        "forslag": "F\u00f6rslag",
+                        "huvuddokument": "Huvuddokument",
+                        "utskottsforslag": "Utskottsf\u00f6rslag"
+                    }
+                },
+                {
+                    "name": "timefrom"
+                },
+                {
+                    "name": "timeto"
+                },
+                {
+                    "name": "vinnare"
+                },
+                {
+                    "name": "datum"
+                },
+                {
+                    "name": "subtitel",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "tumnagel"
+                },
+                {
+                    "name": "typ"
+                },
+                {
+                    "name": "anf_typ"
+                },
+                {
+                    "name": "anf_rm"
+                },
+                {
+                    "name": "motforslag_partier"
+                },
+                {
+                    "name": "forslag"
+                },
+                {
+                    "name": "anf_hangar_id"
+                },
+                {
+                    "name": "startpos"
+                },
+                {
+                    "name": "anf_sekunder"
+                },
+                {
+                    "name": "punkt"
+                },
+                {
+                    "name": "datumtid"
+                },
+                {
+                    "name": "anf_video_id"
+                },
+                {
+                    "name": "anf_nummer"
+                },
+                {
+                    "name": "anf_klockslag"
+                },
+                {
+                    "name": "doktyp"
+                },
+                {
+                    "name": "tumnagel_stor"
+                },
+                {
+                    "name": "organ",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "subtyp"
+                },
+                {
+                    "name": "debattnamn"
+                },
+                {
+                    "name": "tempbeteckning"
+                },
+                {
+                    "name": "votering_ledamot_url_xml"
+                },
+                {
+                    "name": "relaterat_id"
+                },
+                {
+                    "name": "slutnummer"
+                },
+                {
+                    "name": "anf_beteckning"
+                },
+                {
+                    "name": "source"
+                },
+                {
+                    "name": "beteckning"
+                },
+                {
+                    "name": "rubrik"
+                },
+                {
+                    "name": "rm"
+                },
+                {
+                    "name": "video_url"
+                },
+                {
+                    "name": "publicerad"
+                },
+                {
+                    "name": "sourceid"
+                },
+                {
+                    "name": "video_id"
+                },
+                {
+                    "name": "anf_datum"
+                },
+                {
+                    "name": "titel"
+                },
+                {
+                    "name": "nummer"
+                },
+                {
+                    "name": "systemdatum"
+                },
+                {
+                    "name": "pretext"
+                },
+                {
+                    "name": "bet"
+                },
+                {
+                    "name": "rubriker"
+                },
+                {
+                    "name": "utskottsforslag_url_xml"
+                },
+                {
+                    "name": "intressent_id"
+                },
+                {
+                    "name": "talare",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "motforslag_nummer"
+                },
+                {
+                    "name": "htmlformat"
+                },
+                {
+                    "name": "votering_id"
+                },
+                {
+                    "name": "beslutstyp"
+                },
+                {
+                    "name": "status",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "hangar_id"
+                },
+                {
+                    "name": "dokument_url_html"
+                },
+                {
+                    "name": "parti",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "dokument_url_text"
+                }
+            ],
+            "word_attributes": [
+                {
+                    "name": "pos"
+                },
+                {
+                    "name": "msd"
+                },
+                {
+                    "name": "sense",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "compwf",
+                    "set": true
+                },
+                {
+                    "name": "complemgram",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "lemma",
+                    "set": true
+                },
+                {
+                    "name": "lemgram",
+                    "nodeName": "lex",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "prefix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "suffix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "ref",
+                    "set": false
+                },
+                {
+                    "name": "dephead",
+                    "set": false
+                },
+                {
+                    "name": "deprel",
+                    "set": false
+                }
+            ]
+        },
+        "description": {
+            "eng": "Part of the Riksdag's open data",
+            "swe": "Riksdagens \u00f6ppna data: Dokument fr\u00e5n EU-n\u00e4mnden, bland annat m\u00f6teskallelser, f\u00f6redragningslistor, protokoll och skriftliga samr\u00e5d med regeringen."
+        },
+        "name": {
+            "eng": "EUN",
+            "swe": "EUN"
+        }
+    },
+    "rd-flista": {
+        "attributes": {
+            "struct_attributes": {
+                "ne": [
+                    {
+                        "name": "ex",
+                        "set": false
+                    },
+                    {
+                        "name": "type",
+                        "set": false
+                    },
+                    {
+                        "name": "subtype",
+                        "set": false
+                    },
+                    {
+                        "name": "name",
+                        "set": false
+                    }
+                ]
+            },
+            "text_attributes": [
+                {
+                    "include_in_aggregation": true,
+                    "name": "datefrom",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "dateto",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "datatyp",
+                    "translation": {
+                        "anforande": "Anf\u00f6rande",
+                        "forslag": "F\u00f6rslag",
+                        "huvuddokument": "Huvuddokument",
+                        "utskottsforslag": "Utskottsf\u00f6rslag"
+                    }
+                },
+                {
+                    "name": "timefrom"
+                },
+                {
+                    "name": "timeto"
+                },
+                {
+                    "name": "vinnare"
+                },
+                {
+                    "name": "datum"
+                },
+                {
+                    "name": "subtitel",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "tumnagel"
+                },
+                {
+                    "name": "typ"
+                },
+                {
+                    "name": "anf_typ"
+                },
+                {
+                    "name": "anf_rm"
+                },
+                {
+                    "name": "motforslag_partier"
+                },
+                {
+                    "name": "forslag"
+                },
+                {
+                    "name": "anf_hangar_id"
+                },
+                {
+                    "name": "startpos"
+                },
+                {
+                    "name": "anf_sekunder"
+                },
+                {
+                    "name": "punkt"
+                },
+                {
+                    "name": "datumtid"
+                },
+                {
+                    "name": "anf_video_id"
+                },
+                {
+                    "name": "anf_nummer"
+                },
+                {
+                    "name": "anf_klockslag"
+                },
+                {
+                    "name": "doktyp"
+                },
+                {
+                    "name": "tumnagel_stor"
+                },
+                {
+                    "name": "organ",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "subtyp"
+                },
+                {
+                    "name": "debattnamn"
+                },
+                {
+                    "name": "tempbeteckning"
+                },
+                {
+                    "name": "votering_ledamot_url_xml"
+                },
+                {
+                    "name": "relaterat_id"
+                },
+                {
+                    "name": "slutnummer"
+                },
+                {
+                    "name": "anf_beteckning"
+                },
+                {
+                    "name": "source"
+                },
+                {
+                    "name": "beteckning"
+                },
+                {
+                    "name": "rubrik"
+                },
+                {
+                    "name": "rm"
+                },
+                {
+                    "name": "video_url"
+                },
+                {
+                    "name": "publicerad"
+                },
+                {
+                    "name": "sourceid"
+                },
+                {
+                    "name": "video_id"
+                },
+                {
+                    "name": "anf_datum"
+                },
+                {
+                    "name": "titel"
+                },
+                {
+                    "name": "nummer"
+                },
+                {
+                    "name": "systemdatum"
+                },
+                {
+                    "name": "pretext"
+                },
+                {
+                    "name": "bet"
+                },
+                {
+                    "name": "rubriker"
+                },
+                {
+                    "name": "utskottsforslag_url_xml"
+                },
+                {
+                    "name": "intressent_id"
+                },
+                {
+                    "name": "talare",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "motforslag_nummer"
+                },
+                {
+                    "name": "htmlformat"
+                },
+                {
+                    "name": "votering_id"
+                },
+                {
+                    "name": "beslutstyp"
+                },
+                {
+                    "name": "status",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "hangar_id"
+                },
+                {
+                    "name": "dokument_url_html"
+                },
+                {
+                    "name": "parti",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "dokument_url_text"
+                }
+            ],
+            "word_attributes": [
+                {
+                    "name": "pos"
+                },
+                {
+                    "name": "msd"
+                },
+                {
+                    "name": "sense",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "compwf",
+                    "set": true
+                },
+                {
+                    "name": "complemgram",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "lemma",
+                    "set": true
+                },
+                {
+                    "name": "lemgram",
+                    "nodeName": "lex",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "prefix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "suffix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "ref",
+                    "set": false
+                },
+                {
+                    "name": "dephead",
+                    "set": false
+                },
+                {
+                    "name": "deprel",
+                    "set": false
+                }
+            ]
+        },
+        "description": {
+            "eng": "Part of the Riksdag's open data",
+            "swe": "Riksdagens \u00f6ppna data: F\u00f6redragningslistor f\u00f6r kammarens sammantr\u00e4den."
+        },
+        "name": {
+            "eng": "F\u00f6redragningslista",
+            "swe": "F\u00f6redragningslista"
+        }
+    },
+    "rd-kammakt": {
+        "attributes": {
+            "struct_attributes": {
+                "ne": [
+                    {
+                        "name": "ex",
+                        "set": false
+                    },
+                    {
+                        "name": "type",
+                        "set": false
+                    },
+                    {
+                        "name": "subtype",
+                        "set": false
+                    },
+                    {
+                        "name": "name",
+                        "set": false
+                    }
+                ]
+            },
+            "text_attributes": [
+                {
+                    "include_in_aggregation": true,
+                    "name": "datefrom",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "dateto",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "datatyp",
+                    "translation": {
+                        "anforande": "Anf\u00f6rande",
+                        "forslag": "F\u00f6rslag",
+                        "huvuddokument": "Huvuddokument",
+                        "utskottsforslag": "Utskottsf\u00f6rslag"
+                    }
+                },
+                {
+                    "name": "timefrom"
+                },
+                {
+                    "name": "timeto"
+                },
+                {
+                    "name": "vinnare"
+                },
+                {
+                    "name": "datum"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "subtitel"
+                },
+                {
+                    "name": "tumnagel"
+                },
+                {
+                    "name": "typ"
+                },
+                {
+                    "name": "anf_typ"
+                },
+                {
+                    "name": "behandlas_i"
+                },
+                {
+                    "name": "anf_rm"
+                },
+                {
+                    "name": "motforslag_partier"
+                },
+                {
+                    "name": "forslag"
+                },
+                {
+                    "name": "anf_hangar_id"
+                },
+                {
+                    "name": "startpos"
+                },
+                {
+                    "name": "anf_sekunder"
+                },
+                {
+                    "name": "intressent"
+                },
+                {
+                    "name": "punkt"
+                },
+                {
+                    "name": "datumtid"
+                },
+                {
+                    "name": "anf_video_id"
+                },
+                {
+                    "name": "anf_nummer"
+                },
+                {
+                    "name": "anf_klockslag"
+                },
+                {
+                    "name": "doktyp"
+                },
+                {
+                    "name": "tumnagel_stor"
+                },
+                {
+                    "name": "organ",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "subtyp"
+                },
+                {
+                    "name": "debattnamn"
+                },
+                {
+                    "name": "tempbeteckning"
+                },
+                {
+                    "name": "votering_ledamot_url_xml"
+                },
+                {
+                    "name": "relaterat_id"
+                },
+                {
+                    "name": "slutnummer"
+                },
+                {
+                    "name": "anf_beteckning"
+                },
+                {
+                    "name": "kammarbeslutstyp"
+                },
+                {
+                    "name": "source"
+                },
+                {
+                    "name": "utskottet"
+                },
+                {
+                    "name": "beteckning"
+                },
+                {
+                    "name": "rubrik"
+                },
+                {
+                    "name": "rm"
+                },
+                {
+                    "name": "video_url"
+                },
+                {
+                    "name": "publicerad"
+                },
+                {
+                    "name": "sourceid"
+                },
+                {
+                    "name": "video_id"
+                },
+                {
+                    "name": "anf_datum"
+                },
+                {
+                    "name": "titel"
+                },
+                {
+                    "name": "nummer"
+                },
+                {
+                    "name": "systemdatum"
+                },
+                {
+                    "name": "pretext"
+                },
+                {
+                    "name": "bet"
+                },
+                {
+                    "name": "lydelse"
+                },
+                {
+                    "name": "rubriker"
+                },
+                {
+                    "name": "utskottsforslag_url_xml"
+                },
+                {
+                    "name": "lydelse2"
+                },
+                {
+                    "name": "intressent_id"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "talare"
+                },
+                {
+                    "name": "motforslag_nummer"
+                },
+                {
+                    "name": "mottagare",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "htmlformat"
+                },
+                {
+                    "name": "votering_id"
+                },
+                {
+                    "name": "beslutstyp"
+                },
+                {
+                    "name": "status",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "hangar_id"
+                },
+                {
+                    "name": "dokument_url_html"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "parti"
+                },
+                {
+                    "name": "dokument_url_text"
+                },
+                {
+                    "name": "kammaren"
+                }
+            ],
+            "word_attributes": [
+                {
+                    "name": "pos"
+                },
+                {
+                    "name": "msd"
+                },
+                {
+                    "name": "sense",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "compwf",
+                    "set": true
+                },
+                {
+                    "name": "complemgram",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "lemma",
+                    "set": true
+                },
+                {
+                    "name": "lemgram",
+                    "nodeName": "lex",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "prefix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "suffix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "ref",
+                    "set": false
+                },
+                {
+                    "name": "dephead",
+                    "set": false
+                },
+                {
+                    "name": "deprel",
+                    "set": false
+                }
+            ]
+        },
+        "description": {
+            "eng": "Part of the Riksdag's open data",
+            "swe": "Riksdagens \u00f6ppna data: Kammaraktiviteter"
+        },
+        "name": {
+            "eng": "Kammaraktiviteter",
+            "swe": "Kammaraktiviteter"
+        }
+    },
+    "rd-sou": {
+        "attributes": {
+            "struct_attributes": {
+                "ne": [
+                    {
+                        "name": "ex",
+                        "set": false
+                    },
+                    {
+                        "name": "type",
+                        "set": false
+                    },
+                    {
+                        "name": "subtype",
+                        "set": false
+                    },
+                    {
+                        "name": "name",
+                        "set": false
+                    }
+                ]
+            },
+            "text_attributes": [
+                {
+                    "include_in_aggregation": true,
+                    "name": "datefrom",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "dateto",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "datatyp",
+                    "translation": {
+                        "anforande": "Anf\u00f6rande",
+                        "forslag": "F\u00f6rslag",
+                        "huvuddokument": "Huvuddokument",
+                        "utskottsforslag": "Utskottsf\u00f6rslag"
+                    }
+                },
+                {
+                    "name": "timefrom"
+                },
+                {
+                    "name": "timeto"
+                },
+                {
+                    "name": "vinnare"
+                },
+                {
+                    "name": "datum"
+                },
+                {
+                    "name": "subtitel",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "tumnagel"
+                },
+                {
+                    "name": "typ"
+                },
+                {
+                    "name": "anf_typ"
+                },
+                {
+                    "name": "behandlas_i"
+                },
+                {
+                    "name": "anf_rm"
+                },
+                {
+                    "name": "motforslag_partier"
+                },
+                {
+                    "name": "forslag"
+                },
+                {
+                    "name": "anf_hangar_id"
+                },
+                {
+                    "name": "startpos"
+                },
+                {
+                    "name": "anf_sekunder"
+                },
+                {
+                    "name": "intressent"
+                },
+                {
+                    "name": "punkt"
+                },
+                {
+                    "name": "datumtid"
+                },
+                {
+                    "name": "anf_video_id"
+                },
+                {
+                    "name": "anf_nummer"
+                },
+                {
+                    "name": "anf_klockslag"
+                },
+                {
+                    "name": "doktyp"
+                },
+                {
+                    "name": "tumnagel_stor"
+                },
+                {
+                    "name": "organ",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "subtyp"
+                },
+                {
+                    "name": "debattnamn"
+                },
+                {
+                    "name": "tempbeteckning"
+                },
+                {
+                    "name": "votering_ledamot_url_xml"
+                },
+                {
+                    "name": "relaterat_id"
+                },
+                {
+                    "name": "slutnummer"
+                },
+                {
+                    "name": "anf_beteckning"
+                },
+                {
+                    "name": "kammarbeslutstyp"
+                },
+                {
+                    "name": "source"
+                },
+                {
+                    "name": "utskottet"
+                },
+                {
+                    "name": "beteckning"
+                },
+                {
+                    "name": "rubrik"
+                },
+                {
+                    "name": "rm"
+                },
+                {
+                    "name": "video_url"
+                },
+                {
+                    "name": "publicerad"
+                },
+                {
+                    "name": "sourceid"
+                },
+                {
+                    "name": "video_id"
+                },
+                {
+                    "name": "anf_datum"
+                },
+                {
+                    "name": "titel"
+                },
+                {
+                    "name": "nummer"
+                },
+                {
+                    "name": "systemdatum"
+                },
+                {
+                    "name": "pretext"
+                },
+                {
+                    "name": "bet"
+                },
+                {
+                    "name": "lydelse"
+                },
+                {
+                    "name": "rubriker"
+                },
+                {
+                    "name": "utskottsforslag_url_xml"
+                },
+                {
+                    "name": "lydelse2"
+                },
+                {
+                    "name": "intressent_id"
+                },
+                {
+                    "name": "talare",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "motforslag_nummer"
+                },
+                {
+                    "name": "mottagare",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "htmlformat"
+                },
+                {
+                    "name": "votering_id"
+                },
+                {
+                    "name": "beslutstyp"
+                },
+                {
+                    "name": "status",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "hangar_id"
+                },
+                {
+                    "name": "dokument_url_html"
+                },
+                {
+                    "name": "parti",
+                    "include_in_aggregation": true
+                },
+                {
+                    "name": "dokument_url_text"
+                },
+                {
+                    "name": "kammaren"
+                }
+            ],
+            "word_attributes": [
+                {
+                    "name": "pos"
+                },
+                {
+                    "name": "msd"
+                },
+                {
+                    "name": "sense",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "compwf",
+                    "set": true
+                },
+                {
+                    "name": "complemgram",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "lemma",
+                    "set": true
+                },
+                {
+                    "name": "lemgram",
+                    "nodeName": "lex",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "prefix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "suffix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "ref",
+                    "set": false
+                },
+                {
+                    "name": "dephead",
+                    "set": false
+                },
+                {
+                    "name": "deprel",
+                    "set": false
+                }
+            ]
+        },
+        "description": {
+            "eng": "Part of the Riksdag's open data",
+            "swe": "Riksdagens \u00f6ppna data: Olika utredningars f\u00f6rslag till regeringen."
+        },
+        "name": {
+            "eng": "Statens offentliga utredningar",
+            "swe": "Statens offentliga utredningar"
+        }
+    },
+    "vivill": {
+        "attributes": {
+            "struct_attributes": {
+                "sentence": [
+                    {
+                        "name": "id",
+                        "set": false
+                    }
+                ]
+            },
+            "text_attributes": [
+                {
+                    "include_in_aggregation": true,
+                    "name": "datefrom",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "dateto",
+                    "type": "date"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "party",
+                    "translation": {
+                        "all": "Alliansen",
+                        "c": "Centerpartiet",
+                        "fi": "Feministiskt initiativ",
+                        "fp": "Folkpartiet liberalerna",
+                        "jr": "Jordbrukarnas riksf\u00f6rbund",
+                        "k_h": "Sveriges kommunistiska parti, H\u00f6glundarna",
+                        "k_k": "Sverges kommunistiska parti, Kilbommarna",
+                        "kd": "Kristdemokraterna",
+                        "la": "Lantmannapartiet",
+                        "labp": "Lantmanna- och borgarepartiet",
+                        "lisp": "Liberala samlingspartiet",
+                        "lp": "Sveriges liberala parti",
+                        "m": "Moderata samlingspartiet",
+                        "mp": "Milj\u00f6partiet de gr\u00f6na",
+                        "npf": "Nationella framstegspartiet",
+                        "nyd": "Ny demokrati",
+                        "pp": "Piratpartiet",
+                        "rg": "De r\u00f6dgr\u00f6na",
+                        "s": "Sveriges socialdemokratiska arbetareparti",
+                        "sd": "Sverigedemokraterna",
+                        "svp": "Sverges socialdemokratiska v\u00e4nsterparti",
+                        "v": "V\u00e4nsterpartiet"
+                    },
+                    "type": "enum"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "type",
+                    "type": "enum"
+                },
+                {
+                    "include_in_aggregation": true,
+                    "name": "year"
+                },
+                {
+                    "name": "timefrom"
+                },
+                {
+                    "name": "timeto"
+                }
+            ],
+            "word_attributes": [
+                {
+                    "name": "pos"
+                },
+                {
+                    "name": "msd"
+                },
+                {
+                    "name": "sense",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "compwf",
+                    "set": true
+                },
+                {
+                    "name": "complemgram",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "wid",
+                    "set": false
+                },
+                {
+                    "name": "lemgram",
+                    "nodeName": "lex",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "lemma",
+                    "set": true
+                },
+                {
+                    "name": "prefix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "suffix",
+                    "set": true,
+                    "type": "lemgram"
+                },
+                {
+                    "name": "ref",
+                    "set": false
+                },
+                {
+                    "name": "dephead",
+                    "set": false
+                },
+                {
+                    "name": "deprel",
+                    "set": false
+                }
+            ]
+        },
+        "description": {
+            "eng": "Swedish political party programs and election manifestos 1887-2010",
+            "swe": "Svenska partiprogram och valmanifest 1887-2010"
+        },
+        "name": {
+            "eng": "Swedish party programs and election manifestos",
+            "swe": "Svenska partiprogram och valmanifest"
+        }
+    },
+    "wikipedia": {
+        "attributes": {
+            "struct_attributes": {
+                "ne": [
+                    {
+                        "name": "ex",
+                        "set": false
+                    },
+                    {
+                        "name": "type",
+                        "set": false
+                    },
+                    {
+                        "name": "subtype",
+                        "set": false
+                    },
+                    {
+                        "name": "name",
+                        "set": false
+                    }
+                ],
+                "sentence": [
+                    {
+                        "name": "id",
+                        "set": false
+                    },
+                    {
+                        "index_in_text": false,
+                        "name": "geocontext",
+                        "nodeName": "_geocontext",
+                        "properties": {
+                            "country": {
+                                "type": "keyword",
+                                "value": ";(.*);.*;"
+                            },
+                            "geopoint": {
+                                "properties": {
+                                    "lat": {
+                                        "value": ";.*;(.*);"
+                                    },
+                                    "lon": {
+                                        "value": ".*;(.*)"
+                                    }
+                                },
+                                "type": "geopoint"
+                            },
+                            "place": {
+                                "type": "keyword",
+                                "value": "(.*);.*;.*;"
+                            }
+                        },
+                        "set": true
+                    }
+                ]
+            },
+            "text_attributes": [
+                {
+                    "name": "title"
+                },
+                {
+                    "name": "url"
+                }
+            ],
+            "word_attributes": [
+                {
+                    "name": "pos"
+                },
+                {
+                    "name": "msd"
+                },
+                {
+                    "name": "sense",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "compwf",
+                    "set": true
+                },
+                {
+                    "name": "complemgram",
+                    "ranked": true,
+                    "set": false
+                },
+                {
+                    "name": "wid",
+                    "set": false
+                },
+                {
+                    "name": "lemgram",
+                    "nodeName": "lex",
+                    "type": "lemgram",
+                    "set": true
+                }
+            ]
+        },
+        "description": {
+            "eng": "Corpus of Swedish Wikipedia",
+            "swe": "Svenska Wikipedia-korpusen"
+        },
+        "name": {
+            "eng": "Swedish Wikipedia Corpus",
+            "swe": "Svenska Wikipedia-korpusen"
+        }
+    }
+}

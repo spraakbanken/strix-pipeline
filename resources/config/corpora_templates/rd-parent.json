@@ -1,0 +1,19 @@
+{
+    "parents": ["name_tagging", "time", "base", "dep", "sense"],
+    "analyze_config": {
+        "text_attributes": ["datatyp"]
+    },
+    "title": [
+        {
+            "title": "titel"
+        },
+        {
+            "keys": [
+                "datatyp"
+            ],
+            "pattern": "{datatyp}"
+        }
+    ],
+    "file_name_pattern": "*.xml",
+    "document_id": "generated"
+}

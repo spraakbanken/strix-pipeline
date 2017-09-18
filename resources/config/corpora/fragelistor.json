@@ -1,0 +1,25 @@
+{
+    "parents": ["name_tagging", "time", "base", "dep", "sense"],
+    "analyze_config": {
+        "struct_attributes": {
+            "document": ["id"]
+        },
+        "text_attributes": ["topicid", "topicname", "source", "year", "amount_answers", "author_signature", "_id"],
+        "word_attributes": ["sentiment"]
+    },
+    "corpus_id": "fragelistor",
+    "title": [{
+        "title": "topicname"
+    }],
+    "corpus_name": {
+        "swe": "Etnologiska frågelistor",
+        "eng": "Ethnological question lists"
+    },
+    "translation": {},
+    "file_name_pattern": "*.xml",
+    "corpus_description": {
+        "swe": "Nordiska museets frågelistor",
+        "eng": "Question lists of the Nordic Museum"
+    },
+    "document_id": "_id"
+}

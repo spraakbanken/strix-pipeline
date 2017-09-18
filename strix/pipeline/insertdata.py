@@ -51,7 +51,7 @@ class InsertData:
         else:
             found = False
             for text_attr in self.corpus_conf["analyze_config"]["text_attributes"]:
-                if text_attr["name"] == id_strategy:
+                if text_attr == id_strategy:
                     found = True
             if not found:
                 raise ValueError("\"" + id_strategy + "\" is not a text attribute, not possible to use for IDs")
@@ -88,14 +88,18 @@ class InsertData:
         return tasks, time.time() - process_t
 
     def process_work(self, task_id, task, _):
-        word_annotations = {"w": self.corpus_conf["analyze_config"]["word_attributes"]}
-        struct_annotations = self.corpus_conf["analyze_config"]["struct_attributes"]
+        word_annotations = {"w": [corpusconf.get_word_attribute(attr_name) for attr_name in self.corpus_conf["analyze_config"]["word_attributes"]]}
+        struct_annotations =  {}
+        for node_name, attr_names in self.corpus_conf["analyze_config"]["struct_attributes"].items():
+            struct_annotations[node_name] = [corpusconf.get_struct_attribute(attr_name) for attr_name in attr_names]
+
         text_attributes = {}
         remove_later = []
-        for text_attribute in self.corpus_conf["analyze_config"]["text_attributes"]:
-            text_attributes[text_attribute["name"]] = text_attribute
-            if "ignore" in text_attribute and text_attribute["ignore"]:
-                remove_later.append(text_attribute["name"])
+        for attr_name in self.corpus_conf["analyze_config"]["text_attributes"]:
+            text_attribute = corpusconf.get_text_attribute(attr_name)
+            text_attributes[attr_name] = text_attribute
+            if text_attribute.get("ignore", False):
+                remove_later.append(attr_name)
 
         split_document = "text"
         file_name = task["text"]

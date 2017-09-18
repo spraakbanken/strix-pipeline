@@ -553,6 +553,12 @@ def get_config(only_ids=False):
         names = config_json["corpus_name"]
         descriptions = config_json.get("corpus_description")
         analyze_config = config_json["analyze_config"]
+
+        analyze_config["word_attributes"] = [corpusconf.get_word_attribute(word_attr)for word_attr in analyze_config["word_attributes"]]
+        analyze_config["text_attributes"] = [corpusconf.get_text_attribute(word_attr) for word_attr in analyze_config["text_attributes"]]
+        for struct_node, struct_attrs in analyze_config["struct_attributes"].items():
+            analyze_config["struct_attributes"][struct_node] = [corpusconf.get_struct_attribute(word_attr) for word_attr in struct_attrs]
+
         indices[index] = {
             "name": names,
             "description": descriptions,
@@ -620,6 +626,12 @@ def get_most_common_text_attributes(corpora, facet_count, include_facets):
                     supported_text_attributes[text_attribute] = (supported_text_attributes[text_attribute][0] + 1, supported_text_attributes[text_attribute][1])
                 else:
                     supported_text_attributes[text_attribute] = (1, value)
+
+    def sort_facets(facets):
+        tmp = sorted(facets.items(), key=lambda x: x[1][1]["name"])
+        tmp = sorted(tmp, key=lambda x: x[1][0], reverse=True)
+        return [(text_attribute, attr_type[1]) for (text_attribute, attr_type) in tmp]
+
     if include_facets:
         all_attributes = []
         for facet in include_facets:
@@ -628,11 +640,9 @@ def get_most_common_text_attributes(corpora, facet_count, include_facets):
                 del supported_text_attributes[facet]
             else:
                 facet_count -= 1
-        tmp = sorted(supported_text_attributes.items(), key=lambda x: x[1][0], reverse=True)
-        all_attributes.extend([(text_attribute, attr_type[1]) for (text_attribute, attr_type) in tmp])
+        all_attributes.extend(sort_facets(supported_text_attributes))
     else:
-        tmp = sorted(supported_text_attributes.items(), key=lambda x: x[1][0], reverse=True)
-        all_attributes = [(text_attribute, attr_type[1]) for (text_attribute, attr_type) in tmp]
+        all_attributes = sort_facets(supported_text_attributes)
     return all_attributes[0:facet_count], [x[0] for x in all_attributes[facet_count:]]
 
 

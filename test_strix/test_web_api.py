@@ -87,7 +87,7 @@ class WebApiTest(unittest.TestCase):
         assert result["hits"] == 0
 
     def check_doc_text_attributes(self, doc):
-        text_attributes = [obj["name"] for obj in WebApiTest.corpus_config["analyze_config"]["text_attributes"]]
+        text_attributes = [attr_name for attr_name in WebApiTest.corpus_config["analyze_config"]["text_attributes"]]
         for text_attribute in text_attributes:
             assert doc["text_attributes"][text_attribute]
 

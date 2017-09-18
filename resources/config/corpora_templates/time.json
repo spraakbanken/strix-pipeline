@@ -1,0 +1,10 @@
+{
+    "analyze_config": {
+        "text_attributes": [
+            "datefrom",
+            "dateto",
+            "timefrom",
+            "timeto"
+        ]
+    }
+}

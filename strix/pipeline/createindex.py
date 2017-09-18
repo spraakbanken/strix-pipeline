@@ -21,18 +21,20 @@ class CreateIndex:
 
         corpus_config = corpusconf.get_corpus_conf(index)
         self.word_attributes = []
-        for attr in corpus_config["analyze_config"]["word_attributes"]:
-            self.word_attributes.append(attr)
+        for attr_name in corpus_config["analyze_config"]["word_attributes"]:
+            self.word_attributes.append(corpusconf.get_word_attribute(attr_name))
         self.fixed_structs = []
         for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
-            for attr in attributes:
+            for attr_name in attributes:
+                attr = corpusconf.get_struct_attribute(attr_name)
                 if attr.get("index_in_text", True):
                     new_attr = dict(attr)
                     new_attr["name"] = node_name + "_" + attr["name"]
                     self.word_attributes.append(new_attr)
                 else:
                     self.fixed_structs.append((node_name, attr))
-        self.text_attributes = filter(lambda x: not x["ignore"] if "ignore" in x else True, corpus_config["analyze_config"]["text_attributes"])
+        text_attributes = [corpusconf.get_text_attribute(attr_name) for attr_name in corpus_config["analyze_config"]["text_attributes"]]
+        self.text_attributes = filter(lambda x: not x.get("ignore", False), text_attributes)
         self.alias = index
 
     def create_index(self):

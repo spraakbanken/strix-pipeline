@@ -1,0 +1,49 @@
+{
+    "ne_ex": {
+        "set": false,
+        "name": "ex"
+    },
+    "ne_type": {
+        "set": false,
+        "name": "type"
+    },
+    "ne_subtype": {
+        "set": false,
+        "name": "subtype"
+    },
+    "ne_name": {
+        "set": false,
+        "name": "name"
+    },
+    "id": {
+        "name": "id",
+        "set": false
+    },
+    "geocontext": {
+        "name": "geocontext",
+        "nodeName": "_geocontext",
+        "set": true,
+        "index_in_text": false,
+        "properties": {
+            "country": {
+                "value": ";(.*);.*;",
+                "type": "keyword"
+            },
+            "place": {
+                "value": "(.*);.*;.*;",
+                "type": "keyword"
+            },
+            "geopoint": {
+                "type": "geopoint",
+                "properties": {
+                    "lat": {
+                        "value": ";.*;(.*);"
+                    },
+                    "lon": {
+                        "value": ".*;(.*)"
+                    }
+                }
+            }
+        }
+    }
+}

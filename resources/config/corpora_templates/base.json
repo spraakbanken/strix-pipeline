@@ -1,0 +1,12 @@
+{
+    "analyze_config": {
+        "word_attributes": [
+            "pos",
+            "lemma",
+            "lemgram",
+            "prefix",
+            "suffix",
+            "msd"
+        ]
+    }
+}

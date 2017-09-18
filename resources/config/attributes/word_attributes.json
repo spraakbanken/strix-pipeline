@@ -1,0 +1,67 @@
+{
+    "pos": {
+        "name": "pos"
+    },
+    "msd": {
+        "name": "msd"
+    },
+    "sense": {
+        "set": false,
+        "name": "sense",
+        "ranked": true
+    },
+    "compwf": {
+        "set": true,
+        "name": "compwf"
+    },
+    "complemgram": {
+        "set": false,
+        "name": "complemgram",
+        "ranked": true
+    },
+    "lemma": {
+        "set": true,
+        "name": "lemma"
+    },
+    "lemgram": {
+        "set": true,
+        "nodeName": "lex",
+        "name": "lemgram",
+        "type": "lemgram"
+    },
+    "prefix": {
+        "set": true,
+        "name": "prefix",
+        "type": "lemgram"
+    },
+    "suffix": {
+        "set": true,
+        "name": "suffix",
+        "type": "lemgram"
+    },
+    "ref": {
+        "set": false,
+        "name": "ref"
+    },
+    "dephead": {
+        "set": false,
+        "name": "dephead"
+    },
+    "deprel": {
+        "set": false,
+        "name": "deprel"
+    },
+    "blingbring": {
+        "name": "blingbring",
+        "set": true
+    },
+    "sentiment": {
+        "name": "sentiment",
+        "type": "double",
+        "interval": "0.1"
+    },
+    "wid": {
+        "name": "wid",
+        "set": false
+    }
+}

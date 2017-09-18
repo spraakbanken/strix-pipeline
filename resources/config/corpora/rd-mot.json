@@ -1,0 +1,50 @@
+{
+    "parents": ["rd-parent"],
+    "analyze_config": {
+        "struct_attributes": {},
+        "text_attributes": [
+            "timefrom",
+            "timeto",
+            "datum",
+            "subtitel",
+            "typ",
+            "rubriker",
+            "behandlas_i",
+            "intressent",
+            "lydelse",
+            "doktyp",
+            "organ",
+            "subtyp",
+            "debattnamn",
+            "tempbeteckning",
+            "slutnummer",
+            "kammarbeslutstyp",
+            "source",
+            "utskottet",
+            "beteckning",
+            "rm",
+            "publicerad",
+            "sourceid",
+            "titel",
+            "nummer",
+            "systemdatum",
+            "lydelse2",
+            "pretext",
+            "htmlformat",
+            "status",
+            "hangar_id",
+            "dokument_url_html",
+            "dokument_url_text",
+            "kammaren"
+        ]
+    },
+    "corpus_id": "rd-mot",
+    "corpus_name": {
+        "swe": "Motion",
+        "eng": "Motion"
+    },
+    "corpus_description": {
+        "swe": "Riksdagens öppna data: Motioner från riksdagens ledamöter.",
+        "eng": "Part of the Riksdag's open data"
+    }
+}
