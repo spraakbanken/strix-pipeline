@@ -6,7 +6,7 @@
         "name": "msd"
     },
     "sense": {
-        "set": false,
+        "set": true,
         "name": "sense",
         "ranked": true
     },
@@ -15,7 +15,7 @@
         "name": "compwf"
     },
     "complemgram": {
-        "set": false,
+        "set": true,
         "name": "complemgram",
         "ranked": true
     },
