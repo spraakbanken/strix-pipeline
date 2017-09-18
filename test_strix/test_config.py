@@ -62,7 +62,6 @@ def check_corpus_content(corpus_id, last_config, current_config):
                 assert attr_value.get(attr, None) == last_struct_attributes[attr_name].get(attr, None), msg
 
 
-
 # Diff config against latest versions
 class ConfigTest(unittest.TestCase):
 
