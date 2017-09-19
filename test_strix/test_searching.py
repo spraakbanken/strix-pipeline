@@ -89,3 +89,15 @@ class FacetetSearchTest(unittest.TestCase):
     def test_search_corpus_id2(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"det är en\"&text_filter={\"corpus_id\": [\"rd-sou\", \"vivill\"]}")
         assert result["hits"] == 30
+
+    def test_search_double_type1(self):
+        result = self.do_request("/search?exclude=dump,lines&text_filter={\"lix\": [20, 40]}")
+        assert result["hits"] == 6112
+
+    def test_search_double_type2(self):
+        result = self.do_request("/search?exclude=dump,lines&text_filter={\"lix\": [40]}")
+        assert result["hits"] == 1002
+
+    def test_search_double_type3(self):
+        result = self.do_request("/search?exclude=dump,lines&text_filter={\"lix\": 40}")
+        assert result["hits"] == 1002
