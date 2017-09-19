@@ -91,7 +91,8 @@ def get_search_query(text_query_field, text_query, text_filter, include_alternat
         use_highlight = False
 
     if add_fuzzy_query:
-        search_queries.append(Q("fuzzy", title={"value": text_query, "boost": 50}))
+        for term in tokenize_search_string(text_query):
+            search_queries.append(Q("fuzzy", title={"value": term[0], "boost": 50}))
     return join_queries(text_filter, search_queries), use_highlight
 
 
@@ -379,7 +380,7 @@ def analyze_and_create_span_query(search_term, word_form_only=False):
         word = term[0]
         term_word_form_only = term[1]
         words.append(word)
-        if not (term_word_form_only or ("*" in word)):
+        if (not word_form_only) and (not (term_word_form_only or ("*" in word))):
             lemgrams.extend(res[word])
         tokens.append({"lemgram": lemgrams, "word": words})
     return create_span_query(tokens)
