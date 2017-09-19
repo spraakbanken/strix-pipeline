@@ -1,7 +1,7 @@
 import time
 
 from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date, GeoPoint, Nested, Double
-from strix.pipeline.mappingutil import annotation_analyzer, get_standard_analyzer, get_swedish_analyzer, similarity_tags_analyzer
+import strix.pipeline.mappingutil as mappingutil
 from strix.config import config
 import strix.corpusconf as corpusconf
 import elasticsearch
@@ -117,21 +117,21 @@ class CreateIndex:
         m.meta("_source", excludes=["text"])
 
         text_field = Text(
-            analyzer=get_standard_analyzer(),
+            analyzer=mappingutil.get_standard_analyzer(),
             fields={
-                "wid": Text(analyzer=annotation_analyzer("wid")),
+                "wid": Text(analyzer=mappingutil.annotation_analyzer("wid")),
             }
         )
 
         for attr in self.word_attributes:
             annotation_name = attr["name"]
             if "ranked" in attr and attr["ranked"]:
-                text_field.fields[annotation_name] = Text(analyzer=annotation_analyzer(annotation_name, is_set=False))
+                text_field.fields[annotation_name] = Text(analyzer=mappingutil.annotation_analyzer(annotation_name, is_set=False))
                 annotation_name += "_alt"
                 is_set = True
             else:
                 is_set = attr.get("set", False)
-            text_field.fields[annotation_name] = Text(analyzer=annotation_analyzer(annotation_name, is_set=is_set))
+            text_field.fields[annotation_name] = Text(analyzer=mappingutil.annotation_analyzer(annotation_name, is_set=is_set))
 
         m.field("text", text_field)
 
@@ -149,12 +149,13 @@ class CreateIndex:
         m.field("dump", Keyword(index=False, doc_values=False))
         m.field("lines", Object(enabled=False))
         m.field("word_count", Integer())
-        m.field("similarity_tags", Text(analyzer=similarity_tags_analyzer(), term_vector="yes"))
+        m.field("similarity_tags", Text(analyzer=mappingutil.similarity_tags_analyzer(), term_vector="yes"))
 
         title_field = Text(
-            analyzer=get_swedish_analyzer(),
+            analyzer=mappingutil.get_whitespace_analyzer(),
             fields={
-                "raw": Keyword()
+                "raw": Keyword(),
+                "analyzed": Text(analyzer=mappingutil.get_swedish_analyzer())
             }
         )
         m.field("title", title_field)
