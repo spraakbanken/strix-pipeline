@@ -152,7 +152,7 @@ def get_text_filters(text_filter):
                     raise ValueError("Operator: " + key + " not supported by range query")
             filter_clauses[k] = Q("range", **{k: v["range"]})
         elif attr.get("type", None) == "double":
-            query_range = {"lte": v + attr.get("interval", 20), "gte": v}
+            query_range = {"lt": v + attr.get("interval", 20), "gte": v}
             filter_clauses[k] = Q("range", **{k: query_range})
         else:
             raise ValueError("Expression " + str(v) + " for key " + k + " is not allowed")
