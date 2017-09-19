@@ -26,11 +26,11 @@ def annotation_analyzer(annotation_name, is_set=False, remove_alternatives=True)
     return analysis.analyzer(analyzer_name, tokenizer=pattern_tokenizer(), filter=token_filters)
 
 
-def get_whitespace_analyzer():
-    return analyzer("whitespace", tokenizer="whitespace", filter=["lowercase"])
-
-
 def get_standard_analyzer():
+    return analyzer("standard", tokenizer="standard", filter=["lowercase"])
+
+
+def get_token_annotation_analyzer():
     """
     uses pattern_capture token filter to change input from FrAmTiD|wid=12|page=3|| to token "framtid"
     """

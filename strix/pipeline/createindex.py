@@ -117,7 +117,7 @@ class CreateIndex:
         m.meta("_source", excludes=["text"])
 
         text_field = Text(
-            analyzer=mappingutil.get_standard_analyzer(),
+            analyzer=mappingutil.get_token_annotation_analyzer(),
             fields={
                 "wid": Text(analyzer=mappingutil.annotation_analyzer("wid")),
             }
@@ -152,7 +152,7 @@ class CreateIndex:
         m.field("similarity_tags", Text(analyzer=mappingutil.similarity_tags_analyzer(), term_vector="yes"))
 
         title_field = Text(
-            analyzer=mappingutil.get_whitespace_analyzer(),
+            analyzer=mappingutil.get_standard_analyzer(),
             fields={
                 "raw": Keyword(),
                 "analyzed": Text(analyzer=mappingutil.get_swedish_analyzer())

@@ -21,7 +21,7 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_quote_search(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"bok\"&corpora=fragelistor,rd-eun,rd-flista,rd-kammakt,vivill,wikipedia,rd-sou")
-        assert result["hits"] == 7
+        assert result["hits"] == 8
         for hit in result["data"]:
             for highlight in hit["highlight"]["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "bok"
@@ -40,7 +40,7 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_multi_word_quote_search(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"var en svensk\"&from=0&to=50")
-        assert result["hits"] == 32
+        assert result["hits"] == 772
         for hit in result["data"]:
             for highlight in hit["highlight"]["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "var"
@@ -49,7 +49,7 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_multi_word_quote_search2(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"det är en\"&corpora=vivill")
-        assert result["hits"] == 23
+        assert result["hits"] == 28
         for hit in result["data"]:
             for highlight in hit["highlight"]["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "det"
@@ -58,7 +58,7 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_multi_word_quote_search3(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"det är\" en&corpora=vivill")
-        assert result["hits"] == 31
+        assert result["hits"] == 35
         found_de = False
         found_en = False
         found_den = False
@@ -84,8 +84,8 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_search_corpus_id1(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"det är en\"&text_filter={\"corpus_id\": \"vivill\"}")
-        assert result["hits"] == 23
+        assert result["hits"] == 28
 
     def test_search_corpus_id2(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"det är en\"&text_filter={\"corpus_id\": [\"rd-sou\", \"vivill\"]}")
-        assert result["hits"] == 25
+        assert result["hits"] == 30
