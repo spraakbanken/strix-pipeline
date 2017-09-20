@@ -92,7 +92,7 @@ def get_search_query(text_query_field, text_query, text_filter, include_alternat
 
     if add_fuzzy_query:
         for term in tokenize_search_string(text_query):
-            search_queries.append(Q("fuzzy", title={"value": term[0], "boost": 50}))
+            search_queries.append(Q("fuzzy", title={"value": term[0], "boost": 3}))
     return join_queries(text_filter, search_queries), use_highlight
 
 
