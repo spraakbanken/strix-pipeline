@@ -338,8 +338,8 @@
         "include_in_aggregation": true,
         "name": "parti",
         "translation_name": {
-            "eng": "party",
-            "swe": "parti"
+            "eng": "party - RD",
+            "swe": "parti - RD"
         }
     },
     "party": {
