@@ -4,7 +4,7 @@ import itertools
 import hashlib
 import strix.pipeline.xmlparser as xmlparser
 import time
-import strix.pipeline.idgenerator as idgenerator
+import uuid
 import strix.corpusconf as corpusconf
 
 _logger = logging.getLogger(__name__)
@@ -32,21 +32,8 @@ class InsertData:
                 return task_id
             get_id = task_id_fun
         elif id_strategy == "generated":
-            def get_id_generator():
-                ids = None
-                while True:
-                    if ids is None:
-                        ids = idgenerator.get_id_sequence(self.index, doc_count)
-                    try:
-                        yield str(next(ids))
-                    except StopIteration:
-                        ids = None
-
-            id_generator = get_id_generator()
-
             def generated_id(_, __):
-                return next(id_generator)
-
+                return uuid.uuid4()
             get_id = generated_id
         else:
             found = False

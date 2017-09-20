@@ -10,7 +10,6 @@ from strix.config import config
 import strix.pipeline.insertdata as insert_data_strix
 import strix.pipeline.createindex as create_index_strix
 import strix.pipeline.runhistory
-import strix.pipeline.idgenerator as idgenerator
 import logging
 import queue
 import datetime
@@ -237,14 +236,10 @@ def do_run(index, doc_ids=(), limit_to=None):
     strix.pipeline.runhistory.create()
     before_t = time.time()
 
-    idgenerator.create_sequence_index()
-
     ci = create_index_strix.CreateIndex(index)
     ci.enable_insert_settings()
     process_corpus(index, limit_to=limit_to, doc_ids=doc_ids)
     ci.enable_postinsert_settings()
-
-    idgenerator.remove_sequence_index()
 
     total_t = time.time() - before_t
     strix.pipeline.runhistory.put({
