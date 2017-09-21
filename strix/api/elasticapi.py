@@ -14,9 +14,9 @@ es = connections.create_connection(hosts=config.elastic_hosts if config.has_attr
 _logger = logging.getLogger(__name__)
 
 
-def search(doc_type, corpora=(), text_query_field=None, text_query=None, includes=(), excludes=(), size=None, highlight=None,
-           text_filter=None, simple_highlight=False, token_lookup_size=None, include_alternatives=False):
-    query, use_highlight = get_search_query(text_query_field, text_query, text_filter, include_alternatives)
+def search(doc_type, corpora=(), text_query=None, includes=(), excludes=(), size=None, highlight=None,
+           text_filter=None, simple_highlight=False, token_lookup_size=None):
+    query, use_highlight = get_search_query(text_query, text_filter)
     if not use_highlight:
         highlight = None
 
@@ -29,9 +29,9 @@ def search(doc_type, corpora=(), text_query_field=None, text_query=None, include
     return res
 
 
-def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_field=None, text_query=None, text_filter=None,
+def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query=None, text_filter=None,
                           relevance_function="more_like_this", min_term_freq=1, max_query_terms=30, includes=(), excludes=(),
-                          size=None, token_lookup_size=None, include_alternatives=False):
+                          size=None, token_lookup_size=None):
     related_query = None
     s = Search(index=corpus, doc_type=doc_type)
     s = s.query(Q("term", doc_id=doc_id))
@@ -60,7 +60,7 @@ def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_fie
             raise RuntimeError("No document with ID " + doc_id)
 
     if related_query:
-        doc_query, _ = get_search_query(text_query_field, text_query, text_filter, include_alternatives=include_alternatives)
+        doc_query, _ = get_search_query(text_query, text_filter)
         if doc_query:
             related_query = Q("bool", must=[related_query], filter=[doc_query])
 
@@ -74,7 +74,15 @@ def get_related_documents(corpus, doc_type, doc_id, corpora=None, text_query_fie
         return {}
 
 
-def get_search_query(text_query_field, text_query, text_filter, include_alternatives=False):
+def get_search_query(text_query_obj, text_filter):
+    if text_query_obj is None:
+        text_query_obj = {}
+
+    text_query_field = text_query_obj.get("text_query_field", None)
+    include_alternatives = text_query_obj.get("include_alternatives", False)
+    in_order = text_query_obj.get("in_order", True)
+    text_query = text_query_obj.get("text_query", None)
+
     add_fuzzy_query = False
     search_queries = []
     if text_query:
@@ -84,7 +92,7 @@ def get_search_query(text_query_field, text_query, text_filter, include_alternat
                 text_query_field = text_query_field + "_alt"
             search_queries.append(Q("span_term", **{"text." + text_query_field: text_query}))
         else:
-            query = analyze_and_create_span_query(text_query)
+            query = analyze_and_create_span_query(text_query, in_order=in_order)
             search_queries.append(query)
             add_fuzzy_query = True
     else:
@@ -370,7 +378,7 @@ def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None, 
     return term_index
 
 
-def analyze_and_create_span_query(search_term, word_form_only=False):
+def analyze_and_create_span_query(search_term, word_form_only=False, in_order=True):
     tokens = []
     terms = tokenize_search_string(search_term)
     if not word_form_only:
@@ -386,7 +394,10 @@ def analyze_and_create_span_query(search_term, word_form_only=False):
         if (not word_form_only) and (not (term_word_form_only or ("*" in word))):
             lemgrams.extend(res[word])
         tokens.append({"lemgram": lemgrams, "word": words})
-    return create_span_query(tokens)
+    if in_order:
+        return create_span_query(tokens)
+    else:
+        return create_span_query_keyword(tokens)
 
 
 def tokenize_search_string(search_term):
@@ -518,6 +529,28 @@ def create_span_query(tokens):
     else:
         query = span_terms[0]
     return query
+
+
+def create_span_query_keyword(tokens):
+    must_clauses = []
+    for token_dict in tokens:
+        or_clauses = []
+        if token_dict["lemgram"]:
+            for lemgram in token_dict["lemgram"]:
+                or_clauses.append(Q("span_term", **{"text.lemgram": lemgram.lower()}))
+        if token_dict["word"]:
+            for word in token_dict["word"]:
+                if "*" in word:
+                    or_clauses.append(mask_field(Q("span_multi", match={"wildcard": {"text": {"value": word}}}), field="text.lemgram"))
+                else:
+                    or_clauses.append(mask_field(Q("span_term", **{"text": word}), field="text.lemgram"))
+        if len(or_clauses) > 1:
+            query = Q("bool", should=or_clauses, minimum_should_match=1)
+        else:
+            query = or_clauses[0]
+        must_clauses.append(query)
+
+    return Q("bool", must=must_clauses)
 
 
 def span_and(queries):
@@ -655,8 +688,8 @@ def get_most_common_text_attributes(corpora, facet_count, include_facets):
     return all_attributes[0:facet_count], [x[0] for x in all_attributes[facet_count:]]
 
 
-def get_aggs(corpora=(), text_query_field=None, text_query=None, text_filter=None, facet_count=4, include_facets=(),
-             min_doc_count=0, include_alternatives=False):
+def get_aggs(corpora=(), text_query=None, text_filter=None, facet_count=4, include_facets=(),
+             min_doc_count=0):
     if len(corpora) == 0:
         raise ValueError("Something went wrong")
 
@@ -669,7 +702,7 @@ def get_aggs(corpora=(), text_query_field=None, text_query=None, text_filter=Non
     corpora_search = corpora_search.query(Q("bool", filter=list(text_filters.values())))
     corpora_search.aggs.bucket("corpus_id", "terms", field="corpus_id", size=ALL_BUCKETS)
     corpora_search = corpora_search[0:0]
-    doc_query, _ = get_search_query(text_query_field, text_query, text_filter, include_alternatives=include_alternatives)
+    doc_query, _ = get_search_query(text_query, text_filter)
     if doc_query:
         corpora_search = corpora_search.query(doc_query)
     result = corpora_search.execute().to_dict()
@@ -679,7 +712,7 @@ def get_aggs(corpora=(), text_query_field=None, text_query=None, text_filter=Non
     use_text_attributes.append(("corpus_id", {"type": "keyword"}))
 
     s = Search(index="*", doc_type="text")
-    doc_query, _ = get_search_query(text_query_field, text_query, {}, include_alternatives=include_alternatives)
+    doc_query, _ = get_search_query(text_query, {})
     date_aggs = []
     for (text_attribute, attr_settings) in use_text_attributes:
         filters = [value for text_filter, value in text_filters.items() if text_filter != text_attribute]

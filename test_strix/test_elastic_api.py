@@ -15,19 +15,19 @@ connections.create_connection(hosts=["localhost"], timeout=120)
 class ElasticApiTest(unittest.TestCase):
 
     def test_empty_search(self):
-        result = api.search("text", corpora="vivill", text_query="foobar")
+        result = api.search("text", corpora="vivill", text_query={"text_query": "foobar"})
         assert result['data'] == []
         assert result['hits'] == 0
 
     def test_simple_search(self):
-        result = api.search("text", corpora="vivill", text_query="hund", highlight={'number_of_fragments': 1})
+        result = api.search("text", corpora="vivill", text_query={"text_query": "hund"}, highlight={'number_of_fragments': 1})
         assert result['hits'] == 1
         item = result['data'][0]
         assert item["text_attributes"]['party'] != ''
         assert "hund" in item['highlight']['highlight'][0]['match'][0]['word']
 
     def test_simple_search_excludes(self):
-        result = api.search("text", corpora="vivill", text_query="hund", excludes=['dump'])
+        result = api.search("text", corpora="vivill", text_query={"text_query": "hund"}, excludes=['dump'])
         assert result['hits'] == 1
         item = result['data'][0]
         with pytest.raises(KeyError):
@@ -35,7 +35,7 @@ class ElasticApiTest(unittest.TestCase):
 
     def test_search_wrong_doc_type(self):
         doc_type = "asdf"
-        result = api.search(doc_type, corpora="vivill", text_query="hund")
+        result = api.search(doc_type, corpora="vivill", text_query={"text_query": "hund"})
         assert result['hits'] == 0
 
     def test_paging(self):

@@ -54,19 +54,25 @@ def get_material_selection(request_obj):
 
 
 def get_search(request_obj):
+    text_query_obj = {}
     can_use_highlight = False
     if "text_query" in request.args:
         # TODO remove lowercase-filter in mappingutil, then remove this
-        request_obj["text_query"] = request.args.get("text_query").lower()
+        text_query_obj["text_query"] = request.args.get("text_query").lower()
         can_use_highlight = True
 
     if "text_query_field" in request.args:
-        request_obj["text_query_field"] = request.args.get("text_query_field").replace(".", "_")
+        text_query_obj["text_query_field"] = request.args.get("text_query_field").replace(".", "_")
 
     if "include_alternatives" in request.args:
-        request_obj["include_alternatives"] = True
+        text_query_obj["include_alternatives"] = True
     else:
-        request_obj["include_alternatives"] = False
+        text_query_obj["include_alternatives"] = False
+
+    if "in_order" in request.args:
+        text_query_obj["in_order"] = request.args.get("in_order") == "true"
+
+    request_obj["text_query"] = text_query_obj
 
     return can_use_highlight
 
