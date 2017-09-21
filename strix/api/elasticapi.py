@@ -532,6 +532,7 @@ def create_span_query(tokens):
 
 
 def create_span_query_keyword(tokens):
+    phrase_query = create_span_query(tokens)
     must_clauses = []
     for token_dict in tokens:
         or_clauses = []
@@ -550,7 +551,7 @@ def create_span_query_keyword(tokens):
             query = or_clauses[0]
         must_clauses.append(query)
 
-    return Q("bool", must=must_clauses)
+    return Q("bool", should=[Q("bool", must=must_clauses), phrase_query])
 
 
 def span_and(queries):
