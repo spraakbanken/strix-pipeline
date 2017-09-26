@@ -425,15 +425,18 @@ def tokenize_search_string(search_term):
 
 
 def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None, forward=True, text_query=None,
-                       text_query_field=None, includes=(), excludes=(), token_lookup_size=None, include_alternatives=False):
+                       includes=(), excludes=(), token_lookup_size=None):
+    text_query_field = text_query.get("text_query_field", None)
+    text_query_text = text_query.get("text_query", None)
+    include_alternatives = text_query.get("include_alternatives", False)
     s = Search(index=corpus, doc_type=doc_type)
     id_query = Q("term", doc_id=doc_id)
-    if text_query_field and text_query:
+    if text_query_field and text_query_text:
         if include_alternatives and corpusconf.is_ranked(text_query_field):
             text_query_field = text_query_field + "_alt"
-        span_query = Q("span_term", **{"text." + text_query_field: text_query})
-    elif text_query:
-        span_query = analyze_and_create_span_query(text_query)
+        span_query = Q("span_term", **{"text." + text_query_field: text_query_text})
+    elif text_query_text:
+        span_query = analyze_and_create_span_query(text_query_text)
     else:
         span_query = None
     if span_query:
