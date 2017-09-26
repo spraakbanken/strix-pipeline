@@ -7,6 +7,7 @@ from strix.config import config
 import strix.corpusconf as corpusconf
 import strix.api.karp as karp
 from strix.api.elasticapihelpers import page_size
+import strix.api.highlighting as highlighting
 
 ALL_BUCKETS = "2147483647"
 
@@ -120,12 +121,7 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
     for hit in hits:
         hit_corpus = corpus_id_to_alias(hit.meta.index)
         item = hit.to_dict()
-        if highlight or simple_highlight:
-            highlights = process_hit(hit_corpus, hit, 5, include_annotations=not simple_highlight)
-            if simple_highlight:
-                item["highlight"] = process_simple_highlight(highlights)
-            else:
-                item["highlight"] = highlights
+        highlighting.highlight_search(hit_corpus, hit, item, highlight=highlight, simple_highlight=simple_highlight)
 
         if "doc_id" in item:
             item["doc_id"] = hit["doc_id"]
@@ -255,129 +251,6 @@ def put_document(index, doc_type, doc):
     return es.index(index=index, doc_type=doc_type, body=doc)
 
 
-def process_hit(corpus, hit, context_size, include_annotations=True):
-    """
-    takes a hit and extracts positions from highlighting and extracts
-    tokens + attributes using termvectors (to be replaced with something more effective)
-    :param corpus: the corpus of the hit
-    :param hit: a non-parsed hit that has used the strix-highlighting
-    :param context_size: how many tokens should be shown to each side of the highlight
-    :param include_annotations: if all annotations should be returned or just word + whitespace
-    :return: hit-element with added highlighting
-    """
-    doc_id = hit["doc_id"]
-    doc_type = hit.meta.doc_type
-
-    if hasattr(hit.meta, "highlight"):
-        highlights = get_highlights(corpus, doc_id, doc_type, hit.meta.highlight.positions, context_size, include_annotations=include_annotations)
-    else:
-        highlights = []
-
-    return {
-        "highlight": highlights,
-        "total_doc_highlights": len(highlights),
-        "doc_id": doc_id
-    }
-
-
-def process_simple_highlight(highlights):
-    result = []
-
-    def get_whitespace(token):
-        return token.get("whitespace", "").replace("\n", " ")
-
-    def get_token(token, sep=""):
-        return token["word"] + sep + get_whitespace(token)
-
-    def stringify(highlight_part):
-        return "".join([get_token(token) for token in highlight_part])
-
-    for highlight in highlights["highlight"]:
-        left = stringify(highlight["left_context"])
-        match_start = "<em>" + stringify(highlight["match"][0:len(highlight["match"]) - 1])
-        match_end = get_token(highlight["match"][-1], sep="</em>")
-        right = stringify(highlight["right_context"])
-        result.append(left + match_start + match_end + right.rstrip())
-    highlights["highlight"] = result
-    return highlights
-
-
-def get_highlights(corpus, doc_id, doc_type, spans, context_size, include_annotations=True):
-    term_index = get_term_index(corpus, doc_id, doc_type, spans, context_size, include_annotations=include_annotations)
-    if not term_index:
-        raise RuntimeError("It was not possible to fetch term index for corpus: " + corpus + ", doc_id: " + doc_id + ", doc_type: " + doc_type)
-
-    highlights = []
-
-    for span in spans:
-        [_from, _to] = span.split("-")
-        left = []
-        match = []
-        right = []
-
-        from_int = int(_from)
-        to_int = int(_to)
-
-        for pos in range(from_int - context_size, from_int):
-            if pos in term_index:
-                left.append(term_index[pos])
-        for pos in range(from_int, to_int):
-            match.append(term_index[pos])
-        for pos in range(to_int, to_int + context_size):
-            if pos in term_index:
-                right.append(term_index[pos])
-        highlights.append({"left_context": left, "match": match, "right_context": right})
-    return highlights
-
-
-def get_term_index(corpus, doc_id, doc_type, spans, context_size, include_annotations=True):
-    positions = set()
-    for span in spans:
-        [_from, _to] = span.split("-")
-        from_int = int(_from)
-        to_int = int(_to)
-
-        positions.update(set(range(from_int, to_int)))
-
-        if context_size > 0:
-            positions.update(set(range(from_int - context_size, from_int)))
-            positions.update(set(range(to_int, to_int + context_size)))
-
-    return get_terms(corpus, doc_type, doc_id, positions=list(positions), include_annotations=include_annotations)
-
-
-def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None, include_annotations=True):
-    term_index = {}
-
-    must_clauses = []
-    if positions:
-        must_clauses.append(Q("terms", position=positions))
-    elif from_pos or size:
-        if not from_pos:
-            from_pos = 0
-        position_range = {"gte": from_pos}
-        if size:
-            position_range["lte"] = from_pos + size - 1
-        must_clauses.append(Q("range", position=position_range))
-
-    must_clauses.append(Q("term", doc_id=doc_id))
-    must_clauses.append(Q("term", doc_type=doc_type))
-
-    query = Q("constant_score", filter=Q("bool", must=must_clauses))
-
-    s = Search(index=corpus + "_terms", doc_type="term").query(query)
-    s.sort("_doc")
-
-    if not include_annotations:
-        s = s.source(includes=("position", "term.word", "term.whitespace"))
-
-    for hit in s.scan():
-        source = hit.to_dict()
-        term_index[source["position"]] = source["term"]
-
-    return term_index
-
-
 def analyze_and_create_span_query(search_term, word_form_only=False, in_order=True):
     tokens = []
     terms = tokenize_search_string(search_term)
@@ -454,32 +327,8 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
     for hit in result:
         obj = hit.to_dict()
         obj["doc_type"] = hit.meta.doc_type
-
         move_text_attributes(corpus, obj, includes, excludes)
-
-        if size != 0 and hasattr(hit.meta, "highlight"):
-            count = 0
-            positions = hit.meta.highlight.positions
-            if not forward:
-                positions.reverse()
-
-            get_positions = []
-            for span_pos in positions:
-                pos = int(span_pos.split("-")[0])
-                if forward and pos > current_position or not forward and pos < current_position:
-                    get_positions.append(pos)
-                    count += 1
-
-                if size and size <= count:
-                    break
-            terms = get_terms(corpus, doc_type, doc_id, positions=get_positions)
-            obj["highlight"] = list(terms.values())
-
-            if not forward:
-                obj["highlight"].reverse()
-        else:
-            obj["highlight"] = []
-
+        obj["highlight"] = highlighting.add_highlight_to_doc(corpus, doc_type, doc_id, hit, current_position=current_position, size=size, forward=forward)
         get_token_lookup(obj, corpus, doc_type, obj["doc_id"], includes, excludes, token_lookup_size)
 
         return obj
@@ -573,7 +422,7 @@ def get_token_lookup(document, corpus, doc_type, doc_id, includes, excludes, tok
             from_ = token_lookup_size["from"]
             kwargs["from_pos"] = from_
             kwargs["size"] = token_lookup_size["to"] - from_
-        document["token_lookup"] = get_terms(corpus, doc_type, doc_id, **kwargs)
+        document["token_lookup"] = highlighting.get_terms_for_doc(corpus, doc_type, doc_id, **kwargs)
 
 
 def should_include(attribute, includes, excludes):
