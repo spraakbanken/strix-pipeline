@@ -65,5 +65,6 @@ class ElasticApiTest(unittest.TestCase):
 
     def test_search_in_document(self):
         doc_id = "c-2002v"
-        result = api.search_in_document("vivill", "text", doc_id)
+        result = api.search_in_document("vivill", "text", doc_id, text_query={})
         assert result["doc_id"] == doc_id
+        assert len(result["highlight"]) == 0
