@@ -1,13 +1,34 @@
 from elasticsearch_dsl import Search, Q
 
 
-def highlight_search(hit_corpus, hit, item, highlight=None, simple_highlight=None):
+def highlight_search(documents, hits, highlight=None, simple_highlight=None, corpus_id=None):
+    context_size = 5
     if highlight or simple_highlight:
-        highlights = process_hit(hit_corpus, hit, 5, include_annotations=not simple_highlight)
-        if simple_highlight:
-            item["highlight"] = get_simple_kwic(highlights)
-        else:
-            item["highlight"] = highlights
+        term_index = get_term_index(documents, context_size, include_annotations=not simple_highlight)
+        for hit in hits:
+            doc_id = hit["doc_id"]
+            doc_type = hit["doc_type"]
+            corpus_id = corpus_id or hit["corpus_id"]
+
+            doc_term_index = term_index.get(corpus_id, {}).get(doc_type, {}).get(doc_id, {})
+            if doc_term_index:
+                highlights = get_kwic(hit["positions"], context_size, doc_term_index)
+            else:
+                highlights = []
+
+            del hit["positions"]
+
+            if simple_highlight:
+                highlights = get_simple_kwic(highlights)
+            else:
+                highlights = highlights
+
+            hit["highlight"] = {
+                "highlight": highlights,
+                "total_doc_highlights": len(highlights),
+                "doc_id": doc_id
+            }
+
 
 
 def get_document_highlights(corpus, es_id, doc_type, spans):
@@ -50,31 +71,6 @@ def add_highlight_to_doc(corpus, doc_type, doc_id, hit, current_position=-1, siz
     return highlight
 
 
-def process_hit(corpus, hit, context_size, include_annotations=True):
-    """
-    takes a hit and extracts positions from highlighting and extracts
-    tokens + attributes
-    :param corpus: the corpus of the hit
-    :param hit: a non-parsed hit that has used the strix-highlighting
-    :param context_size: how many tokens should be shown to each side of the match
-    :param include_annotations: if all annotations should be returned or just word and whitespace
-    :return: hit-element with added highlighting
-    """
-    doc_id = hit["doc_id"]
-    doc_type = hit.meta.doc_type
-
-    if hasattr(hit.meta, "highlight"):
-        highlights = get_kwic(corpus, doc_id, doc_type, hit.meta.highlight.positions, context_size, include_annotations=include_annotations)
-    else:
-        highlights = []
-
-    return {
-        "highlight": highlights,
-        "total_doc_highlights": len(highlights),
-        "doc_id": doc_id
-    }
-
-
 def get_simple_kwic(highlights):
     result = []
 
@@ -87,22 +83,16 @@ def get_simple_kwic(highlights):
     def stringify(highlight_part):
         return "".join([get_token(token) for token in highlight_part])
 
-    for highlight in highlights["highlight"]:
+    for highlight in highlights:
         left = stringify(highlight["left_context"])
         match_start = "<em>" + stringify(highlight["match"][0:len(highlight["match"]) - 1])
         match_end = get_token(highlight["match"][-1], sep="</em>")
         right = stringify(highlight["right_context"])
         result.append(left + match_start + match_end + right.rstrip())
-    highlights["highlight"] = result
-    return highlights
+    return result
 
 
-def get_kwic(corpus, doc_id, doc_type, spans, context_size, include_annotations=True):
-    spans = get_spans(spans)
-    term_index = get_term_index_for_doc(corpus, doc_id, doc_type, spans, context_size, include_annotations=include_annotations)
-    if not term_index:
-        raise RuntimeError("It was not possible to fetch term index for corpus: " + corpus + ", doc_id: " + doc_id + ", doc_type: " + doc_type)
-
+def get_kwic(spans, context_size, term_index):
     highlights = []
 
     for (from_int, to_int) in spans:
@@ -133,31 +123,88 @@ def get_term_index_for_doc(corpus, doc_id, doc_type, spans, context_size, includ
     :param include_annotations: if all annotations should be returned or just word and whitespace
     :return: a dictionary of position -> term of the requested document
     """
-    positions = set()
-    for (from_int, to_int) in spans:
-        positions.update(set(range(from_int, to_int)))
+    documents = {corpus: {doc_type: {doc_id: spans}}}
+    return get_term_index(documents, context_size, include_annotations=include_annotations)[corpus][doc_type][doc_id]
 
-        if context_size > 0:
-            positions.update(set(range(from_int - context_size, from_int)))
-            positions.update(set(range(to_int, to_int + context_size)))
 
-    return get_terms_for_doc(corpus, doc_type, doc_id, positions=list(positions), include_annotations=include_annotations)
+def get_spans_for_highlight(documents, corpus, doc_type, doc_id, hit, ):
+    if corpus not in documents:
+        documents[corpus] = {}
+    if doc_type not in documents[corpus]:
+        documents[corpus][doc_type] = {}
+    if hasattr(hit.meta, "highlight"):
+        positions = get_spans(hit.meta.highlight.positions)
+        documents[corpus][doc_type][doc_id] = positions
+        return positions
+    else:
+        documents[corpus][doc_type][doc_id] = []
+        return []
+
+
+def get_term_index(documents, context_size, include_annotations=True):
+    for corpus, doc_types in documents.items():
+        for doc_type, doc_ids in doc_types.items():
+            for doc_id, spans in doc_ids.items():
+                positions = set()
+                for (from_int, to_int) in spans:
+                    positions.update(set(range(from_int, to_int)))
+
+                    if context_size > 0:
+                        positions.update(set(range(from_int - context_size, from_int)))
+                        positions.update(set(range(to_int, to_int + context_size)))
+                documents[corpus][doc_type][doc_id] = list(positions)
+
+    return get_terms(documents, include_annotations=include_annotations)
+
+
+def get_terms(documents, include_annotations=True):
+    should_clauses = []
+    for corpus, doc_types in documents.items():
+        for doc_type, doc_ids in doc_types.items():
+            for doc_id, positions in doc_ids.items():
+                should_clauses.append(get_term_index_query(corpus, doc_type, doc_id, positions=positions))
+                documents[corpus][doc_type][doc_id] = {}
+
+    if len(should_clauses) == 0:
+        return documents
+
+    query = Q("bool", should=should_clauses)
+
+    s = Search(index="*_terms", doc_type="term").query(query)
+    s.sort("_doc")
+
+    if not include_annotations:
+        s = s.source(includes=("position", "term.word", "term.whitespace", "doc_type", "doc_id"))
+
+    for hit in s.scan():
+        source = hit.to_dict()
+        corpus = hit.meta.index.split("_")[0]
+        doc_type = source["doc_type"]
+        doc_id = source["doc_id"]
+        documents[corpus][doc_type][doc_id][source["position"]] = source["term"]
+
+    return documents
 
 
 def get_terms_for_doc(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None, include_annotations=True):
-    """
-
-    :param corpus:
-    :param doc_type:
-    :param doc_id:
-    :param positions:
-    :param from_pos:
-    :param size:
-    :param include_annotations:
-    :return:
-    """
     term_index = {}
 
+    query = get_term_index_query(corpus, doc_type, doc_id, positions=positions, from_pos=from_pos, size=size)
+
+    s = Search(index=corpus + "_terms", doc_type="term").query(query)
+    s.sort("_doc")
+
+    if not include_annotations:
+        s = s.source(includes=("position", "term.word", "term.whitespace"))
+
+    for hit in s.scan():
+        source = hit.to_dict()
+        term_index[source["position"]] = source["term"]
+
+    return term_index
+
+
+def get_term_index_query(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None):
     must_clauses = []
     if positions:
         must_clauses.append(Q("terms", position=positions))
@@ -171,20 +218,9 @@ def get_terms_for_doc(corpus, doc_type, doc_id, positions=(), from_pos=None, siz
 
     must_clauses.append(Q("term", doc_id=doc_id))
     must_clauses.append(Q("term", doc_type=doc_type))
+    must_clauses.append(Q("term", _index=corpus + "_terms"))
 
-    query = Q("constant_score", filter=Q("bool", must=must_clauses))
-
-    s = Search(index=corpus + "_terms", doc_type="term").query(query)
-    s.sort("_doc")
-
-    if not include_annotations:
-        s = s.source(includes=("position", "term.word", "term.whitespace"))
-
-    for hit in s.scan():
-        source = hit.to_dict()
-        term_index[source["position"]] = source["term"]
-
-    return term_index
+    return Q("constant_score", filter=Q("bool", must=must_clauses))
 
 
 def get_spans(string_spans):

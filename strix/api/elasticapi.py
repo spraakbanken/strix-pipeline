@@ -117,11 +117,11 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
         s = before_send(s)
 
     hits = s.execute()
+    highlight_documents = {}
     items = []
     for hit in hits:
         hit_corpus = corpus_id_to_alias(hit.meta.index)
         item = hit.to_dict()
-        highlighting.highlight_search(hit_corpus, hit, item, highlight=highlight, simple_highlight=simple_highlight)
 
         if "doc_id" in item:
             item["doc_id"] = hit["doc_id"]
@@ -129,8 +129,13 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
             item["doc_id"] = hit.meta.id
         item["doc_type"] = hit.meta.doc_type
         item["corpus_id"] = hit_corpus
+        if highlight or simple_highlight:
+            item["positions"] = highlighting.get_spans_for_highlight(highlight_documents, hit_corpus, doc_type, item["doc_id"], hit)
+
         move_text_attributes(hit_corpus, item, includes, excludes)
         items.append(item)
+
+    highlighting.highlight_search(highlight_documents, items, highlight=highlight, simple_highlight=simple_highlight)
 
     output = {"hits": hits.hits.total, "data": items}
     if "suggest" in hits:
