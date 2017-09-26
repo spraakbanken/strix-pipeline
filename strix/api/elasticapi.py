@@ -343,10 +343,10 @@ def get_term_index(corpus, doc_id, doc_type, spans, context_size, include_annota
             positions.update(set(range(from_int - context_size, from_int)))
             positions.update(set(range(to_int, to_int + context_size)))
 
-    return get_terms(corpus, doc_type, doc_id, positions=list(positions), include_annotaitons=include_annotations)
+    return get_terms(corpus, doc_type, doc_id, positions=list(positions), include_annotations=include_annotations)
 
 
-def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None, include_annotaitons=True):
+def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None, include_annotations=True):
     term_index = {}
 
     must_clauses = []
@@ -368,7 +368,7 @@ def get_terms(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None, 
     s = Search(index=corpus + "_terms", doc_type="term").query(query)
     s.sort("_doc")
 
-    if not include_annotaitons:
+    if not include_annotations:
         s = s.source(includes=("position", "term.word", "term.whitespace"))
 
     for hit in s.scan():
