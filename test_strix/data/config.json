@@ -96,6 +96,7 @@
                 },
                 {
                     "name": "blingbring",
+                    "include_in_aggregation": true,
                     "ranked": true,
                     "set": true
                 },
