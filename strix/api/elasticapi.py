@@ -100,8 +100,10 @@ def get_search_query(text_query_obj, text_filter):
         use_highlight = False
 
     if add_fuzzy_query:
+        title_queries = []
         for term in tokenize_search_string(text_query):
-            search_queries.append(Q("fuzzy", title={"value": term[0], "boost": 3}))
+            title_queries.append(Q("fuzzy", title={"value": term[0], "boost": 3}))
+        search_queries.append(Q("bool", must=title_queries))
     return join_queries(text_filter, search_queries), use_highlight
 
 
