@@ -5,30 +5,28 @@ def highlight_search(documents, hits, highlight=None, simple_highlight=None, cor
     context_size = 5
     if highlight or simple_highlight:
         term_index = get_term_index(documents, context_size, include_annotations=not simple_highlight)
-        for hit in hits:
-            doc_id = hit["doc_id"]
-            doc_type = hit["doc_type"]
-            corpus_id = corpus_id or hit["corpus_id"]
+        for result in hits:
+            item = result["item"]
+            doc_id = item["doc_id"]
+            doc_type = item["doc_type"]
+            corpus_id = corpus_id or item["corpus_id"]
 
             doc_term_index = term_index.get(corpus_id, {}).get(doc_type, {}).get(doc_id, {})
             if doc_term_index:
-                highlights = get_kwic(hit["positions"], context_size, doc_term_index)
+                highlights = get_kwic(result["positions"], context_size, doc_term_index)
             else:
                 highlights = []
-
-            del hit["positions"]
 
             if simple_highlight:
                 highlights = get_simple_kwic(highlights)
             else:
                 highlights = highlights
 
-            hit["highlight"] = {
+            item["highlight"] = {
                 "highlight": highlights,
                 "total_doc_highlights": len(highlights),
                 "doc_id": doc_id
             }
-
 
 
 def get_document_highlights(corpus, es_id, doc_type, spans):
@@ -127,7 +125,7 @@ def get_term_index_for_doc(corpus, doc_id, doc_type, spans, context_size, includ
     return get_term_index(documents, context_size, include_annotations=include_annotations)[corpus][doc_type][doc_id]
 
 
-def get_spans_for_highlight(documents, corpus, doc_type, doc_id, hit, ):
+def get_spans_for_highlight(result_obj, documents, corpus, doc_type, doc_id, hit, ):
     if corpus not in documents:
         documents[corpus] = {}
     if doc_type not in documents[corpus]:
@@ -135,10 +133,7 @@ def get_spans_for_highlight(documents, corpus, doc_type, doc_id, hit, ):
     if hasattr(hit.meta, "highlight"):
         positions = get_spans(hit.meta.highlight.positions)
         documents[corpus][doc_type][doc_id] = positions
-        return positions
-    else:
-        documents[corpus][doc_type][doc_id] = []
-        return []
+        result_obj["positions"] = positions
 
 
 def get_term_index(documents, context_size, include_annotations=True):

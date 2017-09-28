@@ -118,10 +118,12 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
 
     hits = s.execute()
     highlight_documents = {}
-    items = []
+    results = []
     for hit in hits:
+        result = {}
         hit_corpus = corpus_id_to_alias(hit.meta.index)
         item = hit.to_dict()
+        result["item"] = item
 
         if "doc_id" in item:
             item["doc_id"] = hit["doc_id"]
@@ -130,14 +132,14 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
         item["doc_type"] = hit.meta.doc_type
         item["corpus_id"] = hit_corpus
         if highlight or simple_highlight:
-            item["positions"] = highlighting.get_spans_for_highlight(highlight_documents, hit_corpus, doc_type, item["doc_id"], hit)
+            highlighting.get_spans_for_highlight(result, highlight_documents, hit_corpus, doc_type, item["doc_id"], hit)
 
         move_text_attributes(hit_corpus, item, includes, excludes)
-        items.append(item)
+        results.append(result)
 
-    highlighting.highlight_search(highlight_documents, items, highlight=highlight, simple_highlight=simple_highlight)
+    highlighting.highlight_search(highlight_documents, results, highlight=highlight, simple_highlight=simple_highlight)
 
-    output = {"hits": hits.hits.total, "data": items}
+    output = {"hits": hits.hits.total, "data": [res["item"] for res in results]}
     if "suggest" in hits:
         output["suggest"] = list(hits.to_dict()["suggest"].values())[0][0]["options"]
     if "aggregations" in hits:
