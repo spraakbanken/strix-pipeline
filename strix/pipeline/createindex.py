@@ -136,7 +136,9 @@ class CreateIndex:
         m.field("text", text_field)
 
         for attr in self.text_attributes:
-            if attr.get("type") == "date":
+            if attr.get("ranked", False):
+                mapping_type = Text(analyzer=mappingutil.ranked_text_analyzer(attr["name"]), fielddata=True)
+            elif attr.get("type") == "date":
                 mapping_type = Date(format="yyyyMMdd")
             elif attr.get("type") == "year":
                 mapping_type = Integer()

@@ -155,9 +155,6 @@ class StrixParser:
                     text_attr = attrs[attribute]
                     if self.text_attributes[attribute].get("set", False):
                         text_attr = list(filter(bool, text_attr.split("|")))
-                    if self.text_attributes[attribute].get("ranked", False):
-                        # TODO handle the count
-                        text_attr = [val.split(":")[0] for val in text_attr]
                     if self.text_attributes[attribute].get("type", "") == "double":
                         text_attr = "Infinity" if text_attr == "inf" else text_attr
                     self.part_attributes[attribute] = text_attr
