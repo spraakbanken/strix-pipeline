@@ -84,7 +84,7 @@ class WebApiTest(unittest.TestCase):
     def test_mutli_word_search(self):
         # when one word does not have a lemmatization s.a. missspelled words we want the search not to fail
         result = self.do_request("/search?corpora=vivill&from=0&to0&text_query=sverges framtid")
-        assert result["hits"] == 20
+        assert result["hits"] == 0
 
     def check_doc_text_attributes(self, doc):
         text_attributes = [attr_name for attr_name in WebApiTest.corpus_config["analyze_config"]["text_attributes"]]

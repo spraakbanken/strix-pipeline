@@ -23,16 +23,11 @@ class WebApiTest(unittest.TestCase):
 
     def test_in_order(self):
         result = self.do_request("/search?exclude=text,dump,lines,token_lookup&text_query=storm el")
-        assert result["hits"] == 83
-
-        for hit in result["data"]:
-            in_text = "highlight" in hit and len(hit["highlight"]["highlight"]) > 0
-            in_title = "storm" in hit["title"].lower() or "el" in hit["title"].lower()
-            assert (in_text or in_title)
+        assert result["hits"] == 0
 
     def test_not_in_order(self):
         result = self.do_request("/search?exclude=text,dump,lines,token_lookup&text_query=storm el&in_order=false")
-        assert result["hits"] == 90
+        assert result["hits"] == 12
 
         for hit in result["data"]:
             in_text = "highlight" in hit and len(hit["highlight"]["highlight"]) > 0

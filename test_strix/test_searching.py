@@ -40,7 +40,7 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_multi_word_quote_search(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"var en svensk\"&from=0&to=50")
-        assert result["hits"] == 772
+        assert result["hits"] == 33
         for hit in result["data"]:
             for highlight in hit["highlight"]["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "var"
@@ -49,7 +49,7 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_multi_word_quote_search2(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"det är en\"&corpora=vivill")
-        assert result["hits"] == 28
+        assert result["hits"] == 23
         for hit in result["data"]:
             for highlight in hit["highlight"]["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "det"
@@ -58,7 +58,7 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_multi_word_quote_search3(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"det är\" en&corpora=vivill")
-        assert result["hits"] == 35
+        assert result["hits"] == 31
         found_de = False
         found_en = False
         found_den = False
@@ -84,11 +84,11 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_search_corpus_id1(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"det är en\"&text_filter={\"corpus_id\": \"vivill\"}")
-        assert result["hits"] == 28
+        assert result["hits"] == 23
 
     def test_search_corpus_id2(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"det är en\"&text_filter={\"corpus_id\": [\"rd-sou\", \"vivill\"]}")
-        assert result["hits"] == 30
+        assert result["hits"] == 25
 
     def test_search_double_type1(self):
         result = self.do_request("/search?exclude=dump,lines&text_filter={\"lix\": [20, 40]}")
