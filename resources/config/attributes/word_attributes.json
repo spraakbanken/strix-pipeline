@@ -116,6 +116,14 @@
         },
         "type": "lemgram"
     },
+    "swefn": {
+        "name": "swefn",
+        "set": true,
+        "translation_name": {
+            "eng": "swefn",
+            "swe": "swefn"
+        }
+    },
     "wid": {
         "name": "wid",
         "set": false,

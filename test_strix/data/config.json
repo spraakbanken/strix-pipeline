@@ -85,6 +85,16 @@
             },
             "text_attributes": [
                 {
+                    "name": "swefn",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
+                {
                     "include_in_aggregation": true,
                     "name": "datefrom",
                     "type": "date"
@@ -131,6 +141,14 @@
                 }
             ],
             "word_attributes": [
+                {
+                    "name": "swefn",
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
                 {
                     "name": "pos"
                 },

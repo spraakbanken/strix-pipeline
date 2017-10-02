@@ -12,12 +12,12 @@
   "file_name_pattern": "8sidor.xml",
 
   "analyze_config": {
-    "word_attributes": ["blingbring", "sentiment"],
+    "word_attributes": ["blingbring", "sentiment", "swefn"],
     "struct_attributes": {
       "sentence": ["id", "geocontext"],
       "paragraph": ["geocontext"]
     },
-    "text_attributes": ["blingbring", "title"]
+    "text_attributes": ["blingbring", "title", "swefn"]
   },
   "document_id": "generated",
   "document_id_hash": true

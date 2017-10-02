@@ -476,6 +476,16 @@
             "swe": "subtyp"
         }
     },
+    "swefn": {
+        "name": "swefn",
+        "include_in_aggregation": true,
+        "ranked": true,
+        "set": true,
+        "translation_name": {
+            "eng": "swefn",
+            "swe": "swefn"
+        }
+    },
     "systemdatum": {
         "name": "systemdatum",
         "translation_name": {
