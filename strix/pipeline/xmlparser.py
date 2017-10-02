@@ -242,7 +242,7 @@ class StrixParser:
                     annotation_value = self.word_attrs.get(annotation["nodeName"])
                 else:
                     annotation_value = self.word_attrs.get(annotation_name)
-                if annotation.get("set", False):
+                if annotation.get("set", False) or annotation.get("ranked", False):
                     annotation_value = list(filter(bool, annotation_value.split("|")))
                 if annotation.get("ranked", False):
                     values = [v.split(":")[0] for v in annotation_value]
