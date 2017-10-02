@@ -1,4 +1,5 @@
 import time
+import logging
 
 from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date, GeoPoint, Nested, Double
 import strix.pipeline.mappingutil as mappingutil
@@ -6,6 +7,8 @@ from strix.config import config
 import strix.corpusconf as corpusconf
 import elasticsearch
 
+
+_logger = logging.getLogger(__name__)
 
 class CreateIndex:
     number_of_shards = config.number_of_shards
@@ -173,12 +176,6 @@ class CreateIndex:
         })
 
     def enable_postinsert_settings(self, index_name=None):
-        self.es.indices.put_settings(index=index_name or self.alias, body={
-            "index.number_of_replicas": CreateIndex.number_of_replicas,
-            "index.refresh_interval": "30s"
-        })
-        self.es.indices.put_settings(index=self.alias + "_terms", body={
-            "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
-            "index.refresh_interval": "30s"
-        })
-        self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")
+        _logger.info("Merging segments")
+        self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms", max_num_segments=1, request_timeout=3600)
+        _logger.info("Done merging segments")
