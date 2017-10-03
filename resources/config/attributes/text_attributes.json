@@ -462,7 +462,6 @@
         }
     },
     "subtitel": {
-        "include_in_aggregation": true,
         "name": "subtitel",
         "translation_name": {
             "eng": "sub title",
