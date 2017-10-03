@@ -11,6 +11,7 @@ def insert_test_data_from_xml():
     for corpus in corpora:
         pipeline.recreate_indices([corpus])
         pipeline.do_run(corpus)
+        pipeline.merge_indices(corpus)
 
 
 if __name__ == "__main__":
