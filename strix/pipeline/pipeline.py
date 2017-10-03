@@ -175,7 +175,10 @@ def upload_executor(task_queue, tot_size, num_tasks):
                                     type_output = doc_type + "-" if doc_type != "text" else ""
                                     _logger.error(type_output + doc_id)
                 else:
-                    _logger.error("Failed bulk upload of a chunk.")
+                    try:
+                        raise future.exception() from None
+                    except Exception:
+                        _.logger.exception("Failed bulk upload of a chunk.")
                 if tot_size > 0:
                     _logger.info("%.1f%%" % (100 * (size_accu / tot_size)))
                     _logger.info("------------------")
