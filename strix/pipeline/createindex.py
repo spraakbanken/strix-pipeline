@@ -176,6 +176,4 @@ class CreateIndex:
         })
 
     def enable_postinsert_settings(self, index_name=None):
-        _logger.info("Merging segments")
-        self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms", max_num_segments=1, request_timeout=3600)
-        _logger.info("Done merging segments")
+        self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")

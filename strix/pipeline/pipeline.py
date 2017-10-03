@@ -285,3 +285,50 @@ def reindex(indices):
         ci.enable_postinsert_settings(index_name=new_index_name)
         delete_index(alias)
         setup_alias(alias, new_index_name)
+
+
+def remove_by_filename(index, filenames):
+    """
+    Assumes texts have type "text" and fields "original_file" and "doc_id"
+    """
+    query = {
+        "query": {
+            "terms": {
+                "original_file": filenames
+            }
+        }
+    }
+
+    delete_texts_ids = set()
+    for doc in elasticsearch.helpers.scan(es, index=index, doc_type="text", query=query, _source_include=["doc_id"]):
+        doc_id = doc["_source"]["doc_id"]
+        delete_texts_ids.add(doc_id)
+    remove_by_doc_id(index, list(delete_texts_ids))
+
+
+def remove_by_doc_id(index, doc_ids):
+    """
+    Assumes texts have typ "text" and field "doc_id"
+    """
+    if not doc_ids:
+        _logger.info("Nothing to delete")
+        return
+
+    query = {
+        "query": {
+            "terms": {
+                "doc_id": doc_ids
+            }
+        }
+    }
+
+    _logger.info("Deleting doc_ids: " + ",".join(doc_ids))
+    es.delete_by_query(index=index, doc_type="text", body=query, conflicts="proceed")
+    es.delete_by_query(index=index + "_terms", doc_type="term", body=query, conflicts="proceed")
+    es.indices.forcemerge(index=index + "," + index + "_terms")
+
+
+def merge_indices(index):
+    _logger.info("Merging segments")
+    es.indices.forcemerge(index=index + "," + index + "_terms", max_num_segments=1, request_timeout=10000)
+    _logger.info("Done merging segments")
