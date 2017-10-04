@@ -396,11 +396,19 @@
                 {
                     "include_in_aggregation": true,
                     "name": "datatyp",
-                    "translation": {
-                        "anforande": "Anf\u00f6rande",
-                        "forslag": "F\u00f6rslag",
-                        "huvuddokument": "Huvuddokument",
-                        "utskottsforslag": "Utskottsf\u00f6rslag"
+                    "translation_value": {
+                        "swe": {
+                            "anforande": "Anf\u00f6rande",
+                            "forslag": "F\u00f6rslag",
+                            "huvuddokument": "Huvuddokument",
+                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        },
+                        "eng": {
+                            "anforande": "Anf\u00f6rande",
+                            "forslag": "F\u00f6rslag",
+                            "huvuddokument": "Huvuddokument",
+                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        }
                     }
                 },
                 {
@@ -676,11 +684,19 @@
                 {
                     "include_in_aggregation": true,
                     "name": "datatyp",
-                    "translation": {
-                        "anforande": "Anf\u00f6rande",
-                        "forslag": "F\u00f6rslag",
-                        "huvuddokument": "Huvuddokument",
-                        "utskottsforslag": "Utskottsf\u00f6rslag"
+                    "translation_value": {
+                        "swe": {
+                            "anforande": "Anf\u00f6rande",
+                            "forslag": "F\u00f6rslag",
+                            "huvuddokument": "Huvuddokument",
+                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        },
+                        "eng": {
+                            "anforande": "Anf\u00f6rande",
+                            "forslag": "F\u00f6rslag",
+                            "huvuddokument": "Huvuddokument",
+                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        }
                     }
                 },
                 {
@@ -956,11 +972,19 @@
                 {
                     "include_in_aggregation": true,
                     "name": "datatyp",
-                    "translation": {
-                        "anforande": "Anf\u00f6rande",
-                        "forslag": "F\u00f6rslag",
-                        "huvuddokument": "Huvuddokument",
-                        "utskottsforslag": "Utskottsf\u00f6rslag"
+                    "translation_value": {
+                        "swe": {
+                            "anforande": "Anf\u00f6rande",
+                            "forslag": "F\u00f6rslag",
+                            "huvuddokument": "Huvuddokument",
+                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        },
+                        "eng": {
+                            "anforande": "Anf\u00f6rande",
+                            "forslag": "F\u00f6rslag",
+                            "huvuddokument": "Huvuddokument",
+                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        }
                     }
                 },
                 {
@@ -1261,11 +1285,19 @@
                 {
                     "include_in_aggregation": true,
                     "name": "datatyp",
-                    "translation": {
-                        "anforande": "Anf\u00f6rande",
-                        "forslag": "F\u00f6rslag",
-                        "huvuddokument": "Huvuddokument",
-                        "utskottsforslag": "Utskottsf\u00f6rslag"
+                    "translation_value": {
+                        "swe": {
+                            "anforande": "Anf\u00f6rande",
+                            "forslag": "F\u00f6rslag",
+                            "huvuddokument": "Huvuddokument",
+                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        },
+                        "eng": {
+                            "anforande": "Anf\u00f6rande",
+                            "forslag": "F\u00f6rslag",
+                            "huvuddokument": "Huvuddokument",
+                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        }
                     }
                 },
                 {
@@ -1554,29 +1586,55 @@
                 {
                     "include_in_aggregation": true,
                     "name": "party",
-                    "translation": {
-                        "all": "Alliansen",
-                        "c": "Centerpartiet",
-                        "fi": "Feministiskt initiativ",
-                        "fp": "Folkpartiet liberalerna",
-                        "jr": "Jordbrukarnas riksf\u00f6rbund",
-                        "k_h": "Sveriges kommunistiska parti, H\u00f6glundarna",
-                        "k_k": "Sverges kommunistiska parti, Kilbommarna",
-                        "kd": "Kristdemokraterna",
-                        "la": "Lantmannapartiet",
-                        "labp": "Lantmanna- och borgarepartiet",
-                        "lisp": "Liberala samlingspartiet",
-                        "lp": "Sveriges liberala parti",
-                        "m": "Moderata samlingspartiet",
-                        "mp": "Milj\u00f6partiet de gr\u00f6na",
-                        "npf": "Nationella framstegspartiet",
-                        "nyd": "Ny demokrati",
-                        "pp": "Piratpartiet",
-                        "rg": "De r\u00f6dgr\u00f6na",
-                        "s": "Sveriges socialdemokratiska arbetareparti",
-                        "sd": "Sverigedemokraterna",
-                        "svp": "Sverges socialdemokratiska v\u00e4nsterparti",
-                        "v": "V\u00e4nsterpartiet"
+                    "translation_value": {
+                        "swe": {
+                            "all": "Alliansen",
+                            "c": "Centerpartiet",
+                            "fi": "Feministiskt initiativ",
+                            "fp": "Folkpartiet liberalerna",
+                            "jr": "Jordbrukarnas riksf\u00f6rbund",
+                            "k_h": "Sveriges kommunistiska parti, H\u00f6glundarna",
+                            "k_k": "Sverges kommunistiska parti, Kilbommarna",
+                            "kd": "Kristdemokraterna",
+                            "la": "Lantmannapartiet",
+                            "labp": "Lantmanna- och borgarepartiet",
+                            "lisp": "Liberala samlingspartiet",
+                            "lp": "Sveriges liberala parti",
+                            "m": "Moderata samlingspartiet",
+                            "mp": "Milj\u00f6partiet de gr\u00f6na",
+                            "npf": "Nationella framstegspartiet",
+                            "nyd": "Ny demokrati",
+                            "pp": "Piratpartiet",
+                            "rg": "De r\u00f6dgr\u00f6na",
+                            "s": "Sveriges socialdemokratiska arbetareparti",
+                            "sd": "Sverigedemokraterna",
+                            "svp": "Sverges socialdemokratiska v\u00e4nsterparti",
+                            "v": "V\u00e4nsterpartiet"
+                        },
+                        "eng": {
+                            "all": "Alliansen",
+                            "c": "Centerpartiet",
+                            "fi": "Feministiskt initiativ",
+                            "fp": "Folkpartiet liberalerna",
+                            "jr": "Jordbrukarnas riksf\u00f6rbund",
+                            "k_h": "Sveriges kommunistiska parti, H\u00f6glundarna",
+                            "k_k": "Sverges kommunistiska parti, Kilbommarna",
+                            "kd": "Kristdemokraterna",
+                            "la": "Lantmannapartiet",
+                            "labp": "Lantmanna- och borgarepartiet",
+                            "lisp": "Liberala samlingspartiet",
+                            "lp": "Sveriges liberala parti",
+                            "m": "Moderata samlingspartiet",
+                            "mp": "Milj\u00f6partiet de gr\u00f6na",
+                            "npf": "Nationella framstegspartiet",
+                            "nyd": "Ny demokrati",
+                            "pp": "Piratpartiet",
+                            "rg": "De r\u00f6dgr\u00f6na",
+                            "s": "Sveriges socialdemokratiska arbetareparti",
+                            "sd": "Sverigedemokraterna",
+                            "svp": "Sverges socialdemokratiska v\u00e4nsterparti",
+                            "v": "V\u00e4nsterpartiet"
+                        }
                     },
                     "type": "enum"
                 },

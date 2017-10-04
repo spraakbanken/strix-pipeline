@@ -15,7 +15,6 @@
         "swe": "Etnologiska frågelistor",
         "eng": "Ethnological question lists"
     },
-    "translation": {},
     "file_name_pattern": "*.xml",
     "corpus_description": {
         "swe": "Nordiska museets frågelistor",

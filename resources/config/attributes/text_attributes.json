@@ -132,11 +132,13 @@
     "datatyp": {
         "include_in_aggregation": true,
         "name": "datatyp",
-        "translation": {
-            "anforande": "Anförande",
-            "forslag": "Förslag",
-            "huvuddokument": "Huvuddokument",
-            "utskottsforslag": "Utskottsförslag"
+        "translation_value": {
+            "-": {
+                "anforande": "Anförande",
+                "forslag": "Förslag",
+                "huvuddokument": "Huvuddokument",
+                "utskottsforslag": "Utskottsförslag"
+            }
         },
         "translation_name": {
             "eng": "datatype",
@@ -346,29 +348,31 @@
     "party": {
         "include_in_aggregation": true,
         "name": "party",
-        "translation": {
-            "all": "Alliansen",
-            "c": "Centerpartiet",
-            "fi": "Feministiskt initiativ",
-            "fp": "Folkpartiet liberalerna",
-            "jr": "Jordbrukarnas riksförbund",
-            "k_h": "Sveriges kommunistiska parti, Höglundarna",
-            "k_k": "Sverges kommunistiska parti, Kilbommarna",
-            "kd": "Kristdemokraterna",
-            "la": "Lantmannapartiet",
-            "labp": "Lantmanna- och borgarepartiet",
-            "lisp": "Liberala samlingspartiet",
-            "lp": "Sveriges liberala parti",
-            "m": "Moderata samlingspartiet",
-            "mp": "Miljöpartiet de gröna",
-            "npf": "Nationella framstegspartiet",
-            "nyd": "Ny demokrati",
-            "pp": "Piratpartiet",
-            "rg": "De rödgröna",
-            "s": "Sveriges socialdemokratiska arbetareparti",
-            "sd": "Sverigedemokraterna",
-            "svp": "Sverges socialdemokratiska vänsterparti",
-            "v": "Vänsterpartiet"
+        "translation_value": {
+            "-": {
+                "all": "Alliansen",
+                "c": "Centerpartiet",
+                "fi": "Feministiskt initiativ",
+                "fp": "Folkpartiet liberalerna",
+                "jr": "Jordbrukarnas riksförbund",
+                "k_h": "Sveriges kommunistiska parti, Höglundarna",
+                "k_k": "Sverges kommunistiska parti, Kilbommarna",
+                "kd": "Kristdemokraterna",
+                "la": "Lantmannapartiet",
+                "labp": "Lantmanna- och borgarepartiet",
+                "lisp": "Liberala samlingspartiet",
+                "lp": "Sveriges liberala parti",
+                "m": "Moderata samlingspartiet",
+                "mp": "Miljöpartiet de gröna",
+                "npf": "Nationella framstegspartiet",
+                "nyd": "Ny demokrati",
+                "pp": "Piratpartiet",
+                "rg": "De rödgröna",
+                "s": "Sveriges socialdemokratiska arbetareparti",
+                "sd": "Sverigedemokraterna",
+                "svp": "Sverges socialdemokratiska vänsterparti",
+                "v": "Vänsterpartiet"
+            }
         },
         "translation_name": {
             "eng": "party",

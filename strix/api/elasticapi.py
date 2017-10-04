@@ -457,11 +457,19 @@ def get_config(only_ids=False):
         descriptions = config_json.get("corpus_description")
         analyze_config = config_json["analyze_config"]
 
-        word_attrs = [corpusconf.get_word_attribute(attr)for attr in analyze_config["word_attributes"]]
-        text_attrs = [corpusconf.get_text_attribute(attr) for attr in analyze_config["text_attributes"]]
+        def update_translation(attr):
+            translation_value = attr.get("translation_value", {}).get("-", None)
+            if translation_value:
+                attr["translation_value"]["swe"] = translation_value
+                attr["translation_value"]["eng"] = translation_value
+                del attr["translation_value"]["-"]
+            return attr
+
+        word_attrs = [update_translation(corpusconf.get_word_attribute(attr))for attr in analyze_config["word_attributes"]]
+        text_attrs = [update_translation(corpusconf.get_text_attribute(attr)) for attr in analyze_config["text_attributes"]]
         struct_attrs = {}
         for struct_node, struct_config in analyze_config["struct_attributes"].items():
-            struct_attrs[struct_node] = [corpusconf.get_struct_attribute(attr) for attr in struct_config]
+            struct_attrs[struct_node] = [update_translation(corpusconf.get_struct_attribute(attr)) for attr in struct_config]
 
         indices[index] = {
             "name": names,

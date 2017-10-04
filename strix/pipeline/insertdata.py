@@ -130,8 +130,9 @@ class InsertData:
                         if title_key not in text:
                             return ""
 
-                        if "translation" in text_attributes[title_key]:
-                            format_params[title_key] = text_attributes[title_key]["translation"][text[title_key]]
+                        if "translation_value" in text_attributes[title_key]:
+                            value_ = text_attributes[title_key]["translation_value"].get("-") or text_attributes[title_key]["translation_value"].get("swe")
+                            format_params[title_key] = value_[text[title_key]]
                         else:
                             format_params[title_key] = text[title_key]
 

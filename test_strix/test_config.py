@@ -41,7 +41,7 @@ def check_corpus_content(corpus_id, last_config, current_config):
     for attr_name, attr_value in current_text_attributes.items():
         assert attr_name in last_text_attributes, "In last config, \"" + attr_name + "\" was not a text attribute for corpus \"" + corpus_id + "\""
 
-        for attr in ["name", "type", "set", "interval", "include_in_aggregation", "aggs_interval", "has_infinite", "translation", "ignore"]:
+        for attr in ["name", "type", "set", "interval", "include_in_aggregation", "aggs_interval", "has_infinite", "translation_value", "ignore"]:
             msg = "Diff for text attribute \"" + attr_name + "\", field \"" + attr + "\", in corpus \"" + corpus_id + "\"."
             assert attr_value.get(attr, None) == last_text_attributes[attr_name].get(attr, None), msg
 
