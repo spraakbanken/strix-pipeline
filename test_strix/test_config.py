@@ -30,6 +30,8 @@ def check_corpus_content(corpus_id, last_config, current_config):
             msg = "Diff for word attribute \"" + attr_name + "\", field \"" + attr + "\", in corpus \"" + corpus_id + "\"."
             assert attr_value.get(attr, None) == last_word_attributes[attr_name].get(attr, None), msg
 
+        assert "translation_name" in attr_value
+
     # text attributes
     last_text_attributes = {x["name"]: x for x in last_config["attributes"]["text_attributes"]}
     current_text_attributes = {x["name"]: x for x in current_config["attributes"]["text_attributes"]}
@@ -42,6 +44,8 @@ def check_corpus_content(corpus_id, last_config, current_config):
         for attr in ["name", "type", "set", "interval", "include_in_aggregation", "aggs_interval", "has_infinite", "translation", "ignore"]:
             msg = "Diff for text attribute \"" + attr_name + "\", field \"" + attr + "\", in corpus \"" + corpus_id + "\"."
             assert attr_value.get(attr, None) == last_text_attributes[attr_name].get(attr, None), msg
+
+        assert "translation_name" in attr_value
 
     # struct attributes
     for struct_node in last_config["attributes"]["struct_attributes"].keys():
@@ -60,6 +64,8 @@ def check_corpus_content(corpus_id, last_config, current_config):
             for attr in ["name", "type", "set", "interval", "index_in_text", "properties"]:
                 msg = "Diff for struct attribute \"" + struct_node + "." + attr_name + "\", field \"" + attr + "\", in corpus \"" + corpus_id + "\"."
                 assert attr_value.get(attr, None) == last_struct_attributes[attr_name].get(attr, None), msg
+
+            assert "translation_name" in attr_value
 
 
 # Diff config against latest versions
