@@ -185,15 +185,6 @@ def get_related_documents(corpus, doc_id):
     return elasticapi.get_related_documents(corpus, "text", doc_id, **kwargs)
 
 
-# TODO this should support the same filtering as any other call?
-# DEPRACATED use aggs?corpora=corpus&include_facets=field
-@app.route("/date_histogram/<corpus>/<field>")
-@crossdomain(origin="*")
-@jsonify_response
-def date_histogram(corpus, field):
-    return elasticapi.date_histogram(corpus, "text", field, request.args)
-
-
 @app.route("/aggs")
 @crossdomain(origin="*")
 @jsonify_response

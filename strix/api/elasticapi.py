@@ -486,47 +486,6 @@ def get_all_corpora_ids():
 text_attributes = corpusconf.get_text_attributes()
 
 
-def parse_date_range_params(params, date_field):
-    if "from" in params:
-        date_from = params.get("from")
-        date_to = params.get("to", "now")
-
-        date_range = Q("range", **{date_field: {
-            "from": date_from,
-            "to": date_to
-        }})
-    else:
-        date_range = Q()
-
-    return date_range
-
-
-def date_histogram(index, doc_type, field, params):
-    def add_aggs(s):
-        a = s.aggs.bucket("histogram", "date_histogram", field=date_field, interval="year")
-        a.bucket("word_count", "sum", field="word_count")
-        a.bucket(field, "terms", field=field)
-        return s
-
-    date_field = params.get("date_field")
-    date_range = parse_date_range_params(params, date_field)
-
-    response = do_search_query(index,
-                               doc_type,
-                               date_range & Q("exists", field=date_field) & Q("exists", field="text"),
-                               size=page_size(size=0),
-                               before_send=add_aggs)
-
-    output = []
-    for item in response["aggregations"]["histogram"]["buckets"]:
-        x = item["key"]
-        y = item["word_count"]["value"]
-        titles = [x["key"] for x in item[field]["buckets"]]
-        output.append({"x": x / 1000, "y": y, "titles": titles})
-
-    return output
-
-
 def get_most_common_text_attributes(corpora, facet_count, include_facets):
     if include_facets:
         facet_count = len(include_facets)
