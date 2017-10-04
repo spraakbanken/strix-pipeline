@@ -76,9 +76,9 @@ class FacetetSearchTest(unittest.TestCase):
 
         aggregation_keys = result["aggregations"].keys()
         assert len(aggregation_keys) == 6
-        assert "type" in aggregation_keys
+        assert "blingbring" in aggregation_keys
         assert "party" in aggregation_keys
-        assert "year" in aggregation_keys
+        assert "swefn" in aggregation_keys
 
         rdflista_found = False
         wikipedia_found = False
@@ -144,9 +144,9 @@ class FacetetSearchTest(unittest.TestCase):
         result = self.do_request('/aggs?text_filter={"party": ["v","m"]}&facet_count=6')
         aggregation_keys = result["aggregations"].keys()
         assert len(aggregation_keys) == 6
-        assert "type" in aggregation_keys
+        assert "blingbring" in aggregation_keys
         assert "party" in aggregation_keys
-        assert "year" in aggregation_keys
+        assert "swefn" in aggregation_keys
         assert "datatyp" not in aggregation_keys
 
     def test_expected_number_of_aggs_1(self):
@@ -191,10 +191,9 @@ class FacetetSearchTest(unittest.TestCase):
     def test_unused_facets(self):
         result = self.do_request("/aggs?include_facets=party,year,type")
         unused_facets = result["unused_facets"]
-        assert "subtitel" in unused_facets
         assert "talare" in unused_facets
         assert "datatyp" in unused_facets
-        assert len(unused_facets) == 15
+        assert len(unused_facets) == 14
 
     def test_corpus_id_filter_without_brackets(self):
         result = self.do_request("/aggs?text_filter={\"corpus_id\":\"rd-sou\"}")

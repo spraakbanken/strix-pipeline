@@ -1,5 +1,5 @@
 {
-    "parents": ["base", "dep", "time", "sense"],
+    "parents": ["base", "dep", "time", "sense", "lexical_classes"],
     "corpus_id": "vivill",
     "corpus_name": {
         "eng": "Swedish party programs and election manifestos",
@@ -14,7 +14,7 @@
         "struct_attributes": {
             "sentence": ["id"]
         },
-        "text_attributes": ["party", "type", "year"]
+        "text_attributes": ["party", "type", "year", "swefn", "blingbring"]
     },
     "title": [{
         "pattern": "{party} {year} {type}",

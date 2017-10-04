@@ -1,5 +1,5 @@
 {
-  "parents": ["base", "dep", "time", "name_tagging", "readability", "sense"],
+  "parents": ["base", "dep", "time", "name_tagging", "readability", "sense", "lexical_classes"],
   "corpus_id": "attasidor",
   "corpus_name": {
     "eng": "8 SIDOR",
@@ -12,12 +12,12 @@
   "file_name_pattern": "8sidor.xml",
 
   "analyze_config": {
-    "word_attributes": ["blingbring", "sentiment", "swefn"],
+    "word_attributes": ["sentiment"],
     "struct_attributes": {
       "sentence": ["id", "geocontext"],
       "paragraph": ["geocontext"]
     },
-    "text_attributes": ["blingbring", "title", "swefn"]
+    "text_attributes": ["title"]
   },
   "document_id": "generated",
   "document_id_hash": true

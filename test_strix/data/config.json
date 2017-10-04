@@ -416,8 +416,7 @@
                     "name": "datum"
                 },
                 {
-                    "name": "subtitel",
-                    "include_in_aggregation": true
+                    "name": "subtitel"
                 },
                 {
                     "name": "tumnagel"
@@ -697,8 +696,7 @@
                     "name": "datum"
                 },
                 {
-                    "name": "subtitel",
-                    "include_in_aggregation": true
+                    "name": "subtitel"
                 },
                 {
                     "name": "tumnagel"
@@ -978,7 +976,6 @@
                     "name": "datum"
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "subtitel"
                 },
                 {
@@ -1284,8 +1281,7 @@
                     "name": "datum"
                 },
                 {
-                    "name": "subtitel",
-                    "include_in_aggregation": true
+                    "name": "subtitel"
                 },
                 {
                     "name": "tumnagel"
@@ -1598,9 +1594,33 @@
                 },
                 {
                     "name": "timeto"
+                },
+                {
+                    "name": "blingbring",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true
                 }
             ],
             "word_attributes": [
+                {
+                    "name": "blingbring",
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
                 {
                     "name": "pos"
                 },
