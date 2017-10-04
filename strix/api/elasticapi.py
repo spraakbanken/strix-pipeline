@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import logging
+import time
 from elasticsearch_dsl import Search, Q
 from elasticsearch_dsl.connections import connections
 
 from strix.config import config
 import strix.corpusconf as corpusconf
 import strix.api.karp as karp
-from strix.api.elasticapihelpers import page_size
 import strix.api.highlighting as highlighting
 
 ALL_BUCKETS = "2147483647"
@@ -118,7 +118,10 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
     if before_send:
         s = before_send(s)
 
+    before = time.time()
     hits = s.execute()
+    _logger.debug("Query execution took: " + "{:.2f}".format(time.time() - before) + " s")
+
     highlight_documents = {}
     results = []
     for hit in hits:
@@ -139,7 +142,9 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
         move_text_attributes(hit_corpus, item, includes, excludes)
         results.append(result)
 
+    before = time.time()
     highlighting.highlight_search(highlight_documents, results, highlight=highlight, simple_highlight=simple_highlight)
+    _logger.debug("Highlighting query took: " + "{:.2f}".format(time.time() - before) + " s")
 
     output = {"hits": hits.hits.total, "data": [res["item"] for res in results]}
     if "suggest" in hits:
