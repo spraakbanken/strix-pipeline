@@ -13,7 +13,12 @@ def highlight_search(documents, hits, highlight=None, simple_highlight=None, cor
 
             doc_term_index = term_index.get(corpus_id, {}).get(doc_type, {}).get(doc_id, {})
             if doc_term_index:
-                highlights = get_kwic(result["positions"], context_size, doc_term_index)
+                positions = result["positions"]
+                if positions != "preview":
+                    highlights = get_kwic(positions, context_size, doc_term_index)
+                else:
+                    highlights = []
+                    item["preview"] = get_simple_kwic(get_preview(doc_term_index))[0]
             else:
                 highlights = []
 
@@ -83,9 +88,16 @@ def get_simple_kwic(highlights):
 
     for highlight in highlights:
         left = stringify(highlight["left_context"])
-        match_start = "<em>" + stringify(highlight["match"][0:len(highlight["match"]) - 1])
-        match_end = get_token(highlight["match"][-1], sep="</em>")
-        right = stringify(highlight["right_context"])
+        if "match" in highlight:
+            match_start = "<em>" + stringify(highlight["match"][0:len(highlight["match"]) - 1])
+            match_end = get_token(highlight["match"][-1], sep="</em>")
+        else:
+            match_start = ""
+            match_end = ""
+        if "right_context" in highlight:
+            right = stringify(highlight["right_context"])
+        else:
+            right = ""
         result.append(left + match_start + match_end + right.rstrip())
     return result
 
@@ -110,6 +122,13 @@ def get_kwic(spans, context_size, term_index):
     return highlights
 
 
+def get_preview(term_index):
+    preview_tokens = []
+    for (_, value) in sorted(term_index.items()):
+        preview_tokens.append(value)
+    return [{"left_context": preview_tokens}]
+
+
 def get_term_index_for_doc(corpus, doc_id, doc_type, spans, context_size, include_annotations=True):
     """
     Gets terms for a document
@@ -125,7 +144,7 @@ def get_term_index_for_doc(corpus, doc_id, doc_type, spans, context_size, includ
     return get_term_index(documents, context_size, include_annotations=include_annotations)[corpus][doc_type][doc_id]
 
 
-def get_spans_for_highlight(result_obj, documents, corpus, doc_type, doc_id, hit, ):
+def get_spans_for_highlight(result_obj, documents, corpus, doc_type, doc_id, hit, include_preview=True):
     if corpus not in documents:
         documents[corpus] = {}
     if doc_type not in documents[corpus]:
@@ -134,6 +153,10 @@ def get_spans_for_highlight(result_obj, documents, corpus, doc_type, doc_id, hit
         positions = get_spans(hit.meta.highlight.positions)
         documents[corpus][doc_type][doc_id] = positions
         result_obj["positions"] = positions
+    elif include_preview:
+        preview_pos = [(0, 50)]
+        documents[corpus][doc_type][doc_id] = preview_pos
+        result_obj["positions"] = "preview"
 
 
 def get_term_index(documents, context_size, include_annotations=True):

@@ -134,7 +134,7 @@ def do_search_query(corpora, doc_type, search_query=None, includes=(), excludes=
         item["doc_type"] = hit.meta.doc_type
         item["corpus_id"] = hit_corpus
         if highlight or simple_highlight:
-            highlighting.get_spans_for_highlight(result, highlight_documents, hit_corpus, doc_type, item["doc_id"], hit)
+            highlighting.get_spans_for_highlight(result, highlight_documents, hit_corpus, doc_type, item["doc_id"], hit, include_preview=simple_highlight)
 
         move_text_attributes(hit_corpus, item, includes, excludes)
         results.append(result)
