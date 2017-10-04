@@ -20,7 +20,7 @@ class FacetetSearchTest(unittest.TestCase):
         return json.loads(rv.data.decode())
 
     def test_preview(self):
-        result = self.do_request("/search?corpora=vivill&text_filter={\"party\": \"v\"}&simple_highlight=true&text_query=")
+        result = self.do_request("/search?corpora=vivill&text_filter={\"party\": \"v\"}&simple_highlight=true")
 
         for hit in result["data"]:
             assert "preview" in hit

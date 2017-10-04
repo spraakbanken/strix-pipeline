@@ -119,9 +119,8 @@ def search():
     get_result_size(kwargs)
 
     if request.args.get("simple_highlight") and request.args.get("simple_highlight") == "true":
-        if use_highlight:
-            use_highlight = False
-            kwargs["simple_highlight"] = True
+        use_highlight = not use_highlight
+        kwargs["simple_highlight"] = True
     elif request.args.get("highlight") and request.args.get("highlight") == "false":
         use_highlight = False
 
