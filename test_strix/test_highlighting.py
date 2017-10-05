@@ -39,7 +39,6 @@ class FacetetSearchTest(unittest.TestCase):
                 assert highlight["match"][1]["attrs"]["lemma"][0] == "framtid"
         assert result
 
-    # TODO this fails because one highlight is returned that do not contain an <em> tag??
     def test_simple_highlight(self):
         result = self.do_request("/search?text_query=framtid&corpora=vivill&exclude=dump,token_lookup,lines&simple_highlight=true")
         for hit in result["data"]:
@@ -51,7 +50,7 @@ class FacetetSearchTest(unittest.TestCase):
                 word = highlight.split("<em>")[1].split("</em>")[0].lower()
                 assert word.startswith("framtid")
         hit = result["data"][1]
-        assert hit["highlight"]["highlight"][3] == "inte förstörs och investera i <em>framtidens</em> hållbara jobb. Under mandatperioden"
+        assert hit["highlight"]["highlight"][2] == "inte förstörs och investera i <em>framtidens</em> hållbara jobb. Under mandatperioden"
 
     def test_simple_highlight2(self):
         result = self.do_request("/search?text_query=Därför måste fler&corpora=vivill&exclude=dump,token_lookup,lines&simple_highlight=true")

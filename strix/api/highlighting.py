@@ -15,7 +15,7 @@ def highlight_search(documents, hits, highlight=None, simple_highlight=None, cor
             if doc_term_index:
                 positions = result["positions"]
                 if positions != "preview":
-                    highlights = get_kwic(positions, context_size, doc_term_index)
+                    highlights = get_kwic(positions, context_size, doc_term_index, include_positions=simple_highlight)
                 else:
                     highlights = []
                     item["preview"] = get_simple_kwic(get_preview(doc_term_index))[0]
@@ -75,7 +75,19 @@ def add_highlight_to_doc(corpus, doc_type, doc_id, hit, current_position=-1, siz
 
 
 def get_simple_kwic(highlights):
-    result = []
+    token_map = {}
+    for highlight in highlights:
+        for token in highlight["left_context"]:
+            if token["pos"] not in token_map:
+                token_map[token["pos"]] = token
+        matches = highlight.get("match", [])
+        for i, token in enumerate(matches):
+            token["match_start"] = i == 0
+            token["match_end"] = i == len(matches) - 1
+            token_map[token["pos"]] = token
+        for token in highlight.get("right_context", []):
+            if token["pos"] not in token_map:
+                token_map[token["pos"]] = token
 
     def get_whitespace(token):
         return token.get("whitespace", "").replace("\n", " ")
@@ -83,27 +95,39 @@ def get_simple_kwic(highlights):
     def get_token(token, sep=""):
         return token["word"] + sep + get_whitespace(token)
 
-    def stringify(highlight_part):
-        return "".join([get_token(token) for token in highlight_part])
+    last_pos = -2
+    highlight_res = []
+    for pos, token in sorted(token_map.items()):
 
-    for highlight in highlights:
-        left = stringify(highlight["left_context"])
-        if "match" in highlight:
-            match_start = "<em>" + stringify(highlight["match"][0:len(highlight["match"]) - 1])
-            match_end = get_token(highlight["match"][-1], sep="</em>")
+        str_token = ""
+        if token.get("match_start", False):
+            str_token = "<em>"
+
+        if token.get("match_end", False):
+            str_token += get_token(token, sep="</em>")
         else:
-            match_start = ""
-            match_end = ""
-        if "right_context" in highlight:
-            right = stringify(highlight["right_context"])
+            str_token += get_token(token)
+
+        if pos == last_pos + 1:
+            # continuation of current highlight
+            highlight_res[-1].append(str_token)
         else:
-            right = ""
-        result.append(left + match_start + match_end + right.rstrip())
-    return result
+            # new highlight
+            highlight_res.append([str_token])
+
+        last_pos = pos
+
+    return ["".join(highlight).rstrip() for highlight in highlight_res]
 
 
-def get_kwic(spans, context_size, term_index):
+def get_kwic(spans, context_size, term_index, include_positions=False):
     highlights = []
+
+    def get_term(pos):
+        term = term_index[pos]
+        if include_positions:
+            term["pos"] = pos
+        return term
 
     for (from_int, to_int) in spans:
         left = []
@@ -112,19 +136,20 @@ def get_kwic(spans, context_size, term_index):
 
         for pos in range(from_int - context_size, from_int):
             if pos in term_index:
-                left.append(term_index[pos])
+                left.append(get_term(pos))
         for pos in range(from_int, to_int):
-            match.append(term_index[pos])
+            match.append(get_term(pos))
         for pos in range(to_int, to_int + context_size):
             if pos in term_index:
-                right.append(term_index[pos])
+                right.append(get_term(pos))
         highlights.append({"left_context": left, "match": match, "right_context": right})
     return highlights
 
 
 def get_preview(term_index):
     preview_tokens = []
-    for (_, value) in sorted(term_index.items()):
+    for (pos, value) in sorted(term_index.items()):
+        value["pos"] = pos
         preview_tokens.append(value)
     return [{"left_context": preview_tokens}]
 
