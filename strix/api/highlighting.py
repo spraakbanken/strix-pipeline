@@ -9,9 +9,9 @@ def highlight_search(documents, hits, highlight=None, simple_highlight=None, cor
             item = result["item"]
             doc_id = item["doc_id"]
             doc_type = item["doc_type"]
-            corpus_id = corpus_id or item["corpus_id"]
+            current_corpus_id = corpus_id or item["corpus_id"]
 
-            doc_term_index = term_index.get(corpus_id, {}).get(doc_type, {}).get(doc_id, {})
+            doc_term_index = term_index.get(current_corpus_id, {}).get(doc_type, {}).get(doc_id, {})
             if doc_term_index:
                 positions = result["positions"]
                 if positions != "preview":
