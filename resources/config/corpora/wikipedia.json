@@ -1,5 +1,5 @@
 {
-  "parents": ["name_tagging", "sense"],
+  "parents": ["name_tagging", "sense", "lexical_classes", "readability"],
   "corpus_id": "wikipedia",
   "corpus_name": {
     "eng": "Swedish Wikipedia Corpus",

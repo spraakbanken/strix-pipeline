@@ -92,12 +92,12 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_search_double_type1(self):
         result = self.do_request("/search?exclude=dump,lines&text_filter={\"lix\": [20, 40]}")
-        assert result["hits"] == 6112
+        assert result["hits"] == 6282
 
     def test_search_double_type2(self):
         result = self.do_request("/search?exclude=dump,lines&text_filter={\"lix\": [40]}")
-        assert result["hits"] == 1002
+        assert result["hits"] == 1138
 
     def test_search_double_type3(self):
         result = self.do_request("/search?exclude=dump,lines&text_filter={\"lix\": 40}")
-        assert result["hits"] == 1002
+        assert result["hits"] == 1138
