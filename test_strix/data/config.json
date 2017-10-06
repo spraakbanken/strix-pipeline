@@ -179,6 +179,10 @@
                     "type": "double"
                 },
                 {
+                    "name": "sentimentclass",
+                    "type": "keyword"
+                },
+                {
                     "set": true,
                     "nodeName": "lex",
                     "name": "lemgram",
@@ -627,6 +631,10 @@
                     "interval": "0.1"
                 },
                 {
+                    "name": "sentimentclass",
+                    "type": "keyword"
+                },
+                {
                     "name": "blingbring",
                     "set": true
                 },
@@ -966,6 +974,10 @@
                     "name": "sentiment",
                     "type": "double",
                     "interval": "0.1"
+                },
+                {
+                    "name": "sentimentclass",
+                    "type": "keyword"
                 },
                 {
                     "name": "blingbring",
@@ -1334,6 +1346,10 @@
                     "interval": "0.1"
                 },
                 {
+                    "name": "sentimentclass",
+                    "type": "keyword"
+                },
+                {
                     "name": "blingbring",
                     "set": true
                 },
@@ -1700,6 +1716,10 @@
                     "interval": "0.1"
                 },
                 {
+                    "name": "sentimentclass",
+                    "type": "keyword"
+                },
+                {
                     "name": "blingbring",
                     "set": true
                 },
@@ -1880,6 +1900,15 @@
             ],
             "word_attributes": [
                 {
+                    "name": "sentiment",
+                    "type": "double",
+                    "interval": "0.1"
+                },
+                {
+                    "name": "sentimentclass",
+                    "type": "keyword"
+                },
+                {
                     "name": "blingbring",
                     "set": true
                 },
@@ -2058,6 +2087,15 @@
                 }
             ],
             "word_attributes": [
+                {
+                    "name": "sentiment",
+                    "type": "double",
+                    "interval": "0.1"
+                },
+                {
+                    "name": "sentimentclass",
+                    "type": "keyword"
+                },
                 {
                     "name": "blingbring",
                     "set": true

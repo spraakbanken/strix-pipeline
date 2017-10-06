@@ -1,0 +1,8 @@
+{
+    "analyze_config": {
+        "word_attributes": [
+            "sentiment",
+            "sentimentclass"
+        ]
+    }
+}

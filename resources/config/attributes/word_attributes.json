@@ -107,6 +107,14 @@
         },
         "type": "double"
     },
+    "sentimentclass": {
+        "name": "sentimentclass",
+        "translation_name": {
+            "eng": "sentiment class",
+            "swe": "attitydklass"
+        },
+        "type": "keyword"
+    },
     "suffix": {
         "name": "suffix",
         "set": true,
