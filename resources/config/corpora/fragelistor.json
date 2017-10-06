@@ -1,5 +1,5 @@
 {
-    "parents": ["name_tagging", "time", "base", "dep", "sense", "sentiment", "lexical_classes", "readability"],
+    "parents": ["strix-parent", "name_tagging", "time", "base", "dep", "sense"],
     "analyze_config": {
         "struct_attributes": {
             "document": ["id"]

@@ -2,11 +2,17 @@
     "analyze_config": {
         "text_attributes": [
             "swefn",
-            "blingbring"
+            "blingbring",
+            "lix",
+            "ovix",
+            "nk"
         ],
         "word_attributes": [
+            "sentiment",
+            "sentimentclass",
             "swefn",
             "blingbring"
         ]
     }
 }
+

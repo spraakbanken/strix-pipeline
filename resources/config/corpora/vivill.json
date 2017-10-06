@@ -1,5 +1,5 @@
 {
-    "parents": ["base", "dep", "time", "sense", "lexical_classes", "sentiment", "readability"],
+    "parents": ["strix-parent", "base", "dep", "time", "sense"],
     "corpus_id": "vivill",
     "corpus_name": {
         "eng": "Swedish party programs and election manifestos",

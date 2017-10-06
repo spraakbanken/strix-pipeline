@@ -1,5 +1,5 @@
 {
-  "parents": ["name_tagging", "sense", "lexical_classes", "readability", "sentiment"],
+  "parents": ["strix-parent", "name_tagging", "sense"],
   "corpus_id": "wikipedia",
   "corpus_name": {
     "eng": "Swedish Wikipedia Corpus",

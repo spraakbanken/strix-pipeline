@@ -1,5 +1,5 @@
 {
-  "parents": ["base", "dep", "time", "name_tagging", "readability", "sense", "lexical_classes", "sentiment"],
+  "parents": ["strix-parent", "base", "dep", "time", "name_tagging", "sense"],
   "corpus_id": "attasidor",
   "corpus_name": {
     "eng": "8 SIDOR",
