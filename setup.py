@@ -21,7 +21,7 @@ setup(
         'elasticsearch==5.4.0',
         'elasticsearch-dsl==5.3.0',
         'Flask==0.12.2',
-        'waitress==1.0.2',
+        'gevent==1.2.2',
         'requests==2.18.3',
         'Markdown==2.6.8',
         'PyYAML==3.12'
