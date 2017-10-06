@@ -6,6 +6,7 @@ def highlight_search(documents, hits, highlight=None, simple_highlight=None, cor
     if highlight or simple_highlight:
         term_index = get_term_index(documents, context_size, include_annotations=not simple_highlight)
         for result in hits:
+            highlights = []
             item = result["item"]
             doc_id = item["doc_id"]
             doc_type = item["doc_type"]
@@ -17,21 +18,17 @@ def highlight_search(documents, hits, highlight=None, simple_highlight=None, cor
                 if positions != "preview":
                     highlights = get_kwic(positions, context_size, doc_term_index, include_positions=simple_highlight)
                 else:
-                    highlights = []
                     item["preview"] = get_simple_kwic(get_preview(doc_term_index))[0]
-            else:
-                highlights = []
 
             if simple_highlight:
                 highlights = get_simple_kwic(highlights)
-            else:
-                highlights = highlights
 
-            item["highlight"] = {
-                "highlight": highlights,
-                "total_doc_highlights": len(highlights),
-                "doc_id": doc_id
-            }
+            if highlights or  (not simple_highlight):
+                item["highlight"] = {
+                    "highlight": highlights,
+                    "total_doc_highlights": len(highlights),
+                    "doc_id": doc_id
+                }
 
 
 def get_document_highlights(corpus, es_id, doc_type, spans):

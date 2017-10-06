@@ -27,5 +27,4 @@ class FacetetSearchTest(unittest.TestCase):
             # We want to have around 50 tokens
             assert len(hit["preview"].split(" ")) > 30
 
-
-
+            assert "highlight" not in hit
