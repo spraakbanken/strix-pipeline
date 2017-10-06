@@ -82,6 +82,7 @@ class CreateIndex:
             ])
 
         m.field("position", "integer")
+        m.field("pos_str", "keyword")
 
         fixed_props = {}
         for (node_name, attr) in self.fixed_structs:
