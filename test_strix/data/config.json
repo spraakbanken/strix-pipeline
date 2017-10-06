@@ -255,6 +255,26 @@
             },
             "text_attributes": [
                 {
+                    "aggs_interval": 10,
+                    "include_in_aggregation": true,
+                    "name": "lix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 25,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "ovix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 1,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "nk",
+                    "type": "double"
+                },
+                {
                     "include_in_aggregation": true,
                     "name": "datefrom",
                     "type": "date"
@@ -293,9 +313,33 @@
                 {
                     "ignore": true,
                     "name": "_id"
+                },
+                {
+                    "name": "blingbring",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true
                 }
             ],
             "word_attributes": [
+                {
+                    "name": "blingbring",
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
                 {
                     "name": "pos"
                 },
@@ -1809,6 +1853,26 @@
                 ]
             },
             "text_attributes": [
+                {
+                    "aggs_interval": 10,
+                    "include_in_aggregation": true,
+                    "name": "lix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 25,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "ovix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 1,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "nk",
+                    "type": "double"
+                },
                 {
                     "include_in_aggregation": true,
                     "name": "datefrom",

@@ -72,10 +72,10 @@ class FacetetSearchTest(unittest.TestCase):
         when we filter on the vivill corpora, we expect only vivill facets to appear (but still
         get document counts for each corpora)
         """
-        result = self.do_request("/aggs?corpora=vivill&facet_count=6")
+        result = self.do_request("/aggs?corpora=vivill&facet_count=9")
 
         aggregation_keys = result["aggregations"].keys()
-        assert len(aggregation_keys) == 6
+        assert len(aggregation_keys) == 9
         assert "blingbring" in aggregation_keys
         assert "party" in aggregation_keys
         assert "swefn" in aggregation_keys
@@ -141,9 +141,9 @@ class FacetetSearchTest(unittest.TestCase):
         assert type_count == 1
 
     def test_text_filter_3(self):
-        result = self.do_request('/aggs?text_filter={"party": ["v","m"]}&facet_count=6')
+        result = self.do_request('/aggs?text_filter={"party": ["v","m"]}&facet_count=9')
         aggregation_keys = result["aggregations"].keys()
-        assert len(aggregation_keys) == 6
+        assert len(aggregation_keys) == 9
         assert "blingbring" in aggregation_keys
         assert "party" in aggregation_keys
         assert "swefn" in aggregation_keys
