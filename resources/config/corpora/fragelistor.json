@@ -1,11 +1,10 @@
 {
-    "parents": ["name_tagging", "time", "base", "dep", "sense"],
+    "parents": ["name_tagging", "time", "base", "dep", "sense", "sentiment"],
     "analyze_config": {
         "struct_attributes": {
             "document": ["id"]
         },
-        "text_attributes": ["topicid", "topicname", "source", "year", "amount_answers", "author_signature", "_id"],
-        "word_attributes": ["sentiment"]
+        "text_attributes": ["topicid", "topicname", "source", "year", "amount_answers", "author_signature", "_id"]
     },
     "corpus_id": "fragelistor",
     "title": [{

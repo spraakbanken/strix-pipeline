@@ -352,6 +352,10 @@
                     "name": "sentiment",
                     "type": "double",
                     "interval": "0.1"
+                },
+                {
+                    "name": "sentimentclass",
+                    "type": "keyword"
                 }
             ]
         },
