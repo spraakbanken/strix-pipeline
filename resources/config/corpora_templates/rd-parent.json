@@ -1,7 +1,8 @@
 {
-    "parents": ["name_tagging", "time", "base", "dep", "sense"],
+    "parents": ["name_tagging", "time", "base", "dep", "sense", "lexical_classes", "readability"],
     "analyze_config": {
-        "text_attributes": ["datatyp"]
+        "text_attributes": ["datatyp"],
+        "word_attributes": ["sentiment"]
     },
     "title": [
         {

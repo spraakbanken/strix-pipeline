@@ -384,6 +384,42 @@
             },
             "text_attributes": [
                 {
+                    "aggs_interval": 10,
+                    "include_in_aggregation": true,
+                    "name": "lix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 25,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "ovix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 1,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "nk",
+                    "type": "double"
+                },
+                {
+                    "name": "blingbring",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
+                {
                     "include_in_aggregation": true,
                     "name": "datefrom",
                     "type": "date"
@@ -585,6 +621,23 @@
                 }
             ],
             "word_attributes": [
+                {
+                    "name": "sentiment",
+                    "type": "double",
+                    "interval": "0.1"
+                },
+                {
+                    "name": "blingbring",
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
                 {
                     "name": "pos"
                 },
@@ -672,6 +725,42 @@
             },
             "text_attributes": [
                 {
+                    "aggs_interval": 10,
+                    "include_in_aggregation": true,
+                    "name": "lix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 25,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "ovix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 1,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "nk",
+                    "type": "double"
+                },
+                {
+                    "name": "blingbring",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
+                {
                     "include_in_aggregation": true,
                     "name": "datefrom",
                     "type": "date"
@@ -874,6 +963,23 @@
             ],
             "word_attributes": [
                 {
+                    "name": "sentiment",
+                    "type": "double",
+                    "interval": "0.1"
+                },
+                {
+                    "name": "blingbring",
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
+                {
                     "name": "pos"
                 },
                 {
@@ -959,6 +1065,42 @@
                 ]
             },
             "text_attributes": [
+                {
+                    "aggs_interval": 10,
+                    "include_in_aggregation": true,
+                    "name": "lix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 25,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "ovix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 1,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "nk",
+                    "type": "double"
+                },
+                {
+                    "name": "blingbring",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
                 {
                     "include_in_aggregation": true,
                     "name": "datefrom",
@@ -1187,6 +1329,23 @@
             ],
             "word_attributes": [
                 {
+                    "name": "sentiment",
+                    "type": "double",
+                    "interval": "0.1"
+                },
+                {
+                    "name": "blingbring",
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
+                {
                     "name": "pos"
                 },
                 {
@@ -1272,6 +1431,42 @@
                 ]
             },
             "text_attributes": [
+                {
+                    "aggs_interval": 10,
+                    "include_in_aggregation": true,
+                    "name": "lix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 25,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "ovix",
+                    "type": "double"
+                },
+                {
+                    "aggs_interval": 1,
+                    "has_infinite": true,
+                    "include_in_aggregation": true,
+                    "name": "nk",
+                    "type": "double"
+                },
+                {
+                    "name": "blingbring",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "include_in_aggregation": true,
+                    "ranked": true,
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
                 {
                     "include_in_aggregation": true,
                     "name": "datefrom",
@@ -1499,6 +1694,23 @@
                 }
             ],
             "word_attributes": [
+                {
+                    "name": "sentiment",
+                    "type": "double",
+                    "interval": "0.1"
+                },
+                {
+                    "name": "blingbring",
+                    "set": true
+                },
+                {
+                    "name": "swefn",
+                    "set": true,
+                    "translation_name": {
+                        "eng": "swefn",
+                        "swe": "swefn"
+                    }
+                },
                 {
                     "name": "pos"
                 },

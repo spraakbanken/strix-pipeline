@@ -40,10 +40,10 @@ class FacetetSearchTest(unittest.TestCase):
         # with no parameters supplied, aggs call give only corpora aggregation and the three most common other text-attributes aggs
         aggregation_keys = result["aggregations"].keys()
         assert len(aggregation_keys) == 4
-        assert "datatyp" in aggregation_keys
+        assert "blingbring" in aggregation_keys
 
     def test_rd_datatyp_bucket_no_filter(self):
-        result = self.do_request("/aggs")
+        result = self.do_request("/aggs?facet_count=9")
         keys = ["huvuddokument", "anforande"]
         buckets = {}
         for bucket in result["aggregations"]["datatyp"]["buckets"]:
