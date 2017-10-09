@@ -256,7 +256,6 @@
     },
     "lix": {
         "aggs_interval": 10,
-        "include_in_aggregation": true,
         "name": "lix",
         "translation_name": {
             "eng": "LIX",
@@ -303,7 +302,6 @@
     "nk": {
         "aggs_interval": 1,
         "has_infinite": true,
-        "include_in_aggregation": true,
         "name": "nk",
         "translation_name": {
             "eng": "nk",
@@ -329,7 +327,6 @@
     "ovix": {
         "aggs_interval": 25,
         "has_infinite": true,
-        "include_in_aggregation": true,
         "name": "ovix",
         "translation_name": {
             "eng": "ovix",

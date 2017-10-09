@@ -115,21 +115,18 @@
                 },
                 {
                     "aggs_interval": 10,
-                    "include_in_aggregation": true,
                     "name": "lix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 25,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "ovix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 1,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "nk",
                     "type": "double"
                 },
@@ -256,21 +253,18 @@
             "text_attributes": [
                 {
                     "aggs_interval": 10,
-                    "include_in_aggregation": true,
                     "name": "lix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 25,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "ovix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 1,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "nk",
                     "type": "double"
                 },
@@ -437,21 +431,18 @@
             "text_attributes": [
                 {
                     "aggs_interval": 10,
-                    "include_in_aggregation": true,
                     "name": "lix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 25,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "ovix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 1,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "nk",
                     "type": "double"
                 },
@@ -782,21 +773,18 @@
             "text_attributes": [
                 {
                     "aggs_interval": 10,
-                    "include_in_aggregation": true,
                     "name": "lix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 25,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "ovix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 1,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "nk",
                     "type": "double"
                 },
@@ -1127,21 +1115,18 @@
             "text_attributes": [
                 {
                     "aggs_interval": 10,
-                    "include_in_aggregation": true,
                     "name": "lix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 25,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "ovix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 1,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "nk",
                     "type": "double"
                 },
@@ -1497,21 +1482,18 @@
             "text_attributes": [
                 {
                     "aggs_interval": 10,
-                    "include_in_aggregation": true,
                     "name": "lix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 25,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "ovix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 1,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "nk",
                     "type": "double"
                 },
@@ -1855,21 +1837,18 @@
             "text_attributes": [
                 {
                     "aggs_interval": 10,
-                    "include_in_aggregation": true,
                     "name": "lix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 25,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "ovix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 1,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "nk",
                     "type": "double"
                 },
@@ -2113,21 +2092,18 @@
             "text_attributes": [
                 {
                     "aggs_interval": 10,
-                    "include_in_aggregation": true,
                     "name": "lix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 25,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "ovix",
                     "type": "double"
                 },
                 {
                     "aggs_interval": 1,
                     "has_infinite": true,
-                    "include_in_aggregation": true,
                     "name": "nk",
                     "type": "double"
                 },
