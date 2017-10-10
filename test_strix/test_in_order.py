@@ -31,7 +31,7 @@ class WebApiTest(unittest.TestCase):
 
         for hit in result["data"]:
             in_text = "highlight" in hit and len(hit["highlight"]["highlight"]) > 0
-            in_title = "storm" in hit["title"].lower() or "el" in hit["title"].lower()
+            in_title = "storm" in hit["title"].lower() and "el" in hit["title"].lower()
             assert (in_text or in_title)
 
             if in_text:
