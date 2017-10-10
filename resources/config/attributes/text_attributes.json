@@ -170,6 +170,13 @@
             "swe": "datum"
         }
     },
+    "date": {
+        "name": "date",
+        "translation_name": {
+            "eng": "date",
+            "swe": "datum"
+        }
+    },
     "datumtid": {
         "name": "datumtid",
         "translation_name": {

@@ -15,7 +15,7 @@
       "sentence": ["id", "geocontext"],
       "paragraph": ["geocontext"]
     },
-    "text_attributes": ["title"]
+    "text_attributes": ["title", "date"]
   },
   "document_id": "generated",
   "document_id_hash": true

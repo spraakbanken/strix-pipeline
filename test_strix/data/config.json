@@ -85,6 +85,13 @@
             },
             "text_attributes": [
                 {
+                    "name": "date",
+                    "translation_name": {
+                        "eng": "date",
+                        "swe": "datum"
+                    }
+                },
+                {
                     "name": "swefn",
                     "include_in_aggregation": true,
                     "ranked": true,
