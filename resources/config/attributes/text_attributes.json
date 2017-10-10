@@ -146,7 +146,7 @@
         }
     },
     "datefrom": {
-        "include_in_aggregation": true,
+        "enabled": false,
         "name": "datefrom",
         "translation_name": {
             "eng": "date from",
@@ -155,7 +155,7 @@
         "type": "date"
     },
     "dateto": {
-        "include_in_aggregation": true,
+        "enabled": false,
         "name": "dateto",
         "translation_name": {
             "eng": "date to",
@@ -519,6 +519,7 @@
         }
     },
     "timefrom": {
+        "enabled": false,
         "name": "timefrom",
         "translation_name": {
             "eng": "time from",
@@ -526,6 +527,7 @@
         }
     },
     "timeto": {
+        "enabled": false,
         "name": "timeto",
         "translation_name": {
             "eng": "time to",

@@ -102,12 +102,10 @@
                     }
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "datefrom",
                     "type": "date"
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "dateto",
                     "type": "date"
                 },
@@ -276,12 +274,10 @@
                     "type": "double"
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "datefrom",
                     "type": "date"
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "dateto",
                     "type": "date"
                 },
@@ -470,12 +466,10 @@
                     }
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "datefrom",
                     "type": "date"
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "dateto",
                     "type": "date"
                 },
@@ -812,12 +806,10 @@
                     }
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "datefrom",
                     "type": "date"
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "dateto",
                     "type": "date"
                 },
@@ -1154,12 +1146,10 @@
                     }
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "datefrom",
                     "type": "date"
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "dateto",
                     "type": "date"
                 },
@@ -1521,12 +1511,10 @@
                     }
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "datefrom",
                     "type": "date"
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "dateto",
                     "type": "date"
                 },
@@ -1860,12 +1848,10 @@
                     "type": "double"
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "datefrom",
                     "type": "date"
                 },
                 {
-                    "include_in_aggregation": true,
                     "name": "dateto",
                     "type": "date"
                 },
