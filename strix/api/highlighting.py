@@ -194,10 +194,10 @@ def get_term_index(documents, context_size, include_annotations=True):
                         positions.update(set(range(to_int, to_int + context_size)))
                 documents[corpus][doc_type][doc_id] = list(positions)
 
-    return get_terms(documents, include_annotations=include_annotations)
+    return get_terms(documents)
 
 
-def get_terms(documents, include_annotations=True):
+def get_terms(documents):
     should_clauses = []
     for corpus, doc_types in documents.items():
         for doc_type, doc_ids in doc_types.items():
@@ -213,9 +213,6 @@ def get_terms(documents, include_annotations=True):
     s = Search(index="*_terms", doc_type="term").query(query)
     s.sort("_doc")
 
-    if not include_annotations:
-        s = s.source(includes=("position", "term.word", "term.whitespace", "doc_type", "doc_id"))
-
     for hit in s.scan():
         source = hit.to_dict()
         corpus = hit.meta.index.split("_")[0]
@@ -226,16 +223,13 @@ def get_terms(documents, include_annotations=True):
     return documents
 
 
-def get_terms_for_doc(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None, include_annotations=True):
+def get_terms_for_doc(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None):
     term_index = {}
 
     query = get_term_index_query(corpus, doc_type, doc_id, positions=positions, from_pos=from_pos, size=size)
 
     s = Search(index=corpus + "_terms", doc_type="term").query(query)
     s.sort("_doc")
-
-    if not include_annotations:
-        s = s.source(includes=("position", "term.word", "term.whitespace"))
 
     for hit in s.scan():
         source = hit.to_dict()
