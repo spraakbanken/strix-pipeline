@@ -343,7 +343,7 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
         obj["doc_type"] = hit.meta.doc_type
         move_text_attributes(corpus, obj, includes, excludes)
         obj["highlight"] = highlighting.add_highlight_to_doc(corpus, doc_type, doc_id, hit, current_position=current_position, size=size, forward=forward)
-        get_token_lookup(obj, corpus, doc_type, obj["doc_id"], includes, excludes, token_lookup_size)
+        get_token_lookup(obj, corpus, doc_type, doc_id, includes, excludes, token_lookup_size)
 
         return obj
 
