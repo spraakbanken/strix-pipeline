@@ -141,8 +141,8 @@
             }
         },
         "translation_name": {
-            "eng": "datatype",
-            "swe": "datatyp"
+            "eng": "document type (RD)",
+            "swe": "dokumenttyp (RD)"
         }
     },
     "datefrom": {
@@ -255,6 +255,7 @@
         }
     },
     "lix": {
+        "enabled": false,
         "aggs_interval": 10,
         "name": "lix",
         "translation_name": {
@@ -300,6 +301,7 @@
         }
     },
     "nk": {
+        "enabled": false,
         "aggs_interval": 1,
         "has_infinite": true,
         "name": "nk",
@@ -325,6 +327,7 @@
         }
     },
     "ovix": {
+        "enabled": false,
         "aggs_interval": 25,
         "has_infinite": true,
         "name": "ovix",
@@ -338,8 +341,8 @@
         "include_in_aggregation": true,
         "name": "parti",
         "translation_name": {
-            "eng": "party - RD",
-            "swe": "parti - RD"
+            "eng": "party (RD)",
+            "swe": "parti (RD)"
         }
     },
     "party": {

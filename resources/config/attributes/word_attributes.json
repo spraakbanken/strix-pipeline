@@ -99,6 +99,7 @@
         }
     },
     "sentiment": {
+        "enabled": false,
         "interval": "0.1",
         "name": "sentiment",
         "translation_name": {
