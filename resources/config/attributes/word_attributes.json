@@ -224,6 +224,20 @@
             "eng": "sentiment class",
             "swe": "attitydklass"
         },
+        "translation_value": {
+            "negative": {
+                "eng": "negative",
+                "swe": "negativ"
+            },
+            "neutral": {
+                "eng": "neutral",
+                "swe": "neutral"
+            },
+            "positive": {
+                "eng": "positive",
+                "swe": "positiv"
+            }
+        },
         "type": "keyword"
     },
     "suffix": {
