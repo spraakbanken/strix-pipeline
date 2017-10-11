@@ -44,6 +44,20 @@
         "translation_name": {
             "eng": "expression",
             "swe": "uttryck"
+        },
+        "translation_value": {
+            "ENAMEX": {
+                "eng": "name expression",
+                "swe": "namnuttryck"
+            },
+            "TIMEX": {
+                "eng": "time expression",
+                "swe": "tidsuttryck"
+            },
+            "NUMEX": {
+                "eng": "numerical expression",
+                "swe": "numeriskt uttryck"
+            }
         }
     },
     "ne_name": {
@@ -60,6 +74,236 @@
         "translation_name": {
             "eng": "name subtype",
             "swe": "namnundertyp"
+        },
+        "translation_value": {
+            "CMU": {
+                "eng": "computer unit",
+                "swe": "datorenhet"
+            },
+            "PLT": {
+                "eng": "political",
+                "swe": "politisk"
+            },
+            "DEN": {
+                "eng": "density",
+                "swe": "densitet"
+            },
+            "EDU": {
+                "eng": "educational",
+                "swe": "utbildning"
+            },
+            "HPL": {
+                "eng": "historical/political",
+                "swe": "historisk/politisk"
+            },
+            "GPL": {
+                "eng": "geographical/geological",
+                "swe": "geografisk/geologisk"
+            },
+            "FRQ": {
+                "eng": "frequency",
+                "swe": "frekvens"
+            },
+            "PPL": {
+                "eng": "geo-social-political entity",
+                "swe": "geo-social-politisk entitet"
+            },
+            "AGE": {
+                "eng": "age",
+                "swe": "ålder"
+            },
+            "VHW": {
+                "eng": "water vehicle",
+                "swe": "fartyg"
+            },
+            "ATH": {
+                "eng": "athletic",
+                "swe": "atletisk"
+            },
+            "PRZ": {
+                "eng": "prize/scholarship/honour",
+                "swe": "pris/stipendium/utmärkelse"
+            },
+            "PSS": {
+                "eng": "pressure",
+                "swe": "tryck"
+            },
+            "DAT": {
+                "eng": "date",
+                "swe": "datum"
+            },
+            "PRD": {
+                "eng": "product/artefact/flower/plant",
+                "swe": "produkt/artefakt/växt"
+            },
+            "CVU": {
+                "eng": "capacity/volume",
+                "swe": "kapacitet/volym"
+            },
+            "FIN": {
+                "eng": "financial",
+                "swe": "finansiell"
+            },
+            "WRT": {
+                "eng": "written material",
+                "swe": "skrivet material"
+            },
+            "TVR": {
+                "eng": "media",
+                "swe": "media"
+            },
+            "IDX": {
+                "eng": "index",
+                "swe": "index"
+            },
+            "INX": {
+                "eng": "index",
+                "swe": "index"
+            },
+            "VLM": {
+                "eng": "volume",
+                "swe": "volym"
+            },
+            "HUM": {
+                "eng": "human being/fictional human character",
+                "swe": "människa/fiktiv mänsklig karaktär"
+            },
+            "WAE": {
+                "eng": "opera/theater play/symphony",
+                "swe": "opera/teaterpjäs/symfoni"
+            },
+            "CRP": {
+                "eng": "corporation/organization",
+                "swe": "företag/organisation"
+            },
+            "PRC": {
+                "eng": "percent",
+                "swe": "procent"
+            },
+            "CUR": {
+                "eng": "currency",
+                "swe": "valuta"
+            },
+            "VHG": {
+                "eng": "land vehicle",
+                "swe": "fordon"
+            },
+            "MTH": {
+                "eng": "saint/apostle/god/mythical name/humanoid",
+                "swe": "helgon/apostel/gud/mytiskt namm/humanoid"
+            },
+            "RTV": {
+                "eng": "radio/tv-programs",
+                "swe": "radio/tv-program"
+            },
+            "WMD": {
+                "eng": "written media",
+                "swe": "skriven media"
+            },
+            "PRJ": {
+                "eng": "project/agreement/initiative",
+                "swe": "projekt/överenskommelse/initiativ"
+            },
+            "TRN": {
+                "eng": "transportation",
+                "swe": "transport"
+            },
+            "STR": {
+                "eng": "street/road/postal address",
+                "swe": "gata/väg/postadress"
+            },
+            "CLC": {
+                "eng": "tribe/dynasty/ethnical or race name",
+                "swe": "stam/dynasti/etniskt namn"
+            },
+            "MDC": {
+                "eng": "medical",
+                "swe": "medicinsk"
+            },
+            "VHA": {
+                "eng": "air/space vehicle",
+                "swe": "luft-/rymdfarkost"
+            },
+            "DSG": {
+                "eng": "dosage",
+                "swe": "dosering"
+            },
+            "MSU": {
+                "eng": "metric surface unit",
+                "swe": "ytmått"
+            },
+            "RLG": {
+                "eng": "religious",
+                "swe": "religiös"
+            },
+            "WTH": {
+                "eng": "natural",
+                "swe": "natur"
+            },
+            "FWP": {
+                "eng": "food/beverage",
+                "swe": "mat/dryck"
+            },
+            "AST": {
+                "eng": "astronomical",
+                "swe": "astronomisk"
+            },
+            "WEB": {
+                "eng": "web",
+                "swe": "webb"
+            },
+            "CMP": {
+                "eng": "computer product/telephony",
+                "swe": "datorprodukt/telefoni"
+            },
+            "PER": {
+                "eng": "period",
+                "swe": "period"
+            },
+            "WMU": {
+                "eng": "weight or mass unit",
+                "swe": "vikt- eller massaenhet"
+            },
+            "SPD": {
+                "eng": "speed",
+                "swe": "hastighet"
+            },
+            "CLT": {
+                "eng": "cultural",
+                "swe": "kulturell"
+            },
+            "FNC": {
+                "eng": "facility entity",
+                "swe": "facilitetsentitet"
+            },
+            "CLU": {
+                "eng": "cultural",
+                "swe": "kulturell"
+            },
+            "LST": {
+                "eng": "list",
+                "swe": "lista"
+            },
+            "DST": {
+                "eng": "distance",
+                "swe": "avstånd"
+            },
+            "WAO": {
+                "eng": "physical work or art",
+                "swe": "fysiskt verk eller konst"
+            },
+            "TMP": {
+                "eng": "temperature",
+                "swe": "temperatur"
+            },
+            "ANM": {
+                "eng": "animal/pet/mythical beasts",
+                "swe": "djur/husdjur/mytiskt odjur"
+            },
+            "ATL": {
+                "eng": "athletic",
+                "swe": "atletisk"
+            }
         }
     },
     "ne_type": {
@@ -68,6 +312,40 @@
         "translation_name": {
             "eng": "name type",
             "swe": "namntyp"
+        },
+        "translation_value": {
+            "LOC": {
+                "swe": "platsnamn",
+                "eng": "location name"
+            },
+            "PRS": {
+                "swe": "personnamm",
+                "eng": "person name"
+            },
+            "ORG": {
+                "swe": "organisationsnamn",
+                "eng": "organization name"
+            },
+            "EVN": {
+                "swe": "händelsenamn",
+                "eng": "event name"
+            },
+            "WRK": {
+                "swe": "verks- eller konstnamn",
+                "eng": "work or art name"
+            },
+            "OBJ": {
+                "swe": "objektnamn",
+                "eng": "object name"
+            },
+            "MSR": {
+                "swe": "måttnamn",
+                "eng": "measure name"
+            },
+            "TME": {
+                "swe": "tid",
+                "eng": "time"
+            }
         }
     }
 }
