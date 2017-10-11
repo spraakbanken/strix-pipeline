@@ -590,6 +590,7 @@
         }
     },
     "title": {
+        "enabled": false,
         "name": "title",
         "translation_name": {
             "eng": "title",
