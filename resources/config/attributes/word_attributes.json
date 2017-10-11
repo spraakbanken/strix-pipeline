@@ -70,6 +70,116 @@
         "translation_name": {
             "eng": "part-of-speech",
             "swe": "ordklass"
+        },
+        "translation_value": {
+            "AB": {
+                "swe": "adverb",
+                "eng": "adverb"
+            },
+            "MAD": {
+                "swe": "interpunktion",
+                "eng": "punctuation"
+            },
+            "MID": {
+                "swe": "interpunktion",
+                "eng": "punctuation"
+            },
+            "PAD": {
+                "swe": "interpunktion",
+                "eng": "punctuation"
+            },
+            "DL": {
+                "swe": "interpunktion",
+                "eng": "punctuation"
+            },
+            "DT": {
+                "swe": "determinerare",
+                "eng": "determiner"
+            },
+            "HA": {
+                "swe": "frågande/relativt adverb",
+                "eng": "interrogative/relative adverb"
+            },
+            "HD": {
+                "swe": "frågande/relativ determinerare",
+                "eng": "interrogative/relative determiner"
+            },
+            "HP": {
+                "swe": "frågande/relativt pronomen",
+                "eng": "interrogative/relative pronoun"
+            },
+            "HS": {
+                "swe": "frågande/relativt possesivt pronomen",
+                "eng": "interrogative/relative possessive"
+            },
+            "IE": {
+                "swe": "infinitivmärke",
+                "eng": "infinitive marker"
+            },
+            "IN": {
+                "swe": "interjektion",
+                "eng": "interjection"
+            },
+            "JJ": {
+                "swe": "adjektiv",
+                "eng": "adjective"
+            },
+            "KN": {
+                "swe": "konjunktion",
+                "eng": "conjunction"
+            },
+            "NN": {
+                "swe": "substantiv",
+                "eng": "noun"
+            },
+            "PC": {
+                "swe": "particip",
+                "eng": "participle"
+            },
+            "PL": {
+                "swe": "partikel",
+                "eng": "particle"
+            },
+            "PM": {
+                "swe": "egennamn",
+                "eng": "proper noun"
+            },
+            "PN": {
+                "swe": "pronomen",
+                "eng": "pronoun"
+            },
+            "PP": {
+                "swe": "preposition",
+                "eng": "preposition"
+            },
+            "PS": {
+                "swe": "possessivt pronomen",
+                "eng": "possessive"
+            },
+            "RG": {
+                "swe": "grundtal",
+                "eng": "cardinal number"
+            },
+            "RO": {
+                "swe": "ordningstal",
+                "eng": "ordinal number"
+            },
+            "SN": {
+                "swe": "subjunktion",
+                "eng": "subjunction"
+            },
+            "UO": {
+                "swe": "utländskt ord",
+                "eng": "foreign word"
+            },
+            "VB": {
+                "swe": "verb",
+                "eng": "verb"
+            },
+            "E": {
+                "swe": "e",
+                "eng": "e"
+            }
         }
     },
     "prefix": {

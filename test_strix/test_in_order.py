@@ -26,16 +26,16 @@ class WebApiTest(unittest.TestCase):
         assert result["hits"] == 0
 
     def test_not_in_order(self):
-        result = self.do_request("/search?exclude=text,dump,lines,token_lookup&text_query=storm el&in_order=false")
-        assert result["hits"] == 12
+        result = self.do_request("/search?exclude=text,dump,lines,token_lookup&text_query=kris oro&in_order=false")
+        assert result["hits"] == 8
 
         for hit in result["data"]:
             in_text = "highlight" in hit and len(hit["highlight"]["highlight"]) > 0
-            in_title = "storm" in hit["title"].lower() and "el" in hit["title"].lower()
+            in_title = "kris" in hit["title"].lower() and "oro" in hit["title"].lower()
             assert (in_text or in_title)
 
             if in_text:
                 for highlight in hit["highlight"]["highlight"]:
                     for match in highlight["match"]:
                         word = match["word"].lower()
-                        assert word in ["el", "elen", "stormen", "stormar", "storm", "stormarna"]
+                        assert word in ["kris", "oro", "krisens", "oron", "krisen", "kriser"]

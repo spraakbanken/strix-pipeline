@@ -11,7 +11,7 @@ class IdTest(unittest.TestCase):
         all ids should be unique within corpus_id
         """
         es = connections.create_connection()
-        for corpus in ["fragelistor", "rd-eun", "rd-flista", "rd-kammakt", "vivill", "wikipedia", "rd-sou", "attasidor"]:
+        for corpus in ["fragelistor", "rd-eun", "rd-flista", "rd-kammakt", "vivill", "wikipedia", "rd-sou"]:
             s = Search(index=corpus, doc_type="text", using=es)
             s = s[0:9999]
             res = s.execute()

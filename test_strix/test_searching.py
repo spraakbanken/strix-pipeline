@@ -40,7 +40,7 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_multi_word_quote_search(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"var en svensk\"&from=0&to=50")
-        assert result["hits"] == 33
+        assert result["hits"] == 31
         for hit in result["data"]:
             for highlight in hit["highlight"]["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "var"
@@ -92,12 +92,12 @@ class FacetetSearchTest(unittest.TestCase):
 
     def test_search_double_type1(self):
         result = self.do_request("/search?exclude=dump,lines&text_filter={\"lix\": [20, 40]}")
-        assert result["hits"] == 8747
+        assert result["hits"] == 2635
 
     def test_search_double_type2(self):
         result = self.do_request("/search?exclude=dump,lines&text_filter={\"lix\": [40]}")
-        assert result["hits"] == 2907
+        assert result["hits"] == 1905
 
     def test_search_double_type3(self):
         result = self.do_request("/search?exclude=dump,lines&text_filter={\"lix\": 40}")
-        assert result["hits"] == 2907
+        assert result["hits"] == 1905

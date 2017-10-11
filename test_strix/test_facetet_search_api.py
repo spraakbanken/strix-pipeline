@@ -75,7 +75,7 @@ class FacetetSearchTest(unittest.TestCase):
         result = self.do_request("/aggs?corpora=vivill&facet_count=8")
 
         aggregation_keys = result["aggregations"].keys()
-        assert len(aggregation_keys) == 8
+        assert len(aggregation_keys) == 6
         assert "blingbring" in aggregation_keys
         assert "party" in aggregation_keys
         assert "swefn" in aggregation_keys
@@ -143,7 +143,7 @@ class FacetetSearchTest(unittest.TestCase):
     def test_text_filter_3(self):
         result = self.do_request('/aggs?text_filter={"party": ["v","m"]}&facet_count=8')
         aggregation_keys = result["aggregations"].keys()
-        assert len(aggregation_keys) == 8
+        assert len(aggregation_keys) == 6
         assert "blingbring" in aggregation_keys
         assert "party" in aggregation_keys
         assert "swefn" in aggregation_keys
@@ -193,7 +193,7 @@ class FacetetSearchTest(unittest.TestCase):
         unused_facets = result["unused_facets"]
         assert "talare" in unused_facets
         assert "datatyp" in unused_facets
-        assert len(unused_facets) == 11
+        assert len(unused_facets) == 9
 
     def test_corpus_id_filter_without_brackets(self):
         result = self.do_request("/aggs?text_filter={\"corpus_id\":\"rd-sou\"}")

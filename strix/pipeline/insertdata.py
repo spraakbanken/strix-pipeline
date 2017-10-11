@@ -131,8 +131,8 @@ class InsertData:
                             return ""
 
                         if "translation_value" in text_attributes[title_key]:
-                            value_ = text_attributes[title_key]["translation_value"].get("-") or text_attributes[title_key]["translation_value"].get("swe")
-                            format_params[title_key] = value_[text[title_key]]
+                            attr = text_attributes[title_key]["translation_value"][text[title_key]]
+                            format_params[title_key] = attr.get("-") or attr.get("swe")
                         else:
                             format_params[title_key] = text[title_key]
 

@@ -463,11 +463,12 @@ def get_config(only_ids=False):
         analyze_config = config_json["analyze_config"]
 
         def update_translation(attr):
-            translation_value = attr.get("translation_value", {}).get("-", None)
-            if translation_value:
-                attr["translation_value"]["swe"] = translation_value
-                attr["translation_value"]["eng"] = translation_value
-                del attr["translation_value"]["-"]
+            for attr_key, attr_val in attr.get("translation_value", {}).items():
+                all_langs = attr_val.get("-", None)
+                if all_langs:
+                    attr_val["swe"] = all_langs
+                    attr_val["eng"] = all_langs
+                    del attr_val["-"]
             return attr
 
         word_attrs = [update_translation(corpusconf.get_word_attribute(attr))for attr in analyze_config["word_attributes"]]

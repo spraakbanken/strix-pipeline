@@ -1,232 +1,4 @@
 {
-    "attasidor": {
-        "attributes": {
-            "struct_attributes": {
-                "sentence": [
-                    {
-                        "name": "id",
-                        "set": false
-                    },
-                    {
-                        "index_in_text": false,
-                        "name": "geocontext",
-                        "nodeName": "_geocontext",
-                        "properties": {
-                            "country": {
-                                "type": "keyword",
-                                "value": ";(.*);.*;"
-                            },
-                            "geopoint": {
-                                "properties": {
-                                    "lat": {
-                                        "value": ";.*;(.*);"
-                                    },
-                                    "lon": {
-                                        "value": ".*;(.*)"
-                                    }
-                                },
-                                "type": "geopoint"
-                            },
-                            "place": {
-                                "type": "keyword",
-                                "value": "(.*);.*;.*;"
-                            }
-                        },
-                        "set": true
-                    }
-                ],
-                "ne": [
-                    {
-                        "set": false,
-                        "name": "ex"
-                    },
-                    {
-                        "set": false,
-                        "name": "type"
-                    },
-                    {
-                        "set": false,
-                        "name": "subtype"
-                    },
-                    {
-                        "set": false,
-                        "name": "name"
-                    }
-                ],
-                "paragraph": [
-                    {
-                        "name": "geocontext",
-                        "nodeName": "_geocontext",
-                        "set": true,
-                        "index_in_text": false,
-                        "properties": {
-                            "country": {
-                                "value": ";(.*);.*;",
-                                "type": "keyword"
-                            },
-                            "place": {
-                                "value": "(.*);.*;.*;",
-                                "type": "keyword"
-                            },
-                            "geopoint": {
-                                "type": "geopoint",
-                                "properties": {
-                                    "lat": {
-                                        "value": ";.*;(.*);"
-                                    },
-                                    "lon": {
-                                        "value": ".*;(.*)"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                ]
-            },
-            "text_attributes": [
-                {
-                    "name": "date",
-                    "translation_name": {
-                        "eng": "date",
-                        "swe": "datum"
-                    }
-                },
-                {
-                    "name": "swefn",
-                    "include_in_aggregation": true,
-                    "ranked": true,
-                    "set": true,
-                    "translation_name": {
-                        "eng": "swefn",
-                        "swe": "swefn"
-                    }
-                },
-                {
-                    "name": "datefrom",
-                    "type": "date"
-                },
-                {
-                    "name": "dateto",
-                    "type": "date"
-                },
-                {
-                    "name": "blingbring",
-                    "include_in_aggregation": true,
-                    "ranked": true,
-                    "set": true
-                },
-                {
-                    "name": "title"
-                },
-                {
-                    "aggs_interval": 10,
-                    "name": "lix",
-                    "type": "double"
-                },
-                {
-                    "aggs_interval": 25,
-                    "has_infinite": true,
-                    "name": "ovix",
-                    "type": "double"
-                },
-                {
-                    "aggs_interval": 1,
-                    "has_infinite": true,
-                    "name": "nk",
-                    "type": "double"
-                },
-                {
-                    "name": "timefrom"
-                },
-                {
-                    "name": "timeto"
-                }
-            ],
-            "word_attributes": [
-                {
-                    "name": "swefn",
-                    "set": true,
-                    "translation_name": {
-                        "eng": "swefn",
-                        "swe": "swefn"
-                    }
-                },
-                {
-                    "name": "pos"
-                },
-                {
-                    "name": "msd"
-                },
-                {
-                    "name": "sense",
-                    "ranked": true,
-                    "set": false
-                },
-                {
-                    "name": "compwf",
-                    "set": true
-                },
-                {
-                    "name": "complemgram",
-                    "ranked": true,
-                    "set": false
-                },
-                {
-                    "name": "blingbring",
-                    "set": true
-                },
-                {
-                    "interval": "0.1",
-                    "name": "sentiment",
-                    "type": "double"
-                },
-                {
-                    "name": "sentimentclass",
-                    "type": "keyword"
-                },
-                {
-                    "set": true,
-                    "nodeName": "lex",
-                    "name": "lemgram",
-                    "type": "lemgram"
-                },
-                {
-                    "name": "lemma",
-                    "set": true
-                },
-                {
-                    "set": true,
-                    "name": "prefix",
-                    "type": "lemgram"
-                },
-                {
-                    "set": true,
-                    "name": "suffix",
-                    "type": "lemgram"
-                },
-                {
-                    "set": false,
-                    "name": "ref"
-                },
-                {
-                    "set": false,
-                    "name": "dephead"
-                },
-                {
-                    "set": false,
-                    "name": "deprel"
-                }
-            ]
-        },
-        "description": {
-            "eng": "News articles from 8 SIDOR.",
-            "swe": "Nyhetsartiklar fr\u00e5n 8 SIDOR."
-        },
-        "name": {
-            "eng": "8 SIDOR",
-            "swe": "8 SIDOR"
-        }
-    },
     "fragelistor": {
         "attributes": {
             "struct_attributes": {
@@ -338,7 +110,117 @@
                     }
                 },
                 {
-                    "name": "pos"
+                    "name": "pos",
+                    "translation_value": {
+                        "AB": {
+                            "eng": "adverb",
+                            "swe": "adverb"
+                        },
+                        "DL": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "DT": {
+                            "eng": "determiner",
+                            "swe": "determinerare"
+                        },
+                        "E": {
+                            "eng": "e",
+                            "swe": "e"
+                        },
+                        "HA": {
+                            "eng": "interrogative/relative adverb",
+                            "swe": "frågande/relativt adverb"
+                        },
+                        "HD": {
+                            "eng": "interrogative/relative determiner",
+                            "swe": "frågande/relativ determinerare"
+                        },
+                        "HP": {
+                            "eng": "interrogative/relative pronoun",
+                            "swe": "frågande/relativt pronomen"
+                        },
+                        "HS": {
+                            "eng": "interrogative/relative possessive",
+                            "swe": "frågande/relativt possesivt pronomen"
+                        },
+                        "IE": {
+                            "eng": "infinitive marker",
+                            "swe": "infinitivmärke"
+                        },
+                        "IN": {
+                            "eng": "interjection",
+                            "swe": "interjektion"
+                        },
+                        "JJ": {
+                            "eng": "adjective",
+                            "swe": "adjektiv"
+                        },
+                        "KN": {
+                            "eng": "conjunction",
+                            "swe": "konjunktion"
+                        },
+                        "MAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "MID": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "NN": {
+                            "eng": "noun",
+                            "swe": "substantiv"
+                        },
+                        "PAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "PC": {
+                            "eng": "participle",
+                            "swe": "particip"
+                        },
+                        "PL": {
+                            "eng": "particle",
+                            "swe": "partikel"
+                        },
+                        "PM": {
+                            "eng": "proper noun",
+                            "swe": "egennamn"
+                        },
+                        "PN": {
+                            "eng": "pronoun",
+                            "swe": "pronomen"
+                        },
+                        "PP": {
+                            "eng": "preposition",
+                            "swe": "preposition"
+                        },
+                        "PS": {
+                            "eng": "possessive",
+                            "swe": "possessivt pronomen"
+                        },
+                        "RG": {
+                            "eng": "cardinal number",
+                            "swe": "grundtal"
+                        },
+                        "RO": {
+                            "eng": "ordinal number",
+                            "swe": "ordningstal"
+                        },
+                        "SN": {
+                            "eng": "subjunction",
+                            "swe": "subjunktion"
+                        },
+                        "UO": {
+                            "eng": "foreign word",
+                            "swe": "utländskt ord"
+                        },
+                        "VB": {
+                            "eng": "verb",
+                            "swe": "verb"
+                        }
+                    }
                 },
                 {
                     "name": "msd"
@@ -477,17 +359,21 @@
                     "include_in_aggregation": true,
                     "name": "datatyp",
                     "translation_value": {
-                        "swe": {
-                            "anforande": "Anf\u00f6rande",
-                            "forslag": "F\u00f6rslag",
-                            "huvuddokument": "Huvuddokument",
-                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        "anforande": {
+                            "eng": "Anförande",
+                            "swe": "Anförande"
                         },
-                        "eng": {
-                            "anforande": "Anf\u00f6rande",
-                            "forslag": "F\u00f6rslag",
-                            "huvuddokument": "Huvuddokument",
-                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        "forslag": {
+                            "eng": "Förslag",
+                            "swe": "Förslag"
+                        },
+                        "huvuddokument": {
+                            "eng": "Huvuddokument",
+                            "swe": "Huvuddokument"
+                        },
+                        "utskottsforslag": {
+                            "eng": "Utskottsförslag",
+                            "swe": "Utskottsförslag"
                         }
                     }
                 },
@@ -687,7 +573,117 @@
                     }
                 },
                 {
-                    "name": "pos"
+                    "name": "pos",
+                    "translation_value": {
+                        "AB": {
+                            "eng": "adverb",
+                            "swe": "adverb"
+                        },
+                        "DL": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "DT": {
+                            "eng": "determiner",
+                            "swe": "determinerare"
+                        },
+                        "E": {
+                            "eng": "e",
+                            "swe": "e"
+                        },
+                        "HA": {
+                            "eng": "interrogative/relative adverb",
+                            "swe": "frågande/relativt adverb"
+                        },
+                        "HD": {
+                            "eng": "interrogative/relative determiner",
+                            "swe": "frågande/relativ determinerare"
+                        },
+                        "HP": {
+                            "eng": "interrogative/relative pronoun",
+                            "swe": "frågande/relativt pronomen"
+                        },
+                        "HS": {
+                            "eng": "interrogative/relative possessive",
+                            "swe": "frågande/relativt possesivt pronomen"
+                        },
+                        "IE": {
+                            "eng": "infinitive marker",
+                            "swe": "infinitivmärke"
+                        },
+                        "IN": {
+                            "eng": "interjection",
+                            "swe": "interjektion"
+                        },
+                        "JJ": {
+                            "eng": "adjective",
+                            "swe": "adjektiv"
+                        },
+                        "KN": {
+                            "eng": "conjunction",
+                            "swe": "konjunktion"
+                        },
+                        "MAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "MID": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "NN": {
+                            "eng": "noun",
+                            "swe": "substantiv"
+                        },
+                        "PAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "PC": {
+                            "eng": "participle",
+                            "swe": "particip"
+                        },
+                        "PL": {
+                            "eng": "particle",
+                            "swe": "partikel"
+                        },
+                        "PM": {
+                            "eng": "proper noun",
+                            "swe": "egennamn"
+                        },
+                        "PN": {
+                            "eng": "pronoun",
+                            "swe": "pronomen"
+                        },
+                        "PP": {
+                            "eng": "preposition",
+                            "swe": "preposition"
+                        },
+                        "PS": {
+                            "eng": "possessive",
+                            "swe": "possessivt pronomen"
+                        },
+                        "RG": {
+                            "eng": "cardinal number",
+                            "swe": "grundtal"
+                        },
+                        "RO": {
+                            "eng": "ordinal number",
+                            "swe": "ordningstal"
+                        },
+                        "SN": {
+                            "eng": "subjunction",
+                            "swe": "subjunktion"
+                        },
+                        "UO": {
+                            "eng": "foreign word",
+                            "swe": "utländskt ord"
+                        },
+                        "VB": {
+                            "eng": "verb",
+                            "swe": "verb"
+                        }
+                    }
                 },
                 {
                     "name": "msd"
@@ -817,17 +813,21 @@
                     "include_in_aggregation": true,
                     "name": "datatyp",
                     "translation_value": {
-                        "swe": {
-                            "anforande": "Anf\u00f6rande",
-                            "forslag": "F\u00f6rslag",
-                            "huvuddokument": "Huvuddokument",
-                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        "anforande": {
+                            "eng": "Anförande",
+                            "swe": "Anförande"
                         },
-                        "eng": {
-                            "anforande": "Anf\u00f6rande",
-                            "forslag": "F\u00f6rslag",
-                            "huvuddokument": "Huvuddokument",
-                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        "forslag": {
+                            "eng": "Förslag",
+                            "swe": "Förslag"
+                        },
+                        "huvuddokument": {
+                            "eng": "Huvuddokument",
+                            "swe": "Huvuddokument"
+                        },
+                        "utskottsforslag": {
+                            "eng": "Utskottsförslag",
+                            "swe": "Utskottsförslag"
                         }
                     }
                 },
@@ -1027,7 +1027,117 @@
                     }
                 },
                 {
-                    "name": "pos"
+                    "name": "pos",
+                    "translation_value": {
+                        "AB": {
+                            "eng": "adverb",
+                            "swe": "adverb"
+                        },
+                        "DL": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "DT": {
+                            "eng": "determiner",
+                            "swe": "determinerare"
+                        },
+                        "E": {
+                            "eng": "e",
+                            "swe": "e"
+                        },
+                        "HA": {
+                            "eng": "interrogative/relative adverb",
+                            "swe": "frågande/relativt adverb"
+                        },
+                        "HD": {
+                            "eng": "interrogative/relative determiner",
+                            "swe": "frågande/relativ determinerare"
+                        },
+                        "HP": {
+                            "eng": "interrogative/relative pronoun",
+                            "swe": "frågande/relativt pronomen"
+                        },
+                        "HS": {
+                            "eng": "interrogative/relative possessive",
+                            "swe": "frågande/relativt possesivt pronomen"
+                        },
+                        "IE": {
+                            "eng": "infinitive marker",
+                            "swe": "infinitivmärke"
+                        },
+                        "IN": {
+                            "eng": "interjection",
+                            "swe": "interjektion"
+                        },
+                        "JJ": {
+                            "eng": "adjective",
+                            "swe": "adjektiv"
+                        },
+                        "KN": {
+                            "eng": "conjunction",
+                            "swe": "konjunktion"
+                        },
+                        "MAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "MID": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "NN": {
+                            "eng": "noun",
+                            "swe": "substantiv"
+                        },
+                        "PAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "PC": {
+                            "eng": "participle",
+                            "swe": "particip"
+                        },
+                        "PL": {
+                            "eng": "particle",
+                            "swe": "partikel"
+                        },
+                        "PM": {
+                            "eng": "proper noun",
+                            "swe": "egennamn"
+                        },
+                        "PN": {
+                            "eng": "pronoun",
+                            "swe": "pronomen"
+                        },
+                        "PP": {
+                            "eng": "preposition",
+                            "swe": "preposition"
+                        },
+                        "PS": {
+                            "eng": "possessive",
+                            "swe": "possessivt pronomen"
+                        },
+                        "RG": {
+                            "eng": "cardinal number",
+                            "swe": "grundtal"
+                        },
+                        "RO": {
+                            "eng": "ordinal number",
+                            "swe": "ordningstal"
+                        },
+                        "SN": {
+                            "eng": "subjunction",
+                            "swe": "subjunktion"
+                        },
+                        "UO": {
+                            "eng": "foreign word",
+                            "swe": "utländskt ord"
+                        },
+                        "VB": {
+                            "eng": "verb",
+                            "swe": "verb"
+                        }
+                    }
                 },
                 {
                     "name": "msd"
@@ -1157,17 +1267,21 @@
                     "include_in_aggregation": true,
                     "name": "datatyp",
                     "translation_value": {
-                        "swe": {
-                            "anforande": "Anf\u00f6rande",
-                            "forslag": "F\u00f6rslag",
-                            "huvuddokument": "Huvuddokument",
-                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        "anforande": {
+                            "eng": "Anförande",
+                            "swe": "Anförande"
                         },
-                        "eng": {
-                            "anforande": "Anf\u00f6rande",
-                            "forslag": "F\u00f6rslag",
-                            "huvuddokument": "Huvuddokument",
-                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        "forslag": {
+                            "eng": "Förslag",
+                            "swe": "Förslag"
+                        },
+                        "huvuddokument": {
+                            "eng": "Huvuddokument",
+                            "swe": "Huvuddokument"
+                        },
+                        "utskottsforslag": {
+                            "eng": "Utskottsförslag",
+                            "swe": "Utskottsförslag"
                         }
                     }
                 },
@@ -1392,7 +1506,117 @@
                     }
                 },
                 {
-                    "name": "pos"
+                    "name": "pos",
+                    "translation_value": {
+                        "AB": {
+                            "eng": "adverb",
+                            "swe": "adverb"
+                        },
+                        "DL": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "DT": {
+                            "eng": "determiner",
+                            "swe": "determinerare"
+                        },
+                        "E": {
+                            "eng": "e",
+                            "swe": "e"
+                        },
+                        "HA": {
+                            "eng": "interrogative/relative adverb",
+                            "swe": "frågande/relativt adverb"
+                        },
+                        "HD": {
+                            "eng": "interrogative/relative determiner",
+                            "swe": "frågande/relativ determinerare"
+                        },
+                        "HP": {
+                            "eng": "interrogative/relative pronoun",
+                            "swe": "frågande/relativt pronomen"
+                        },
+                        "HS": {
+                            "eng": "interrogative/relative possessive",
+                            "swe": "frågande/relativt possesivt pronomen"
+                        },
+                        "IE": {
+                            "eng": "infinitive marker",
+                            "swe": "infinitivmärke"
+                        },
+                        "IN": {
+                            "eng": "interjection",
+                            "swe": "interjektion"
+                        },
+                        "JJ": {
+                            "eng": "adjective",
+                            "swe": "adjektiv"
+                        },
+                        "KN": {
+                            "eng": "conjunction",
+                            "swe": "konjunktion"
+                        },
+                        "MAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "MID": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "NN": {
+                            "eng": "noun",
+                            "swe": "substantiv"
+                        },
+                        "PAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "PC": {
+                            "eng": "participle",
+                            "swe": "particip"
+                        },
+                        "PL": {
+                            "eng": "particle",
+                            "swe": "partikel"
+                        },
+                        "PM": {
+                            "eng": "proper noun",
+                            "swe": "egennamn"
+                        },
+                        "PN": {
+                            "eng": "pronoun",
+                            "swe": "pronomen"
+                        },
+                        "PP": {
+                            "eng": "preposition",
+                            "swe": "preposition"
+                        },
+                        "PS": {
+                            "eng": "possessive",
+                            "swe": "possessivt pronomen"
+                        },
+                        "RG": {
+                            "eng": "cardinal number",
+                            "swe": "grundtal"
+                        },
+                        "RO": {
+                            "eng": "ordinal number",
+                            "swe": "ordningstal"
+                        },
+                        "SN": {
+                            "eng": "subjunction",
+                            "swe": "subjunktion"
+                        },
+                        "UO": {
+                            "eng": "foreign word",
+                            "swe": "utländskt ord"
+                        },
+                        "VB": {
+                            "eng": "verb",
+                            "swe": "verb"
+                        }
+                    }
                 },
                 {
                     "name": "msd"
@@ -1522,17 +1746,21 @@
                     "include_in_aggregation": true,
                     "name": "datatyp",
                     "translation_value": {
-                        "swe": {
-                            "anforande": "Anf\u00f6rande",
-                            "forslag": "F\u00f6rslag",
-                            "huvuddokument": "Huvuddokument",
-                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        "anforande": {
+                            "eng": "Anförande",
+                            "swe": "Anförande"
                         },
-                        "eng": {
-                            "anforande": "Anf\u00f6rande",
-                            "forslag": "F\u00f6rslag",
-                            "huvuddokument": "Huvuddokument",
-                            "utskottsforslag": "Utskottsf\u00f6rslag"
+                        "forslag": {
+                            "eng": "Förslag",
+                            "swe": "Förslag"
+                        },
+                        "huvuddokument": {
+                            "eng": "Huvuddokument",
+                            "swe": "Huvuddokument"
+                        },
+                        "utskottsforslag": {
+                            "eng": "Utskottsförslag",
+                            "swe": "Utskottsförslag"
                         }
                     }
                 },
@@ -1757,7 +1985,117 @@
                     }
                 },
                 {
-                    "name": "pos"
+                    "name": "pos",
+                    "translation_value": {
+                        "AB": {
+                            "eng": "adverb",
+                            "swe": "adverb"
+                        },
+                        "DL": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "DT": {
+                            "eng": "determiner",
+                            "swe": "determinerare"
+                        },
+                        "E": {
+                            "eng": "e",
+                            "swe": "e"
+                        },
+                        "HA": {
+                            "eng": "interrogative/relative adverb",
+                            "swe": "frågande/relativt adverb"
+                        },
+                        "HD": {
+                            "eng": "interrogative/relative determiner",
+                            "swe": "frågande/relativ determinerare"
+                        },
+                        "HP": {
+                            "eng": "interrogative/relative pronoun",
+                            "swe": "frågande/relativt pronomen"
+                        },
+                        "HS": {
+                            "eng": "interrogative/relative possessive",
+                            "swe": "frågande/relativt possesivt pronomen"
+                        },
+                        "IE": {
+                            "eng": "infinitive marker",
+                            "swe": "infinitivmärke"
+                        },
+                        "IN": {
+                            "eng": "interjection",
+                            "swe": "interjektion"
+                        },
+                        "JJ": {
+                            "eng": "adjective",
+                            "swe": "adjektiv"
+                        },
+                        "KN": {
+                            "eng": "conjunction",
+                            "swe": "konjunktion"
+                        },
+                        "MAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "MID": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "NN": {
+                            "eng": "noun",
+                            "swe": "substantiv"
+                        },
+                        "PAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "PC": {
+                            "eng": "participle",
+                            "swe": "particip"
+                        },
+                        "PL": {
+                            "eng": "particle",
+                            "swe": "partikel"
+                        },
+                        "PM": {
+                            "eng": "proper noun",
+                            "swe": "egennamn"
+                        },
+                        "PN": {
+                            "eng": "pronoun",
+                            "swe": "pronomen"
+                        },
+                        "PP": {
+                            "eng": "preposition",
+                            "swe": "preposition"
+                        },
+                        "PS": {
+                            "eng": "possessive",
+                            "swe": "possessivt pronomen"
+                        },
+                        "RG": {
+                            "eng": "cardinal number",
+                            "swe": "grundtal"
+                        },
+                        "RO": {
+                            "eng": "ordinal number",
+                            "swe": "ordningstal"
+                        },
+                        "SN": {
+                            "eng": "subjunction",
+                            "swe": "subjunktion"
+                        },
+                        "UO": {
+                            "eng": "foreign word",
+                            "swe": "utländskt ord"
+                        },
+                        "VB": {
+                            "eng": "verb",
+                            "swe": "verb"
+                        }
+                    }
                 },
                 {
                     "name": "msd"
@@ -1859,53 +2197,93 @@
                     "include_in_aggregation": true,
                     "name": "party",
                     "translation_value": {
-                        "swe": {
-                            "all": "Alliansen",
-                            "c": "Centerpartiet",
-                            "fi": "Feministiskt initiativ",
-                            "fp": "Folkpartiet liberalerna",
-                            "jr": "Jordbrukarnas riksf\u00f6rbund",
-                            "k_h": "Sveriges kommunistiska parti, H\u00f6glundarna",
-                            "k_k": "Sverges kommunistiska parti, Kilbommarna",
-                            "kd": "Kristdemokraterna",
-                            "la": "Lantmannapartiet",
-                            "labp": "Lantmanna- och borgarepartiet",
-                            "lisp": "Liberala samlingspartiet",
-                            "lp": "Sveriges liberala parti",
-                            "m": "Moderata samlingspartiet",
-                            "mp": "Milj\u00f6partiet de gr\u00f6na",
-                            "npf": "Nationella framstegspartiet",
-                            "nyd": "Ny demokrati",
-                            "pp": "Piratpartiet",
-                            "rg": "De r\u00f6dgr\u00f6na",
-                            "s": "Sveriges socialdemokratiska arbetareparti",
-                            "sd": "Sverigedemokraterna",
-                            "svp": "Sverges socialdemokratiska v\u00e4nsterparti",
-                            "v": "V\u00e4nsterpartiet"
+                        "all": {
+                            "eng": "Alliansen",
+                            "swe": "Alliansen"
                         },
-                        "eng": {
-                            "all": "Alliansen",
-                            "c": "Centerpartiet",
-                            "fi": "Feministiskt initiativ",
-                            "fp": "Folkpartiet liberalerna",
-                            "jr": "Jordbrukarnas riksf\u00f6rbund",
-                            "k_h": "Sveriges kommunistiska parti, H\u00f6glundarna",
-                            "k_k": "Sverges kommunistiska parti, Kilbommarna",
-                            "kd": "Kristdemokraterna",
-                            "la": "Lantmannapartiet",
-                            "labp": "Lantmanna- och borgarepartiet",
-                            "lisp": "Liberala samlingspartiet",
-                            "lp": "Sveriges liberala parti",
-                            "m": "Moderata samlingspartiet",
-                            "mp": "Milj\u00f6partiet de gr\u00f6na",
-                            "npf": "Nationella framstegspartiet",
-                            "nyd": "Ny demokrati",
-                            "pp": "Piratpartiet",
-                            "rg": "De r\u00f6dgr\u00f6na",
-                            "s": "Sveriges socialdemokratiska arbetareparti",
-                            "sd": "Sverigedemokraterna",
-                            "svp": "Sverges socialdemokratiska v\u00e4nsterparti",
-                            "v": "V\u00e4nsterpartiet"
+                        "c": {
+                            "eng": "Centerpartiet",
+                            "swe": "Centerpartiet"
+                        },
+                        "fi": {
+                            "eng": "Feministiskt initiativ",
+                            "swe": "Feministiskt initiativ"
+                        },
+                        "fp": {
+                            "eng": "Folkpartiet liberalerna",
+                            "swe": "Folkpartiet liberalerna"
+                        },
+                        "jr": {
+                            "eng": "Jordbrukarnas riksförbund",
+                            "swe": "Jordbrukarnas riksförbund"
+                        },
+                        "k_h": {
+                            "eng": "Sveriges kommunistiska parti, Höglundarna",
+                            "swe": "Sveriges kommunistiska parti, Höglundarna"
+                        },
+                        "k_k": {
+                            "eng": "Sverges kommunistiska parti, Kilbommarna",
+                            "swe": "Sverges kommunistiska parti, Kilbommarna"
+                        },
+                        "kd": {
+                            "eng": "Kristdemokraterna",
+                            "swe": "Kristdemokraterna"
+                        },
+                        "la": {
+                            "eng": "Lantmannapartiet",
+                            "swe": "Lantmannapartiet"
+                        },
+                        "labp": {
+                            "eng": "Lantmanna- och borgarepartiet",
+                            "swe": "Lantmanna- och borgarepartiet"
+                        },
+                        "lisp": {
+                            "eng": "Liberala samlingspartiet",
+                            "swe": "Liberala samlingspartiet"
+                        },
+                        "lp": {
+                            "eng": "Sveriges liberala parti",
+                            "swe": "Sveriges liberala parti"
+                        },
+                        "m": {
+                            "eng": "Moderata samlingspartiet",
+                            "swe": "Moderata samlingspartiet"
+                        },
+                        "mp": {
+                            "eng": "Miljöpartiet de gröna",
+                            "swe": "Miljöpartiet de gröna"
+                        },
+                        "npf": {
+                            "eng": "Nationella framstegspartiet",
+                            "swe": "Nationella framstegspartiet"
+                        },
+                        "nyd": {
+                            "eng": "Ny demokrati",
+                            "swe": "Ny demokrati"
+                        },
+                        "pp": {
+                            "eng": "Piratpartiet",
+                            "swe": "Piratpartiet"
+                        },
+                        "rg": {
+                            "eng": "De rödgröna",
+                            "swe": "De rödgröna"
+                        },
+                        "s": {
+                            "eng": "Sveriges socialdemokratiska arbetareparti",
+                            "swe": "Sveriges socialdemokratiska arbetareparti"
+                        },
+                        "sd": {
+                            "eng": "Sverigedemokraterna",
+                            "swe": "Sverigedemokraterna"
+                        },
+                        "svp": {
+                            "eng": "Sverges socialdemokratiska vänsterparti",
+                            "swe": "Sverges socialdemokratiska vänsterparti"
+                        },
+                        "v": {
+                            "eng": "Vänsterpartiet",
+                            "swe": "Vänsterpartiet"
                         }
                     },
                     "type": "enum"
@@ -1961,7 +2339,117 @@
                     }
                 },
                 {
-                    "name": "pos"
+                    "name": "pos",
+                    "translation_value": {
+                        "AB": {
+                            "eng": "adverb",
+                            "swe": "adverb"
+                        },
+                        "DL": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "DT": {
+                            "eng": "determiner",
+                            "swe": "determinerare"
+                        },
+                        "E": {
+                            "eng": "e",
+                            "swe": "e"
+                        },
+                        "HA": {
+                            "eng": "interrogative/relative adverb",
+                            "swe": "frågande/relativt adverb"
+                        },
+                        "HD": {
+                            "eng": "interrogative/relative determiner",
+                            "swe": "frågande/relativ determinerare"
+                        },
+                        "HP": {
+                            "eng": "interrogative/relative pronoun",
+                            "swe": "frågande/relativt pronomen"
+                        },
+                        "HS": {
+                            "eng": "interrogative/relative possessive",
+                            "swe": "frågande/relativt possesivt pronomen"
+                        },
+                        "IE": {
+                            "eng": "infinitive marker",
+                            "swe": "infinitivmärke"
+                        },
+                        "IN": {
+                            "eng": "interjection",
+                            "swe": "interjektion"
+                        },
+                        "JJ": {
+                            "eng": "adjective",
+                            "swe": "adjektiv"
+                        },
+                        "KN": {
+                            "eng": "conjunction",
+                            "swe": "konjunktion"
+                        },
+                        "MAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "MID": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "NN": {
+                            "eng": "noun",
+                            "swe": "substantiv"
+                        },
+                        "PAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "PC": {
+                            "eng": "participle",
+                            "swe": "particip"
+                        },
+                        "PL": {
+                            "eng": "particle",
+                            "swe": "partikel"
+                        },
+                        "PM": {
+                            "eng": "proper noun",
+                            "swe": "egennamn"
+                        },
+                        "PN": {
+                            "eng": "pronoun",
+                            "swe": "pronomen"
+                        },
+                        "PP": {
+                            "eng": "preposition",
+                            "swe": "preposition"
+                        },
+                        "PS": {
+                            "eng": "possessive",
+                            "swe": "possessivt pronomen"
+                        },
+                        "RG": {
+                            "eng": "cardinal number",
+                            "swe": "grundtal"
+                        },
+                        "RO": {
+                            "eng": "ordinal number",
+                            "swe": "ordningstal"
+                        },
+                        "SN": {
+                            "eng": "subjunction",
+                            "swe": "subjunktion"
+                        },
+                        "UO": {
+                            "eng": "foreign word",
+                            "swe": "utländskt ord"
+                        },
+                        "VB": {
+                            "eng": "verb",
+                            "swe": "verb"
+                        }
+                    }
                 },
                 {
                     "name": "msd"
@@ -2146,7 +2634,117 @@
                     }
                 },
                 {
-                    "name": "pos"
+                    "name": "pos",
+                    "translation_value": {
+                        "AB": {
+                            "eng": "adverb",
+                            "swe": "adverb"
+                        },
+                        "DL": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "DT": {
+                            "eng": "determiner",
+                            "swe": "determinerare"
+                        },
+                        "E": {
+                            "eng": "e",
+                            "swe": "e"
+                        },
+                        "HA": {
+                            "eng": "interrogative/relative adverb",
+                            "swe": "frågande/relativt adverb"
+                        },
+                        "HD": {
+                            "eng": "interrogative/relative determiner",
+                            "swe": "frågande/relativ determinerare"
+                        },
+                        "HP": {
+                            "eng": "interrogative/relative pronoun",
+                            "swe": "frågande/relativt pronomen"
+                        },
+                        "HS": {
+                            "eng": "interrogative/relative possessive",
+                            "swe": "frågande/relativt possesivt pronomen"
+                        },
+                        "IE": {
+                            "eng": "infinitive marker",
+                            "swe": "infinitivmärke"
+                        },
+                        "IN": {
+                            "eng": "interjection",
+                            "swe": "interjektion"
+                        },
+                        "JJ": {
+                            "eng": "adjective",
+                            "swe": "adjektiv"
+                        },
+                        "KN": {
+                            "eng": "conjunction",
+                            "swe": "konjunktion"
+                        },
+                        "MAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "MID": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "NN": {
+                            "eng": "noun",
+                            "swe": "substantiv"
+                        },
+                        "PAD": {
+                            "eng": "punctuation",
+                            "swe": "interpunktion"
+                        },
+                        "PC": {
+                            "eng": "participle",
+                            "swe": "particip"
+                        },
+                        "PL": {
+                            "eng": "particle",
+                            "swe": "partikel"
+                        },
+                        "PM": {
+                            "eng": "proper noun",
+                            "swe": "egennamn"
+                        },
+                        "PN": {
+                            "eng": "pronoun",
+                            "swe": "pronomen"
+                        },
+                        "PP": {
+                            "eng": "preposition",
+                            "swe": "preposition"
+                        },
+                        "PS": {
+                            "eng": "possessive",
+                            "swe": "possessivt pronomen"
+                        },
+                        "RG": {
+                            "eng": "cardinal number",
+                            "swe": "grundtal"
+                        },
+                        "RO": {
+                            "eng": "ordinal number",
+                            "swe": "ordningstal"
+                        },
+                        "SN": {
+                            "eng": "subjunction",
+                            "swe": "subjunktion"
+                        },
+                        "UO": {
+                            "eng": "foreign word",
+                            "swe": "utländskt ord"
+                        },
+                        "VB": {
+                            "eng": "verb",
+                            "swe": "verb"
+                        }
+                    }
                 },
                 {
                     "name": "msd"
