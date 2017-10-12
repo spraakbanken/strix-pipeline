@@ -206,7 +206,8 @@
         "translation_name": {
             "eng": "sense",
             "swe": "betydelse"
-        }
+        },
+        "type": "sense"
     },
     "sentiment": {
         "enabled": false,
