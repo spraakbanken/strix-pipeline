@@ -316,6 +316,7 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
     text_query_field = text_query.get("text_query_field", None)
     text_query_text = text_query.get("text_query", None)
     include_alternatives = text_query.get("include_alternatives", False)
+    in_order = text_query.get("in_order", True)
     s = Search(index=corpus, doc_type=doc_type)
     id_query = Q("term", doc_id=doc_id)
     if text_query_field and text_query_text:
@@ -323,7 +324,7 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
             text_query_field = text_query_field + "_alt"
         span_query = Q("span_term", **{"text." + text_query_field: text_query_text})
     elif text_query_text:
-        span_query = analyze_and_create_span_query(text_query_text)
+        span_query = analyze_and_create_span_query(text_query_text, in_order=in_order)
     else:
         span_query = None
     if span_query:
