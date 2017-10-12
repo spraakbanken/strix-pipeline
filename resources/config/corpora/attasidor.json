@@ -9,14 +9,18 @@
     "eng": "News articles from 8 SIDOR.",
     "swe": "Nyhetsartiklar från 8 SIDOR."
   },
-  "file_name_pattern": "8sidor.xml",
+  "file_name_pattern": "*.xml",
   "analyze_config": {
     "struct_attributes": {
       "sentence": ["id", "geocontext"],
       "paragraph": ["geocontext"]
     },
-    "text_attributes": ["title", "date"]
+    "text_attributes": ["title", "date",  "author", "tags", "url"]
   },
   "document_id": "generated",
-  "document_id_hash": true
+  "document_id_hash": true,
+  "title": [
+    { "title": "title" },
+    { "title": "date" }
+  ]
 }
