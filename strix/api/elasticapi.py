@@ -456,6 +456,7 @@ def get_config(only_ids=False):
         return index_names
 
     indices = {}
+    type_info = corpusconf.get_type_info()
     for index in index_names:
         config_json = corpusconf.get_corpus_conf(index)
         names = config_json["corpus_name"]
@@ -471,11 +472,16 @@ def get_config(only_ids=False):
                     del attr_val["-"]
             return attr
 
-        word_attrs = [update_translation(corpusconf.get_word_attribute(attr))for attr in analyze_config["word_attributes"]]
-        text_attrs = [update_translation(corpusconf.get_text_attribute(attr)) for attr in analyze_config["text_attributes"]]
+        def insert_type_info(attr):
+            if attr.get("type") and attr["type"] in type_info:
+                attr["type_info"] = type_info[attr["type"]]
+            return attr
+
+        word_attrs = [insert_type_info(update_translation(corpusconf.get_word_attribute(attr)))for attr in analyze_config["word_attributes"]]
+        text_attrs = [insert_type_info(update_translation(corpusconf.get_text_attribute(attr))) for attr in analyze_config["text_attributes"]]
         struct_attrs = {}
         for struct_node, struct_config in analyze_config["struct_attributes"].items():
-            struct_attrs[struct_node] = [update_translation(corpusconf.get_struct_attribute(attr)) for attr in struct_config]
+            struct_attrs[struct_node] = [insert_type_info(update_translation(corpusconf.get_struct_attribute(attr))) for attr in struct_config]
 
         indices[index] = {
             "name": names,

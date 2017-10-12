@@ -72,6 +72,15 @@ def is_object(path):
         raise ValueError("\"" + ".".join(path) + "\" is not configured")
 
 
+def get_type_info():
+    return _type_info
+
+
+def _load_type_info():
+    type_file = os.path.join(config.base_dir, "resources/config/attributes/types.json")
+    return json.load(open(type_file))
+
+
 def _get_all_config_files():
     config_files = {}
     for file in glob.glob(_get_config_file("*")):
@@ -142,3 +151,4 @@ _all_config_files = _get_all_config_files()
 _word_attributes = _get_attributes("word_attributes")
 _struct_attributes = _get_attributes("struct_attributes")
 _text_attributes = _get_attributes("text_attributes")
+_type_info = _load_type_info()

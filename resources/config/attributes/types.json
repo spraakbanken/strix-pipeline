@@ -1,0 +1,154 @@
+{
+    "lemgram": {
+        "translation_value": {
+            "nn": {
+                "eng": "noun",
+                "swe": "substantiv"
+            },
+            "av": {
+                "eng": "adjective",
+                "swe": "adjektiv"
+            },
+            "vb": {
+                "eng": "verb",
+                "swe": "verb"
+            },
+            "pm": {
+                "eng": "proper noun",
+                "swe": "egennamn"
+            },
+            "ab": {
+                "eng": "adverb",
+                "swe": "adverb"
+            },
+            "in": {
+                "eng": "interjection",
+                "swe": "interjektion"
+            },
+            "pp": {
+                "eng": "preposition",
+                "swe": "preposition"
+            },
+            "nl": {
+                "eng": "numeral",
+                "swe": "numeral"
+            },
+            "pn": {
+                "eng": "pronoun",
+                "swe": "pronomen"
+            },
+            "sn": {
+                "eng": "subjunction",
+                "swe": "subjunktion"
+            },
+            "kn": {
+                "eng": "conjunction",
+                "swe": "konjunktion"
+            },
+            "al": {
+                "eng": "article",
+                "swe": "artikel"
+            },
+            "ie": {
+                "eng": "infinitive particle",
+                "swe": "infinitivmärke"
+            },
+            "mxc": {
+                "eng": "multiword prefix",
+                "swe": "flerordsprefix"
+            },
+            "sxc": {
+                "eng": "prefix",
+                "swe": "prefix"
+            },
+            "abh": {
+                "eng": "adverb suffix",
+                "swe": "adverbsuffix"
+            },
+            "avh": {
+                "eng": "adjective suffix",
+                "swe": "adjektivsuffix"
+            },
+            "nnh": {
+                "eng": "noun suffix",
+                "swe": "substantivsuffix"
+            },
+            "nnm": {
+                "eng": "multiword noun",
+                "swe": "substantiv, flerording"
+            },
+            "nna": {
+                "eng": "noun, abbreviation",
+                "swe": "substantiv, förkortning"
+            },
+            "avm": {
+                "eng": "multiword adjective",
+                "swe": "adjektiv, flerording"
+            },
+            "ava": {
+                "eng": "adjective, abbreviation",
+                "swe": "adjektiv, förkortning"
+            },
+            "vbm": {
+                "eng": "multiword verb",
+                "swe": "verb, flerording"
+            },
+            "vba": {
+                "eng": "verb, abbreviation",
+                "swe": "verb, förkortning"
+            },
+            "pmm": {
+                "eng": "multiword proper noun",
+                "swe": "egennamn, flerording"
+            },
+            "pma": {
+                "eng": "proper noun, abbreviation",
+                "swe": "egennamn, förkortning"
+            },
+            "abm": {
+                "eng": "multiword adverb",
+                "swe": "adverb, flerording"
+            },
+            "aba": {
+                "eng": "adverb, abbreviation",
+                "swe": "adverb, förkortning"
+            },
+            "pnm": {
+                "eng": "multiword pronoun",
+                "swe": "pronomen, flerording"
+            },
+            "inm": {
+                "eng": "multiword interjection",
+                "swe": "interjektion, flerording"
+            },
+            "ppm": {
+                "eng": "multiword preposition",
+                "swe": "preposition, flerording"
+            },
+            "ppa": {
+                "eng": "preposition, abbreviation",
+                "swe": "preposition, förkortning"
+            },
+            "nlm": {
+                "eng": "multiword numeral",
+                "swe": "numeral, flerording"
+            },
+            "knm": {
+                "eng": "multiword conjunction",
+                "swe": "konjunktion, flerording"
+            },
+            "snm": {
+                "eng": "multiword subjunction",
+                "swe": "subjunktion, flerording"
+            },
+            "kna": {
+                "eng": "conjunction, abbreviation",
+                "swe": "konjunktion, förkortning"
+            },
+            "ssm": {
+                "eng": "multiword, clause",
+                "swe": "flerording, sats"
+            }
+        }
+    }
+}
