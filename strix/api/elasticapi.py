@@ -580,7 +580,8 @@ def get_aggs(corpora=(), text_query=None, text_filter=None, facet_count=4, inclu
     new_result = {"aggregations": {}, "unused_facets": additional_text_attributes}
     for x in result["aggregations"]:
         new_key = x.split("_all")[0]
-        new_result["aggregations"][new_key] = result["aggregations"][x][new_key]
+        new_result["aggregations"][new_key] = {}
+        new_result["aggregations"][new_key]["buckets"] = [bucket for bucket in result["aggregations"][x][new_key]["buckets"] if bucket["key"] != "-"]
         if new_key in date_aggs:
             for bucket in new_result["aggregations"][new_key]["buckets"]:
                 del bucket["key_as_string"]
