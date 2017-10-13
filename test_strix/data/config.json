@@ -228,7 +228,8 @@
                 {
                     "name": "sense",
                     "ranked": true,
-                    "set": false
+                    "set": false,
+                    "type": "sense"
                 },
                 {
                     "name": "compwf",
@@ -691,7 +692,8 @@
                 {
                     "name": "sense",
                     "ranked": true,
-                    "set": false
+                    "set": false,
+                    "type": "sense"
                 },
                 {
                     "name": "compwf",
@@ -1145,7 +1147,8 @@
                 {
                     "name": "sense",
                     "ranked": true,
-                    "set": false
+                    "set": false,
+                    "type": "sense"
                 },
                 {
                     "name": "compwf",
@@ -1624,7 +1627,8 @@
                 {
                     "name": "sense",
                     "ranked": true,
-                    "set": false
+                    "set": false,
+                    "type": "sense"
                 },
                 {
                     "name": "compwf",
@@ -2103,7 +2107,8 @@
                 {
                     "name": "sense",
                     "ranked": true,
-                    "set": false
+                    "set": false,
+                    "type": "sense"
                 },
                 {
                     "name": "compwf",
@@ -2291,7 +2296,7 @@
                 {
                     "include_in_aggregation": true,
                     "name": "type",
-                    "type": "enum"
+                    "type": "keyword"
                 },
                 {
                     "include_in_aggregation": true,
@@ -2457,7 +2462,8 @@
                 {
                     "name": "sense",
                     "ranked": true,
-                    "set": false
+                    "set": false,
+                    "type": "sense"
                 },
                 {
                     "name": "compwf",
@@ -2608,7 +2614,8 @@
                     "name": "title"
                 },
                 {
-                    "name": "url"
+                    "name": "url",
+                    "type": "url"
                 }
             ],
             "word_attributes": [
@@ -2752,7 +2759,8 @@
                 {
                     "name": "sense",
                     "ranked": true,
-                    "set": false
+                    "set": false,
+                    "type": "sense"
                 },
                 {
                     "name": "compwf",
