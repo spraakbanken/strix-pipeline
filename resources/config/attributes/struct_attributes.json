@@ -1,6 +1,7 @@
 {
     "geocontext": {
         "index_in_text": false,
+        "enabled": false,
         "name": "geocontext",
         "nodeName": "_geocontext",
         "properties": {
