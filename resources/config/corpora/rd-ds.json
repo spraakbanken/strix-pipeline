@@ -63,8 +63,8 @@
     },
     "corpus_id": "rd-ds",
     "corpus_name": {
-        "swe": "Departementsserien",
-        "eng": "Departementsserien"
+        "swe": "RD - Departementsserien",
+        "eng": "RD - Departementsserien"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Utredningar från regeringens departement.",

@@ -62,8 +62,8 @@
     },
     "corpus_id": "rd-flista",
     "corpus_name": {
-        "swe": "Föredragningslista",
-        "eng": "Föredragningslista"
+        "swe": "RD - Föredragningslista",
+        "eng": "RD - Föredragningslista"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Föredragningslistor för kammarens sammanträden.",

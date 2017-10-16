@@ -70,8 +70,8 @@
     },
     "corpus_id": "rd-skfr",
     "corpus_name": {
-        "swe": "Skriftliga frågor",
-        "eng": "Skriftliga frågor"
+        "swe": "RD - Skriftliga frågor",
+        "eng": "RD - Skriftliga frågor"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Skriftliga frågor från ledamöterna till regeringen och svaren på dessa.",

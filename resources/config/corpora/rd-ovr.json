@@ -71,8 +71,8 @@
     },
     "corpus_id": "rd-ovr",
     "corpus_name": {
-        "swe": "The Riksdag's open data - other",
-        "eng": "Riksdagens öppna data - övrigt"
+        "swe": "RD - The Riksdag's open data - other",
+        "eng": "RD - Riksdagens öppna data - övrigt"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Dokumentserierna Riksrevisionens granskningsrapporter, Utredningar från Riksdagsförvaltningen och Rapporter från riksdagen samt planeringsdokument, bilagor till dokument och uttag ur riksdagens databaser.",

@@ -70,8 +70,8 @@
     },
     "corpus_id": "rd-rskr",
     "corpus_name": {
-        "swe": "Riksdagsskrivelse",
-        "eng": "Riksdagsskrivelse"
+        "swe": "RD - Riksdagsskrivelse",
+        "eng": "RD - Riksdagsskrivelse"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Skrivelser från riksdagen till regeringen.",

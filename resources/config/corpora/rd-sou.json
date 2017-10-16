@@ -70,8 +70,8 @@
     },
     "corpus_id": "rd-sou",
     "corpus_name": {
-        "swe": "Statens offentliga utredningar",
-        "eng": "Statens offentliga utredningar"
+        "swe": "RD - Statens offentliga utredningar",
+        "eng": "RD - Statens offentliga utredningar"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Olika utredningars förslag till regeringen.",

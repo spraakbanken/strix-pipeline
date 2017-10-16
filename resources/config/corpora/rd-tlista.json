@@ -70,8 +70,8 @@
     },
     "corpus_id": "rd-tlista",
     "corpus_name": {
-        "swe": "Talarlista",
-        "eng": "Talarlista"
+        "swe": "RD - Talarlista",
+        "eng": "RD - Talarlista"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Talarlistor för kammarens sammanträden.",

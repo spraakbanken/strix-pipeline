@@ -72,8 +72,8 @@
     },
     "corpus_id": "rd-utr",
     "corpus_name": {
-        "swe": "Utredningar",
-        "eng": "Utredningar"
+        "swe": "RD - Utredningar",
+        "eng": "RD - Utredningar"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Kommittédirektiv och kommittéberättelser för utredningar som regeringen tillsätter.",

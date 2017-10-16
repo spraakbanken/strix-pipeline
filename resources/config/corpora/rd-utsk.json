@@ -70,8 +70,8 @@
     },
     "corpus_id": "rd-utsk",
     "corpus_name": {
-        "swe": "Utskottsdokument",
-        "eng": "Utskottsdokument"
+        "swe": "RD - Utskottsdokument",
+        "eng": "RD - Utskottsdokument"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Dokument från utskotten, bland annat KU-anmälningar, protokoll, verksamhetsberättelser och den gamla dokumentserien Utredningar från riksdagen.",

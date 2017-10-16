@@ -70,8 +70,8 @@
     },
     "corpus_id": "rd-kom",
     "corpus_name": {
-        "swe": "KOM",
-        "eng": "KOM"
+        "swe": "RD - KOM",
+        "eng": "RD - KOM"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: EU-kommissionens förslag och redogörelser, så kallade KOM-dokument.",

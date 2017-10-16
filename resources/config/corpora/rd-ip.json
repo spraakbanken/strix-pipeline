@@ -70,8 +70,8 @@
     },
     "corpus_id": "rd-ip",
     "corpus_name": {
-        "swe": "Interpellation",
-        "eng": "Interpellation"
+        "swe": "RD - Interpellation",
+        "eng": "RD - Interpellation"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Interpellationer från ledamöterna till regeringen.",

@@ -42,8 +42,8 @@
     },
     "corpus_id": "rd-prop",
     "corpus_name": {
-        "swe": "Proposition",
-        "eng": "Proposition"
+        "swe": "RD - Proposition",
+        "eng": "RD - Proposition"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Propositioner och skrivelser från regeringen.",

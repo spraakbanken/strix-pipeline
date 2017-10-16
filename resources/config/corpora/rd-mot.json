@@ -40,8 +40,8 @@
     },
     "corpus_id": "rd-mot",
     "corpus_name": {
-        "swe": "Motion",
-        "eng": "Motion"
+        "swe": "RD - Motion",
+        "eng": "RD - Motion"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Motioner från riksdagens ledamöter.",

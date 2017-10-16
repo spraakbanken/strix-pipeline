@@ -63,8 +63,8 @@
     },
     "corpus_id": "rd-eun",
     "corpus_name": {
-        "swe": "EUN",
-        "eng": "EUN"
+        "swe": "RD - EUN",
+        "eng": "RD - EUN"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Dokument från EU-nämnden, bland annat möteskallelser, föredragningslistor, protokoll och skriftliga samråd med regeringen.",

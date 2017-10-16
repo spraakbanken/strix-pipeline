@@ -62,8 +62,8 @@
     },
     "corpus_id": "rd-fpm",
     "corpus_name": {
-        "swe": "Faktapromemoria",
-        "eng": "Faktapromemoria"
+        "swe": "RD - Faktapromemoria",
+        "eng": "RD - Faktapromemoria"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Regeringens faktapromemorior om EU-kommissionens förslag.",

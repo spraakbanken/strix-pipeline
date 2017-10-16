@@ -72,8 +72,8 @@
     },
     "corpus_id": "rd-prot",
     "corpus_name": {
-        "swe": "Protokoll",
-        "eng": "Protokoll"
+        "swe": "RD - Protokoll",
+        "eng": "RD - Protokoll"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Protokoll från kammarens sammanträden.",

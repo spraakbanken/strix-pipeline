@@ -63,8 +63,8 @@
     },
     "corpus_id": "rd-bet",
     "corpus_name": {
-        "swe": "Betänkande",
-        "eng": "Betänkande"
+        "swe": "RD - Betänkande",
+        "eng": "RD - Betänkande"
     },
     "corpus_description": {
         "swe": "Riksdagens öppna data: Utskottens betänkanden och utlåtanden, inklusive rksdagens beslut, en sammanfattning av voteringsresultaten och Beslut i korthet.",
