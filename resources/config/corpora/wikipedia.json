@@ -2,8 +2,8 @@
   "parents": ["strix-parent", "name_tagging", "sense"],
   "corpus_id": "wikipedia",
   "corpus_name": {
-    "eng": "Swedish Wikipedia Corpus",
-    "swe": "Svenska Wikipedia-korpusen"
+    "eng": "Swedish Wikipedia",
+    "swe": "Svenska Wikipedia"
   },
   "corpus_description": {
     "eng": "Corpus of Swedish Wikipedia",
