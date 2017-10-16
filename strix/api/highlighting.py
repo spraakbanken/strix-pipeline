@@ -199,10 +199,12 @@ def get_term_index(documents, context_size, include_annotations=True):
 
 def get_terms(documents):
     should_clauses = []
+    tot_size = 0
     for corpus, doc_types in documents.items():
         for doc_type, doc_ids in doc_types.items():
             for doc_id, positions in doc_ids.items():
                 should_clauses.append(get_term_index_query(corpus, doc_type, doc_id, positions=positions))
+                tot_size += len(positions)
                 documents[corpus][doc_type][doc_id] = {}
 
     if len(should_clauses) == 0:
@@ -213,7 +215,13 @@ def get_terms(documents):
     s = Search(index="*_terms", doc_type="term").query(query)
     s.sort("_doc")
 
-    for hit in s.scan():
+    if tot_size < 1000:
+        s = s[0:tot_size]
+        res = s.execute()
+    else:
+        res = s.scan()
+
+    for hit in res:
         source = hit.to_dict()
         corpus = hit.meta.index.split("_")[0]
         doc_type = source["doc_type"]
