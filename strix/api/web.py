@@ -58,7 +58,7 @@ def get_search(request_obj):
     can_use_highlight = False
     if "text_query" in request.args:
         # TODO remove lowercase-filter in mappingutil, then remove this
-        text_query_obj["text_query"] = request.args.get("text_query").lower()
+        text_query_obj["text_query"] = request.args.get("text_query").lower().strip()
         can_use_highlight = True
 
     if "text_query_field" in request.args:
