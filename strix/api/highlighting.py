@@ -200,10 +200,14 @@ def get_term_index(documents, context_size, include_annotations=True):
 def get_terms(documents):
     should_clauses = []
     tot_size = 0
+    use_corpus_name = True
     for corpus, doc_types in documents.items():
+        if corpus.startswith("littb"):
+            use_corpus_name = False
+            littb_corpus = corpus
         for doc_type, doc_ids in doc_types.items():
             for doc_id, positions in doc_ids.items():
-                should_clauses.append(get_term_index_query(corpus, doc_type, doc_id, positions=positions))
+                should_clauses.append(get_term_index_query(corpus, doc_type, doc_id, positions=positions, include_index_term=use_corpus_name))
                 tot_size += len(positions)
                 documents[corpus][doc_type][doc_id] = {}
 
@@ -212,7 +216,11 @@ def get_terms(documents):
 
     query = Q("bool", should=should_clauses)
 
-    s = Search(index="*_terms", doc_type="term").query(query)
+    if use_corpus_name:
+        index = "*_terms"
+    else:
+        index = littb_corpus + "_terms"
+    s = Search(index=index, doc_type="term").query(query)
     s.sort("_doc")
 
     if tot_size < 1000:
@@ -223,7 +231,10 @@ def get_terms(documents):
 
     for hit in res:
         source = hit.to_dict()
-        corpus = hit.meta.index.split("_")[0]
+        if use_corpus_name:
+            corpus = hit.meta.index.split("_")[0]
+        else:
+            corpus = littb_corpus
         doc_type = source["doc_type"]
         doc_id = source["doc_id"]
         documents[corpus][doc_type][doc_id][source["position"]] = source["term"]
@@ -246,7 +257,7 @@ def get_terms_for_doc(corpus, doc_type, doc_id, positions=(), from_pos=None, siz
     return term_index
 
 
-def get_term_index_query(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None):
+def get_term_index_query(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None, include_index_term=True):
     must_clauses = []
     if positions:
         must_clauses.append(Q("terms", position=positions))
@@ -260,7 +271,8 @@ def get_term_index_query(corpus, doc_type, doc_id, positions=(), from_pos=None, 
 
     must_clauses.append(Q("term", doc_id=doc_id))
     must_clauses.append(Q("term", doc_type=doc_type))
-    must_clauses.append(Q("term", _index=corpus + "_terms"))
+    if include_index_term:
+        must_clauses.append(Q("term", _index=corpus + "_terms"))
 
     return Q("constant_score", filter=Q("bool", must=must_clauses))
 
