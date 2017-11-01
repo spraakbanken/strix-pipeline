@@ -352,17 +352,18 @@ def search_in_document(corpus, doc_type, doc_id, current_position=-1, size=None,
 
 
 def fix_includes_excludes(includes, excludes, corpora):
-    new_includes = list(includes)
-    new_excludes = list(excludes)
+    new_includes = list(includes) if includes else includes
+    new_excludes = list(excludes) if excludes else excludes
 
-    if "*" in excludes:
-        new_excludes = ("dump", "lines")
-        for corpus in corpora:
-            new_excludes += tuple(text_attributes[corpus].keys())
-    if "*" in excludes or "text_attributes" in excludes:
-        for corpus in corpora:
-            new_excludes += tuple(text_attributes[corpus].keys())
-    new_excludes += ("text", "original_file", "similarity_tags")
+    if excludes:
+        if "*" in excludes:
+            new_excludes = ("dump", "lines")
+            for corpus in corpora:
+                new_excludes += tuple(text_attributes[corpus].keys())
+        if "*" in excludes or "text_attributes" in excludes:
+            for corpus in corpora:
+                new_excludes += tuple(text_attributes[corpus].keys())
+        new_excludes += ("text", "original_file", "similarity_tags")
 
     if includes:
         includes += ("doc_id",)
