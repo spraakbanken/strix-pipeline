@@ -249,7 +249,7 @@ def get_terms_for_doc(corpus, doc_type, doc_id, positions=(), from_pos=None, siz
 def get_term_index_query(corpus, doc_type, doc_id, positions=(), from_pos=None, size=None):
     must_clauses = []
     if positions:
-        must_clauses.append(Q("terms", pos_str=positions))
+        must_clauses.append(Q("terms", position=positions))
     elif from_pos or size:
         if not from_pos:
             from_pos = 0
