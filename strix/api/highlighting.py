@@ -23,12 +23,9 @@ def highlight_search(documents, hits, highlight=None, simple_highlight=None, cor
             if simple_highlight:
                 highlights = get_simple_kwic(highlights)
 
-            if highlights or  (not simple_highlight):
-                item["highlight"] = {
-                    "highlight": highlights,
-                    "total_doc_highlights": len(highlights),
-                    "doc_id": doc_id
-                }
+            if highlights or (not simple_highlight):
+                item["highlight"] = highlights
+                item["total_doc_highlights"] = len(highlights)
 
 
 def get_document_highlights(corpus, es_id, doc_type, spans):
