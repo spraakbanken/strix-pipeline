@@ -34,7 +34,7 @@ class WebApiTest(unittest.TestCase):
         result = self.do_request("/search?exclude=text,dump,lines,token_lookup&corpora=" + WebApiTest.corpus + "&text_query=" + WebApiTest.search["value"])
         assert result["hits"] == WebApiTest.search["expected_results"]
 
-        for token in result["data"][0]["highlight"]["highlight"][0]["match"]:
+        for token in result["data"][0]["highlight"][0]["match"]:
             assert token["word"] in WebApiTest.search["value"].split(" ")
 
         for data in result["data"]:

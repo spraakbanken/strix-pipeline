@@ -24,7 +24,7 @@ class ElasticApiTest(unittest.TestCase):
         assert result['hits'] == 1
         item = result['data'][0]
         assert item["text_attributes"]['party'] != ''
-        assert "hund" in item['highlight']['highlight'][0]['match'][0]['word']
+        assert "hund" in item['highlight'][0]['match'][0]['word']
 
     def test_simple_search_excludes(self):
         result = api.search("text", corpora="vivill", text_query={"text_query": "hund"}, excludes=['dump'])

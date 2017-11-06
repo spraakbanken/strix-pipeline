@@ -193,7 +193,7 @@ class FacetetSearchTest(unittest.TestCase):
         unused_facets = result["unused_facets"]
         assert "talare" in unused_facets
         assert "datatyp" in unused_facets
-        assert len(unused_facets) == 9
+        assert len(unused_facets) == 14
 
     def test_corpus_id_filter_without_brackets(self):
         result = self.do_request("/aggs?text_filter={\"corpus_id\":\"rd-sou\"}")
@@ -212,8 +212,6 @@ class FacetetSearchTest(unittest.TestCase):
             if corp_bucket["key"] == "rd-kammakt":
                 kammakt_found = True
                 count = 1
-            elif corp_bucket["key"] == "attasidor":
-                count = 4
             else:
                 count = 0
 

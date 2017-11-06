@@ -23,14 +23,14 @@ class FacetetSearchTest(unittest.TestCase):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"bok\"&corpora=fragelistor,rd-eun,rd-flista,rd-kammakt,vivill,wikipedia,rd-sou")
         assert result["hits"] == 8
         for hit in result["data"]:
-            for highlight in hit["highlight"]["highlight"]:
+            for highlight in hit["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "bok"
 
     def test_only_quote(self):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"&corpora=fragelistor,rd-eun,rd-flista,rd-kammakt,vivill,wikipedia,rd-sou")
         assert result["hits"] == 143
         for hit in result["data"]:
-            for highlight in hit["highlight"]["highlight"]:
+            for highlight in hit["highlight"]:
                 assert highlight["match"][0]["word"] == '"'
 
     def test_unlemmatizable(self):
@@ -42,7 +42,7 @@ class FacetetSearchTest(unittest.TestCase):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"var en svensk\"&from=0&to=50")
         assert result["hits"] == 31
         for hit in result["data"]:
-            for highlight in hit["highlight"]["highlight"]:
+            for highlight in hit["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "var"
                 assert highlight["match"][1]["word"].lower() == "en"
                 assert highlight["match"][2]["word"].lower() == "svensk"
@@ -51,7 +51,7 @@ class FacetetSearchTest(unittest.TestCase):
         result = self.do_request("/search?exclude=dump,lines&text_query=\"det är en\"&corpora=vivill")
         assert result["hits"] == 23
         for hit in result["data"]:
-            for highlight in hit["highlight"]["highlight"]:
+            for highlight in hit["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "det"
                 assert highlight["match"][1]["word"].lower() == "är"
                 assert highlight["match"][2]["word"].lower() == "en"
@@ -64,7 +64,7 @@ class FacetetSearchTest(unittest.TestCase):
         found_den = False
         found_ett = False
         for hit in result["data"]:
-            for highlight in hit["highlight"]["highlight"]:
+            for highlight in hit["highlight"]:
                 assert highlight["match"][0]["word"].lower() == "det"
                 assert highlight["match"][1]["word"].lower() == "är"
                 word = highlight["match"][2]["word"].lower()

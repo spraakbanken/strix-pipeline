@@ -30,12 +30,12 @@ class WebApiTest(unittest.TestCase):
         assert result["hits"] == 8
 
         for hit in result["data"]:
-            in_text = "highlight" in hit and len(hit["highlight"]["highlight"]) > 0
+            in_text = "highlight" in hit and len(hit["highlight"]) > 0
             in_title = "kris" in hit["title"].lower() and "oro" in hit["title"].lower()
             assert (in_text or in_title)
 
             if in_text:
-                for highlight in hit["highlight"]["highlight"]:
+                for highlight in hit["highlight"]:
                     for match in highlight["match"]:
                         word = match["word"].lower()
                         assert word in ["kris", "oro", "krisens", "oron", "krisen", "kriser"]

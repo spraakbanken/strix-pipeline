@@ -21,8 +21,8 @@ class WebApiTest(unittest.TestCase):
 
     def test_search_top_ranked(self):
         result = self.do_request("http://localhost:5000/search?exclude=dump,lines,token_lookup,text_attributes&text_query=den..2&text_query_field=sense&highlight=false")
-        assert result["hits"] == 1883
+        assert result["hits"] == 1885
 
     def test_search_alternatives(self):
         result = self.do_request("http://localhost:5000/search?exclude=dump,lines,token_lookup,text_attributes&text_query=den..2&text_query_field=sense&highlight=false&include_alternatives")
-        assert result["hits"] == 2692
+        assert result["hits"] == 2694
