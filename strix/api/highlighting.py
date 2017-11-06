@@ -25,7 +25,6 @@ def highlight_search(documents, hits, highlight=None, simple_highlight=None, cor
 
             if highlights or (not simple_highlight):
                 item["highlight"] = highlights
-                item["total_doc_highlights"] = len(highlights)
 
 
 def get_document_highlights(corpus, es_id, doc_type, spans):
