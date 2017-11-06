@@ -707,23 +707,6 @@
             "swe": "år"
         }
     },
-    "author": {
-        "include_in_aggregation": true,
-        "name": "author",
-        "translation_name": {
-            "eng": "author (8 sidor)",
-            "swe": "författare (8 sidor)"
-        }
-    },
-    "tags": {
-        "include_in_aggregation": true,
-        "name": "tags",
-        "set": true,
-        "translation_name": {
-            "eng": "tags (8 sidor)",
-            "swe": "taggar (8 sidor)"
-        }
-    },
     "country": {
         "include_in_aggregation": true,
         "name": "country",
