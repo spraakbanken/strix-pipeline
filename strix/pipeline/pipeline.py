@@ -7,6 +7,7 @@ import elasticsearch
 import elasticsearch.helpers
 import elasticsearch.exceptions
 from strix.config import config
+import strix.corpusconf as corpusconf
 import strix.pipeline.insertdata as insert_data_strix
 import strix.pipeline.createindex as create_index_strix
 import strix.pipeline.runhistory
@@ -240,12 +241,16 @@ def setup_alias(alias_name, index_name):
 
 
 def delete_index_by_prefix(prefix):
-    es.indices.delete(prefix + "*")
+    es.indices.delete(prefix + "_*")
 
 
 def do_run(index, doc_ids=(), limit_to=None):
     strix.pipeline.runhistory.create()
     before_t = time.time()
+
+    if not corpusconf.is_corpus(index):
+        _logger.error("\"" + index + " is not a configured corpus.")
+        return
 
     ci = create_index_strix.CreateIndex(index)
     ci.enable_insert_settings()
@@ -269,14 +274,17 @@ def do_run(index, doc_ids=(), limit_to=None):
 
 def recreate_indices(indices):
     for index in indices:
-        delete_index_by_prefix(index)
-        ci = create_index_strix.CreateIndex(index)
-        try:
-            index_name = ci.create_index()
-            setup_alias(index, index_name)
-        except elasticsearch.exceptions.TransportError as e:
-            _logger.exception("transport error")
-            raise e
+        if corpusconf.is_corpus(index):
+            delete_index_by_prefix(index)
+            ci = create_index_strix.CreateIndex(index)
+            try:
+                index_name = ci.create_index()
+                setup_alias(index, index_name)
+            except elasticsearch.exceptions.TransportError as e:
+                _logger.exception("transport error")
+                raise e
+        else:
+            _logger.error("\"" + index + "\" is not a configured corpus")
 
 
 def reindex(indices):

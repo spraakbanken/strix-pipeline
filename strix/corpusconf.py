@@ -15,6 +15,13 @@ def get_corpus_conf(corpus_id):
     return _all_config_files[corpus_id]
 
 
+def is_corpus(corpus_id):
+    """
+    checks if corpus_id is an actual configured corpus
+    """
+    return corpus_id in _all_config_files
+
+
 def get_word_attribute(attr_name):
     return _word_attributes[attr_name]
 
