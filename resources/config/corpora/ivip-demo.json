@@ -1,0 +1,66 @@
+{
+    "parents": [
+        "strix-parent",
+        "base",
+        "dep",
+        "time",
+        "name_tagging",
+        "sense"
+    ],
+    "corpus_id": "ivip-demo",
+    "corpus_name": {
+        "eng": "IVIP demo",
+        "swe": "IVIP demo"
+    },
+    "corpus_description": {
+        "eng": "IVIP demo",
+        "swe": "IVIP demo"
+    },
+    "file_name_pattern": "*.xml",
+    "analyze_config": {
+        "struct_attributes": {
+            "sentence": [
+                "id",
+                "geocontext",
+                "start",
+                "end",
+                "speaker_id",
+                "speaker_role",
+                "speaker_age",
+                "speaker_gender",
+                "speaker_region"
+            ],
+            "word": [
+                "annotation_type",
+                "normalised",
+                "full"
+            ]
+        },
+        "text_attributes": [
+            "country",
+            "city",
+            "place",
+            "mediatype",
+            "consentid",
+            "mediafilepath",
+            "mediafile",
+            "mediafileext",
+            "participants",
+            "date",
+            "type"
+        ]
+    },
+    "document_id": "generated",
+    "document_id_hash": true,
+    "title": [
+        {
+            "pattern": "{place} - {city}, {country} ({date})",
+            "keys": [
+                "place",
+                "city",
+                "country",
+                "date"
+            ]
+        }
+    ]
+}

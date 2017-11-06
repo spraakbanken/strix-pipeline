@@ -348,5 +348,72 @@
                 "eng": "time"
             }
         }
+    },
+    "annotation_type": {
+        "name": "annotation_type",
+        "nodeName": "type",
+        "translation_name": {
+            "eng": "annotation type",
+            "swe": "annotationstyp"
+        }
+    },
+    "normalised": {
+        "name": "normalised",
+        "translation_name": {
+            "eng": "normalized word form",
+            "swe": "normaliserad ordform"
+        }
+    },
+    "full": {
+        "name": "full",
+        "translation_name": {
+            "eng": "annotation",
+            "swe": "annotation"
+        }
+    },
+    "start": {
+        "name": "start",
+        "type": "integer",
+        "enabled": false
+    },
+    "end": {
+        "name": "end",
+        "type": "integer",
+        "enabled": false
+    },
+    "speaker_id": {
+        "name": "speaker_id",
+        "translation_name": {
+            "eng": "speaker ID",
+            "swe": "talar-ID"
+        }
+    },
+    "speaker_role": {
+        "name": "speaker_role",
+        "translation_name": {
+            "eng": "speaker role",
+            "swe": "talarroll"
+        }
+    },
+    "speaker_age": {
+        "name": "speaker_age",
+        "translation_name": {
+            "eng": "speaker age",
+            "swe": "talarålder"
+        }
+    },
+    "speaker_gender": {
+        "name": "speaker_gender",
+        "translation_name": {
+            "eng": "speaker gender",
+            "swe": "talarkön"
+        }
+    },
+    "speaker_region": {
+        "name": "speaker_region",
+        "translation_name": {
+            "eng": "speaker region",
+            "swe": "talarregion"
+        }
     }
 }

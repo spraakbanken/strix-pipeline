@@ -148,6 +148,8 @@ class CreateIndex:
                 mapping_type = Integer()
             elif attr.get("type") == "double":
                 mapping_type = Double(ignore_malformed=True)
+            elif attr.get("type") == "integer":
+                mapping_type = Integer()
             else:
                 mapping_type = Keyword(index="not_analyzed")
             m.field(attr["name"], mapping_type)

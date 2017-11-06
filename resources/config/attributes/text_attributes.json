@@ -723,5 +723,64 @@
             "eng": "tags (8 sidor)",
             "swe": "taggar (8 sidor)"
         }
+    },
+    "country": {
+        "include_in_aggregation": true,
+        "name": "country",
+        "translation_name": {
+            "eng": "country",
+            "swe": "land"
+        }
+    },
+    "city": {
+        "include_in_aggregation": true,
+        "name": "city",
+        "translation_name": {
+            "eng": "city",
+            "swe": "stad"
+        }
+    },
+    "place": {
+        "include_in_aggregation": true,
+        "name": "place",
+        "translation_name": {
+            "eng": "place",
+            "swe": "plats"
+        }
+    },
+    "mediatype": {
+        "include_in_aggregation": true,
+        "name": "mediatype",
+        "translation_name": {
+            "eng": "media type",
+            "swe": "mediatyp"
+        }
+    },
+    "consentid": {
+        "name": "consentid",
+        "translation_name": {
+            "eng": "consent ID",
+            "swe": "samtyckes-ID"
+        }
+    },
+    "mediafilepath": {
+        "name": "mediafilepath",
+        "enabled": false
+    },
+    "mediafile": {
+        "name": "mediafile",
+        "enabled": false
+    },
+    "mediafileext": {
+        "name": "mediafileext",
+        "enabled": false
+    },
+    "participants": {
+        "name": "participants",
+        "include_in_aggregation": true,
+        "translation_name": {
+            "eng": "participants",
+            "swe": "deltagare"
+        }
     }
 }

@@ -171,8 +171,10 @@ class StrixParser:
                 annotation_name = annotation["name"]
                 if "nodeName" in annotation:
                     a_value = attrs[annotation["nodeName"]]
-                else:
+                elif annotation_name in attrs:
                     a_value = attrs[annotation_name]
+                else:
+                    break
 
                 if annotation.get("set", False):
                     a_value = list(filter(bool, a_value.split("|")))
