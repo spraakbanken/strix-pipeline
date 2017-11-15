@@ -2,19 +2,30 @@ import os
 import logging
 import itertools
 import hashlib
-import strix.pipeline.xmlparser as xmlparser
 import time
 import uuid
-import strix.corpusconf as corpusconf
+import glob
+import strixpipeline.xmlparser as xmlparser
+from strixpipeline.config import config
 
 _logger = logging.getLogger(__name__)
+
+
+def get_paths_for_corpus(corpus_id):
+    conf = config.corpusconf.get_corpus_conf(corpus_id)
+    corpus_dir_name = conf.get("corpus_dir") or conf.get("corpus_id")
+    if config.texts_dir.startswith("/"):
+        texts_dir = os.path.join(config.texts_dir, corpus_dir_name)
+    else:
+        texts_dir = os.path.join(config.base_dir, config.texts_dir, corpus_dir_name)
+    return glob.glob(os.path.join(texts_dir, "**/*.xml")) + glob.glob(os.path.join(texts_dir, "*.xml"))
 
 
 class InsertData:
 
     def __init__(self, index):
         self.index = index
-        self.corpus_conf = corpusconf.get_corpus_conf(self.index)
+        self.corpus_conf = config.corpusconf.get_corpus_conf(self.index)
 
     def get_id_func(self, doc_count):
         """
@@ -56,7 +67,7 @@ class InsertData:
     def prepare_urls(self, doc_ids):
         urls = []
         tot_size = 0
-        paths = corpusconf.get_paths_for_corpus(self.index)
+        paths = get_paths_for_corpus(self.index)
 
         for text in paths:
             text_id = os.path.splitext(os.path.basename(text))[0]
@@ -75,15 +86,15 @@ class InsertData:
         return tasks, time.time() - process_t
 
     def process_work(self, task_id, task, _):
-        word_annotations = {"w": [corpusconf.get_word_attribute(attr_name) for attr_name in self.corpus_conf["analyze_config"]["word_attributes"]]}
+        word_annotations = {"w": [config.corpusconf.get_word_attribute(attr_name) for attr_name in self.corpus_conf["analyze_config"]["word_attributes"]]}
         struct_annotations =  {}
         for node_name, attr_names in self.corpus_conf["analyze_config"]["struct_attributes"].items():
-            struct_annotations[node_name] = [corpusconf.get_struct_attribute(attr_name) for attr_name in attr_names]
+            struct_annotations[node_name] = [config.corpusconf.get_struct_attribute(attr_name) for attr_name in attr_names]
 
         text_attributes = {}
         remove_later = []
         for attr_name in self.corpus_conf["analyze_config"]["text_attributes"]:
-            text_attribute = corpusconf.get_text_attribute(attr_name)
+            text_attribute = config.corpusconf.get_text_attribute(attr_name)
             text_attributes[attr_name] = text_attribute
             if text_attribute.get("ignore", False):
                 remove_later.append(attr_name)

@@ -2,84 +2,8 @@
 import os
 import re
 import xml.etree.cElementTree as etree
-import logging
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
-
-logger = logging.getLogger(__name__)
-
-
-namespaces = {"xml": "http://www.w3.org/XML/1998/namespace"}
-
-
-def xml_to_json(xml_root, parse_as_list=(), parse_as_sublist=(), parse_as_bool=(), parse_as_inner_xml=(),
-                parse_as_list_of_mappings=(), parse_attributes=(), nodename_translate={}, ignore=(),
-                nodename_translate_function=lambda x: x):
-    """
-    parse_as_list: multiple elems with same tagname on root level
-    parse_as_bool: self explanatory
-    parse_as_sublist: list of elements containing html under common parent, e.g
-        <sources>
-          <source>html <i>content</i></source>
-        </sources>
-    parse_as_list_of_mappings: subnodes of each matched element are considered key-value pairs
-    parse_as_inner_xml: self explanatory
-    ignore: skip parsing of these nodenames
-    """
-
-    def xml_to_obj(node):
-        d = dict(node.attrib)
-        d[node.tag] = node.text
-        return d
-
-    def xml_children_to_obj(node):
-        return {child.tag: child.text for child in node}
-
-    nodemap = {}
-    for child in xml_root:
-        if child.tag in ignore:
-            continue
-        val = None
-        if child.tag in parse_as_list:
-            l = nodemap.get(nodename_translate_function(nodename_translate.get(child.tag, child.tag)), [])
-            l.append(xml_to_obj(child))
-            val = l
-        elif child.tag in parse_as_sublist:
-            output = []
-            for subnode in child:
-                # get inner html
-                nodestr = etree.tostring(subnode, encoding="unicode").strip()
-                tag = subnode.tag
-                nodestr = re.sub("^<%s*.?>" % tag, "", nodestr)
-                nodestr = re.sub("</%s>$" % tag, "", nodestr)
-                output.append(nodestr)
-
-            val = output
-        elif child.tag in parse_as_list_of_mappings:
-            l = nodemap.get(nodename_translate_function(nodename_translate.get(child.tag, child.tag)), [])
-            l.append({nodename_translate_function(nodename_translate.get(subnode.tag, subnode.tag)): subnode.text for subnode in child})
-            val = l
-            
-        elif child.tag in parse_as_bool:
-            val = child.text == "true"
-        elif child.tag in parse_as_inner_xml:
-            if len(child) or (child.text or "").strip():  # Only if tag is not empty
-                # print(child)
-                val = etree.tostring(child, encoding="unicode").strip()
-                # val = etree.tostring(child).strip()
-            else:
-                val = None
-        elif child.tag in parse_attributes:
-            val = {"text": child.text}
-            for attr_name, attr_value in child.attrib.items():
-                val[attr_name] = attr_value
-        else:
-            val = child.text
-
-        key = nodename_translate_function(nodename_translate.get(child.tag, child.tag))
-        nodemap[key] = val
-
-    return nodemap
 
 
 def parse_pipeline_xml(file_name,

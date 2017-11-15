@@ -1,0 +1,7 @@
+.idea
+config.yml
+virtual_env
+*egg-info
+logs
+__pycache__
+

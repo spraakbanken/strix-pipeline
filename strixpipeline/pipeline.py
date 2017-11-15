@@ -6,11 +6,10 @@ import multiprocessing
 import elasticsearch
 import elasticsearch.helpers
 import elasticsearch.exceptions
-from strix.config import config
-import strix.corpusconf as corpusconf
-import strix.pipeline.insertdata as insert_data_strix
-import strix.pipeline.createindex as create_index_strix
-import strix.pipeline.runhistory
+from strixpipeline.config import config
+import strixpipeline.insertdata as insert_data_strix
+import strixpipeline.createindex as create_index_strix
+import strixpipeline.runhistory
 import logging
 import queue
 import datetime
@@ -179,7 +178,7 @@ def upload_executor(task_queue, tot_size, num_tasks):
                     try:
                         raise future.exception() from None
                     except Exception:
-                        _.logger.exception("Failed bulk upload of a chunk.")
+                        _logger.exception("Failed bulk upload of a chunk.")
                 if tot_size > 0:
                     _logger.info("%.1f%%" % (100 * (size_accu / tot_size)))
                     _logger.info("------------------")
@@ -245,10 +244,10 @@ def delete_index_by_prefix(prefix):
 
 
 def do_run(index, doc_ids=(), limit_to=None):
-    strix.pipeline.runhistory.create()
+    strixpipeline.runhistory.create()
     before_t = time.time()
 
-    if not corpusconf.is_corpus(index):
+    if not config.corpusconf.is_corpus(index):
         _logger.error("\"" + index + " is not a configured corpus.")
         return
 
@@ -258,7 +257,7 @@ def do_run(index, doc_ids=(), limit_to=None):
     ci.enable_postinsert_settings()
 
     total_t = time.time() - before_t
-    strix.pipeline.runhistory.put({
+    strixpipeline.runhistory.put({
         "index": index,
         "total_time": total_t,
         "doc_ids": doc_ids,
@@ -274,7 +273,7 @@ def do_run(index, doc_ids=(), limit_to=None):
 
 def recreate_indices(indices):
     for index in indices:
-        if corpusconf.is_corpus(index):
+        if config.corpusconf.is_corpus(index):
             delete_index_by_prefix(index)
             ci = create_index_strix.CreateIndex(index)
             try:

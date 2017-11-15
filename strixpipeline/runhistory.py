@@ -1,26 +1,22 @@
 import elasticsearch
 import subprocess
-from strix.config import config
+from strixpipeline.config import config
 
 es = elasticsearch.Elasticsearch(config.elastic_hosts)
 index_name = ".runhistory"
 
 
-def get_svn_revision():
-    base_dir = config.base_dir
-    try:
-        output = subprocess.check_output(["svn", "info"], cwd=base_dir, stderr=subprocess.STDOUT).decode("UTF-8")
-    except subprocess.CalledProcessError:
-        output = subprocess.check_output(["git", "svn", "info"], cwd=base_dir).decode("UTF-8")
-    except:
-        output = "Revision: N/A"
-    lines = output.split("\n")
-    rev_line = filter(lambda line: line.startswith("Revision"), lines)
-    return list(next(rev_line).split(": "))[1]
+def get_git_commit_id():
+    # base_dir = config.base_dir
+    # try:
+    #     output = subprocess.check_output(["git", "show", "HEAD"], cwd=base_dir).decode("UTF-8")
+    # except:
+    #     output = "Revision: N/A"
+    return "TODO"
 
 
 def put(obj):
-    obj["svn_rev"] = get_svn_revision()
+    obj["git_commitid"] = get_git_commit_id()
     es.index(index_name, "entry", obj)
 
 

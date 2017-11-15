@@ -1,9 +1,0 @@
-{
-    "analyze_config": {
-        "word_attributes": [
-            "ref",
-            "dephead",
-            "deprel"
-        ]
-    }
-}

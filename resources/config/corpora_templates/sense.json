@@ -1,9 +1,0 @@
-{
-    "analyze_config": {
-        "word_attributes": [
-            "sense",
-            "complemgram",
-            "compwf"
-        ]
-    }
-}

@@ -2,9 +2,8 @@ import time
 import logging
 
 from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date, GeoPoint, Nested, Double
-import strix.pipeline.mappingutil as mappingutil
-from strix.config import config
-import strix.corpusconf as corpusconf
+import strixpipeline.mappingutil as mappingutil
+from strixpipeline.config import config
 import elasticsearch
 
 
@@ -22,21 +21,21 @@ class CreateIndex:
         """
         self.es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
 
-        corpus_config = corpusconf.get_corpus_conf(index)
+        corpus_config = config.corpusconf.get_corpus_conf(index)
         self.word_attributes = []
         for attr_name in corpus_config["analyze_config"]["word_attributes"]:
-            self.word_attributes.append(corpusconf.get_word_attribute(attr_name))
+            self.word_attributes.append(config.corpusconf.get_word_attribute(attr_name))
         self.fixed_structs = []
         for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
             for attr_name in attributes:
-                attr = corpusconf.get_struct_attribute(attr_name)
+                attr = config.corpusconf.get_struct_attribute(attr_name)
                 if attr.get("index_in_text", True):
                     new_attr = dict(attr)
                     new_attr["name"] = node_name + "_" + attr["name"]
                     self.word_attributes.append(new_attr)
                 else:
                     self.fixed_structs.append((node_name, attr))
-        text_attributes = [corpusconf.get_text_attribute(attr_name) for attr_name in corpus_config["analyze_config"]["text_attributes"]]
+        text_attributes = [config.corpusconf.get_text_attribute(attr_name) for attr_name in corpus_config["analyze_config"]["text_attributes"]]
         self.text_attributes = filter(lambda x: not x.get("ignore", False), text_attributes)
         self.alias = index
 

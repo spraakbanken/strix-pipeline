@@ -10,12 +10,6 @@ Strix uses pyenv and pyvenv for python version and virtual environment managemen
 3. Activate the virtual environment with `source virtual_env/bin/activate`.
 4. Run `pip install -e .`
 
-Tests
-=====
-1. Start Elasticsearch and run `setuptest.py` from `test_strix/data` (this will insert data on localhost:9200 and will overwrite any indexes
-   that has the same names as the test-set)
-2. Run `python setup.py test`
-
 Elasticsearch config
 ====================
 1. Download and extract Elasticsearch 5.0.1
@@ -30,30 +24,3 @@ Config file
 See config.yml.example in root folder. Create your own file in the same place called "config.yml" or use 
 command-line parameter "--config <file>" if file is located somewhere else.
 
-Test environment
-======================
-
-fkstrix@kork:
-There is an elasticsearch instance running on port 9212. The cluster is called
-`strix-test` and the node name is `kork-test`.
-
-fkstrix@koala:
-How to reindex the index the test data set:
-```
-ssh koala
-cd strix-test
-svn up
-source virtual_env/bin/activate
-cd test_strix/data/
-python ./setuptest.py
-```
-
-fkstrix@k2:
-The test backend is in `/export/htdocs_sbws/ws/strixlabb/strix-test`.
-
-How to restart the test backend:
-```
-cd -P test-backend
-svn up
-supervisorctl -c /etc/supervisord.d/fkstrix.conf restart strix-test-api
-```

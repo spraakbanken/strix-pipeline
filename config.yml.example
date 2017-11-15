@@ -1,5 +1,6 @@
 elastic_hosts: [{host: localhost, port: 9200}]
 texts_dir: /home/strix/texts
+settings_dir: /home/strix/settings
 base_dir: .
 
 # concurrency settings

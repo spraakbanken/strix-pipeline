@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
 import logging
-import strix.loghelper
-import strix.pipeline.pipeline as pipeline
+import strixpipeline.loghelper
+import strixpipeline.pipeline as pipeline
+from strixpipeline.config import config
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
 
@@ -11,17 +12,19 @@ if __name__ == '__main__':
     import argparse
     logger = logging.getLogger("strix_pipeline")
 
+    config.create_corpus_config()
+
     def do_run(args):
         doc_ids = args.doc_ids if args.doc_ids else []
         index = args.index
         limit_to = args.limit_to
-        strix.loghelper.setup_pipeline_logging(index + "-run")
+        strixpipeline.loghelper.setup_pipeline_logging(index + "-run")
         pipeline.do_run(index, doc_ids, limit_to)
 
     def do_recreate(args):
         indices = args.index
         if indices:
-            strix.loghelper.setup_pipeline_logging("|".join(indices) + "-reindex")
+            strixpipeline.loghelper.setup_pipeline_logging("|".join(indices) + "-reindex")
             pipeline.recreate_indices(indices)
 
     def do_delete(args):
