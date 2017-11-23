@@ -7,12 +7,12 @@ index_name = ".runhistory"
 
 
 def get_git_commit_id():
-    # base_dir = config.base_dir
-    # try:
-    #     output = subprocess.check_output(["git", "show", "HEAD"], cwd=base_dir).decode("UTF-8")
-    # except:
-    #     output = "Revision: N/A"
-    return "TODO"
+    base_dir = config.base_dir
+    try:
+        output = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=base_dir).decode("UTF-8").strip()
+    except Exception:
+        output = "Revision: N/A"
+    return output
 
 
 def put(obj):
@@ -21,37 +21,38 @@ def put(obj):
 
 
 def create():
-    if es.indices.exists(index_name):
-        return
-    else:
-        settings = {
-            "settings": {
-                "index": {
-                    "number_of_shards": 1,
-                    "number_of_replicas": 1
-                }
-            },
-            "mappings": {
-                "entry": {
-                    "properties": {
-                        "elastic_hosts": {
-                            "properties": {
-                                "host": {
-                                    "type": "keyword"
-                                },
-                                "port": {
-                                    "type": "long"
-                                }
-                            }
-                        },
-                        "index": {
-                            "type": "keyword"
-                        },
-                        "svn_rev": {
-                            "type": "keyword"
-                        }
+    mappings = {
+        "properties": {
+            "elastic_hosts": {
+                "properties": {
+                    "host": {
+                        "type": "keyword"
+                    },
+                    "port": {
+                        "type": "long"
                     }
                 }
+            },
+            "index": {
+                "type": "keyword"
+            },
+            "git_commitid": {
+                "type": "keyword"
             }
         }
+    }
+    settings = {
+        "settings": {
+            "index": {
+                "number_of_shards": 1,
+                "number_of_replicas": 1
+            }
+        },
+        "mappings": {
+            "entry": mappings
+        }
+    }
+    if es.indices.exists(index_name):
+        es.indices.put_mapping(doc_type="entry", index=index_name, body=mappings)
+    else:
         es.indices.create(index_name, body=settings)
