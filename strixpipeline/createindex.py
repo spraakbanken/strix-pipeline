@@ -178,4 +178,11 @@ class CreateIndex:
         })
 
     def enable_postinsert_settings(self, index_name=None):
+        self.es.indices.put_settings(index=index_name or self.alias, body={
+            "index.number_of_replicas": CreateIndex.number_of_replicas,
+        })
+
+        self.es.indices.put_settings(index=self.alias + "_terms", body={
+            "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
+        })
         self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")
