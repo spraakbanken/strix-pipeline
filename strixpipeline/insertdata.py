@@ -137,19 +137,21 @@ class InsertData:
                 if "pattern" in setting:
                     title_keys = setting["keys"]
                     format_params = {}
-                    for title_key in title_keys:
-                        if title_key not in text:
-                            return ""
+                    try:
+                        for title_key in title_keys:
+                            if "translation_value" in text_attributes[title_key]:
+                                attr = text_attributes[title_key]["translation_value"][text[title_key]]
+                                format_params[title_key] = attr.get("-") or attr.get("swe")
+                            else:
+                                format_params[title_key] = text[title_key]
 
-                        if "translation_value" in text_attributes[title_key]:
-                            attr = text_attributes[title_key]["translation_value"][text[title_key]]
-                            format_params[title_key] = attr.get("-") or attr.get("swe")
-                        else:
-                            format_params[title_key] = text[title_key]
+                        title_pattern = setting["pattern"]
+                        text["title"] = title_pattern.format(**format_params)
+                        break
+                    except KeyError:
+                        # if something breaks, just try the next setting for title
+                        pass
 
-                    title_pattern = setting["pattern"]
-                    text["title"] = title_pattern.format(**format_params)
-                    break
             if "title" not in text:
                 raise RuntimeError("Failed to set title for text")
         elif "title" not in text:
