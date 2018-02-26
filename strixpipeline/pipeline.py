@@ -189,7 +189,8 @@ def bulk_insert(tasks):
     error_obj = None
     try:
         elasticsearch.helpers.bulk(es, tasks)
-    except Exception:
+    except Exception as e:
+        _logger.exception("Error in bulk upload")
         error_obj = get_content_of_bulk(tasks)
 
     return len(tasks), time.time() - insert_t, error_obj

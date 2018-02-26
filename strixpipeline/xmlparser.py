@@ -2,6 +2,7 @@
 import os
 import re
 import xml.etree.cElementTree as etree
+from strixpipeline.config import config
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
 
@@ -126,6 +127,10 @@ class StrixParser:
     def handle_endtag(self, tag):
         if tag == self.split_document:
             if self.text_attributes:
+                for text_attribute in self.text_attributes.values():
+                    if "pipelinePlugin" in text_attribute:
+                        plugin = config.corpusconf.get_plugin(text_attribute["pipelinePlugin"])
+                        plugin.process_text_attributes(self.part_attributes)
                 current_part = self.part_attributes
             else:
                 current_part = {}
