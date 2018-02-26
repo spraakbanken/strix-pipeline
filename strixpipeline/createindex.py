@@ -149,6 +149,11 @@ class CreateIndex:
                 mapping_type = Double(ignore_malformed=True)
             elif attr.get("type") == "integer":
                 mapping_type = Integer()
+            elif "properties" in attr:
+                props = {}
+                for prop_name, prop_val in attr["properties"].items():
+                    props[prop_name] = Keyword(index="not_analyzed")
+                mapping_type = Object(properties=props)
             else:
                 mapping_type = Keyword(index="not_analyzed")
             m.field(attr["name"], mapping_type)
