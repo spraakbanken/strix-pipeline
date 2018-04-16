@@ -75,14 +75,24 @@ class StrixParser:
     def handle_starttag(self, tag, attrs):
         if self.text_attributes and tag == self.split_document:
             self.part_attributes = {}
-            for attribute in attrs:
-                if attribute in self.text_attributes:
-                    text_attr = attrs[attribute]
-                    if self.text_attributes[attribute].get("set", False):
-                        text_attr = list(filter(bool, text_attr.split("|")))
-                    if self.text_attributes[attribute].get("type", "") == "double":
-                        text_attr = "Infinity" if text_attr == "inf" else text_attr
-                    self.part_attributes[attribute] = text_attr
+            # TODO: don't loop through both text attributes and XML-node attributes
+            for text_attr, text_attr_obj in self.text_attributes.items():
+                for attribute in attrs:
+                    if attribute == text_attr:
+                        nodeName = attribute
+                        newName = attribute
+                    elif attribute == text_attr_obj.get("nodeName", None):
+                        nodeName = attribute
+                        newName = text_attr
+                    else:
+                        continue
+
+                    text_attr_value = attrs[nodeName]
+                    if self.text_attributes[newName].get("set", False):
+                        text_attr_value = list(filter(bool, text_attr_value.split("|")))
+                    if self.text_attributes[newName].get("type", "") == "double":
+                        text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
+                    self.part_attributes[newName] = text_attr_value
 
         elif tag == "w":
             self.in_word = True
