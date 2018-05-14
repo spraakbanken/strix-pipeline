@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 from elasticsearch_dsl import analysis, analyzer
 
+token_separator = "\u241D"
+annotation_separator = "\u241E"
+set_delimiter = "\u241F"
+empty_set = "\u2205"
 
-def annotation_analyzer(annotation_name, is_set=False, remove_alternatives=True):
+
+def annotation_analyzer(annotation_name, is_set=False):
     """
     create an analyzer for a specific annotation found a token s.a. framtid|wid=12|page=3||
     for example passing "wid" as parameter and using anayzer on a field in a type "text "will enable
@@ -13,14 +18,16 @@ def annotation_analyzer(annotation_name, is_set=False, remove_alternatives=True)
     filter_name = annotation_name + "_filter"
     analyzer_name = annotation_name + "_analyzer"
 
-    annotation_filter = analysis.token_filter(filter_name, "pattern_capture", preserve_original=False, patterns=["\u241E" + annotation_name + "=(.*?)\u241E"])
+    annotation_filter = analysis.token_filter(filter_name, "pattern_capture", preserve_original=False, patterns=[
+        annotation_separator + annotation_name + "=(.*?)" + annotation_separator
+    ])
     token_filters = ["lowercase", annotation_filter]
 
     if is_set:
-        set_filter = analysis.token_filter("set_token_filter", "set_delimiter_token_filter", delimiter="\u241F", remove_alternatives=True)
+        set_filter = analysis.token_filter("set_token_filter", "set_delimiter_token_filter", delimiter=set_delimiter)
         token_filters.append(set_filter)
     else:
-        stop_empty_filter = analysis.token_filter("stop", "stop", stopwords=["\u2205"])
+        stop_empty_filter = analysis.token_filter("stop", "stop", stopwords=[empty_set])
         token_filters.append(stop_empty_filter)
 
     return analysis.analyzer(analyzer_name, tokenizer=pattern_tokenizer(), filter=token_filters)
@@ -34,7 +41,9 @@ def get_token_annotation_analyzer():
     """
     uses pattern_capture token filter to change input from FrAmTiD|wid=12|page=3|| to token "framtid"
     """
-    payload_strip = analysis.token_filter("payload_strip", "pattern_capture", preserve_original=False, patterns=["^(.*?)\u241E.*"])
+    payload_strip = analysis.token_filter("payload_strip", "pattern_capture", preserve_original=False, patterns=[
+        "^(.*?)" + annotation_separator + ".*"
+    ])
     return analyzer("word",  tokenizer=pattern_tokenizer(), filter=["lowercase", payload_strip])
 
 
@@ -44,7 +53,7 @@ def as_you_type_analyzer():
 
 
 def pattern_tokenizer():
-    return analysis.tokenizer("strix_tokenizer", "pattern", pattern="\u241D")
+    return analysis.tokenizer("strix_tokenizer", "pattern", pattern=token_separator)
 
 
 def get_swedish_analyzer():

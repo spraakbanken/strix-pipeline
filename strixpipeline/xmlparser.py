@@ -3,6 +3,7 @@ import os
 import re
 import xml.etree.cElementTree as etree
 from strixpipeline.config import config
+import strixpipeline.mappingutil as mappingutil
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
 
@@ -152,7 +153,7 @@ class StrixParser:
             current_part["lines"] = self.lines
 
             current_part["word_count"] = len(self.current_part_tokens)
-            current_part["text"] = "\u241D".join(self.current_part_tokens)
+            current_part["text"] = mappingutil.token_separator.join(self.current_part_tokens)
             if self.add_similarity_tags:
                 current_part["similarity_tags"] = " ".join(self.similarity_tags)
             self.current_parts.append(current_part)
@@ -223,14 +224,14 @@ class StrixParser:
             str_attrs = []
             for attr, v in sorted(all_data.items()):
                 if isinstance(v, list):
-                    v = "\u241F" + "\u241F".join(v) + "\u241F" if len(v) > 0 else "\u241F"
+                    v = mappingutil.set_delimiter + mappingutil.set_delimiter.join(v) + mappingutil.set_delimiter if len(v) > 0 else mappingutil.set_delimiter
                 if v is None:
-                    v = "\u2205"
+                    v = mappingutil.empty_set
                 str_attrs.append(attr + "=" + str(v))
 
             token = self.current_word_content.strip()
             self.dump[-1] += token
-            word = token + "\u241E" + "\u241E".join(str_attrs) + "\u241E"
+            word = token + mappingutil.annotation_separator + mappingutil.annotation_separator.join(str_attrs) + mappingutil.annotation_separator
             self.current_part_tokens.append(word)
 
             token_lookup_data = dict(token_data)
