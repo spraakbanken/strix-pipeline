@@ -56,11 +56,11 @@ class InsertData:
             if "document_id_hash" in self.corpus_conf and self.corpus_conf["document_id_hash"]:
                 def attribute_id(_, text):
                     m = hashlib.md5()
-                    m.update(text[id_strategy].encode("utf-8"))
+                    m.update(text["text_" + id_strategy].encode("utf-8"))
                     return str(int(m.hexdigest(), 16))[0:12]
             else:
                 def attribute_id(_, text):
-                    return text[id_strategy]
+                    return text["text_" + id_strategy]
             get_id = attribute_id
         return get_id
 
@@ -97,7 +97,7 @@ class InsertData:
             text_attribute = config.corpusconf.get_text_attribute(attr_name)
             text_attributes[attr_name] = text_attribute
             if text_attribute.get("ignore", False):
-                remove_later.append(attr_name)
+                remove_later.append("text_"+ attr_name)
 
         split_document = "text"
         file_name = task["text"]
@@ -131,8 +131,8 @@ class InsertData:
         if "title" in self.corpus_conf:
             for setting in self.corpus_conf["title"]:
                 if "title" in setting:
-                    if setting["title"] in text:
-                        text["title"] = text[setting["title"]]
+                    if "text_" + setting["title"] in text:
+                        text["title"] = text["text_" + setting["title"]]
                         break
                 if "pattern" in setting:
                     title_keys = setting["keys"]
@@ -140,10 +140,10 @@ class InsertData:
                     try:
                         for title_key in title_keys:
                             if "translation_value" in text_attributes[title_key]:
-                                attr = text_attributes[title_key]["translation_value"][text[title_key]]
+                                attr = text_attributes[title_key]["translation_value"][text["text_" + title_key]]
                                 format_params[title_key] = attr.get("-") or attr.get("swe")
                             else:
-                                format_params[title_key] = text[title_key]
+                                format_params[title_key] = text["text_" + title_key]
 
                         title_pattern = setting["pattern"]
                         text["title"] = title_pattern.format(**format_params)
@@ -154,7 +154,13 @@ class InsertData:
 
             if "title" not in text:
                 raise RuntimeError("Failed to set title for text")
-        elif "title" not in text:
+        else:
+            title = text.get("text_title")
+            if title:
+                text["title"]  = title
+                del text["text_title"]
+
+        if "title" not in text:
             raise RuntimeError("Configure \"title\" for corpus")
 
     def get_doc_task(self, doc_type, text):

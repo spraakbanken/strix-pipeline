@@ -2,49 +2,28 @@
 from elasticsearch_dsl import analysis, analyzer
 
 token_separator = "\u241D"
-annotation_separator = "\u241E"
 set_delimiter = "\u241F"
 empty_set = "\u2205"
 
 
-def annotation_analyzer(annotation_name, is_set=False):
-    """
-    create an analyzer for a specific annotation found a token s.a. framtid|wid=12|page=3||
-    for example passing "wid" as parameter and using anayzer on a field in a type "text "will enable
-    searching on text.wid
-    :param is_set:
-    :param annotation_name:
-    """
-    filter_name = annotation_name + "_filter"
-    analyzer_name = annotation_name + "_analyzer"
+def set_annotation_analyzer():
+    set_filter = analysis.token_filter("set_token_filter", "set_delimiter_token_filter", delimiter=set_delimiter)
+    token_filters = ["lowercase", set_filter]
+    return analysis.analyzer("set_annotation_analyzer", tokenizer=pattern_tokenizer(), filter=token_filters)
 
-    annotation_filter = analysis.token_filter(filter_name, "pattern_capture", preserve_original=False, patterns=[
-        annotation_separator + annotation_name + "=(.*?)" + annotation_separator
-    ])
-    token_filters = ["lowercase", annotation_filter]
 
-    if is_set:
-        set_filter = analysis.token_filter("set_token_filter", "set_delimiter_token_filter", delimiter=set_delimiter)
-        token_filters.append(set_filter)
-    else:
-        stop_empty_filter = analysis.token_filter("stop", "stop", stopwords=[empty_set])
-        token_filters.append(stop_empty_filter)
-
-    return analysis.analyzer(analyzer_name, tokenizer=pattern_tokenizer(), filter=token_filters)
+def annotation_analyzer():
+    stop_empty_filter = analysis.token_filter("stop", "stop", stopwords=[empty_set])
+    token_filters = ["lowercase", stop_empty_filter]
+    return analysis.analyzer("annotation_analyzer", tokenizer=pattern_tokenizer(), filter=token_filters)
 
 
 def get_standard_analyzer():
     return analyzer("standard", tokenizer="standard", filter=["lowercase"])
 
 
-def get_token_annotation_analyzer():
-    """
-    uses pattern_capture token filter to change input from FrAmTiD|wid=12|page=3|| to token "framtid"
-    """
-    payload_strip = analysis.token_filter("payload_strip", "pattern_capture", preserve_original=False, patterns=[
-        "^(.*?)" + annotation_separator + ".*"
-    ])
-    return analyzer("word",  tokenizer=pattern_tokenizer(), filter=["lowercase", payload_strip])
+def token_analyzer():
+    return analyzer("word",  tokenizer=pattern_tokenizer(), filter=["lowercase"])
 
 
 def as_you_type_analyzer():

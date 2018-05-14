@@ -117,26 +117,23 @@ class CreateIndex:
         m = Mapping("text")
         m.meta("_all", enabled=False)
         m.meta("dynamic", "strict")
-        m.meta("_source", excludes=["text"])
+        excludes = ["text", "wid"]
 
-        text_field = Text(
-            analyzer=mappingutil.get_token_annotation_analyzer(),
-            fields={
-                "wid": Text(analyzer=mappingutil.annotation_analyzer("wid")),
-            }
-        )
+        m.field("text", Text(analyzer=mappingutil.token_analyzer()))
+        m.field("wid", Text(analyzer=mappingutil.annotation_analyzer()))
 
         for attr in self.word_attributes:
             annotation_name = attr["name"]
-            if "ranked" in attr and attr["ranked"]:
-                text_field.fields[annotation_name] = Text(analyzer=mappingutil.annotation_analyzer(annotation_name, is_set=False))
-                annotation_name += "_alt"
-                is_set = True
-            else:
-                is_set = attr.get("set", False)
-            text_field.fields[annotation_name] = Text(analyzer=mappingutil.annotation_analyzer(annotation_name, is_set=is_set))
+            excludes.append("pos_" + annotation_name)
 
-        m.field("text", text_field)
+            if "ranked" in attr and attr["ranked"]:
+                m.field("pos_" + annotation_name + "_alt", Text(analyzer=mappingutil.set_annotation_analyzer()))
+                excludes.append("pos_" + annotation_name + "_alt")
+
+            if attr.get("set", False):
+                m.field("pos_" + annotation_name, Text(analyzer=mappingutil.set_annotation_analyzer()))
+            else:
+                m.field("pos_" + annotation_name, Text(analyzer=mappingutil.annotation_analyzer()))
 
         for attr in self.text_attributes:
             if attr.get("ranked", False):
@@ -156,13 +153,19 @@ class CreateIndex:
                 mapping_type = Object(properties=props)
             else:
                 mapping_type = Keyword(index="not_analyzed")
-            m.field(attr["name"], mapping_type)
+            m.field("text_" + attr["name"], mapping_type)
+            excludes.append("text_" + attr["name"])
 
+        m.meta("_source", excludes=excludes)
+
+        m.field("text_attributes", Object(enabled=False))
         m.field("dump", Keyword(index=False, doc_values=False))
         m.field("lines", Object(enabled=False))
         m.field("word_count", Integer())
         m.field("similarity_tags", Text(analyzer=mappingutil.similarity_tags_analyzer(), term_vector="yes"))
 
+
+        # TODO: is the standard analyzer field used? otherwise move "analyzed" sub-field to top level
         title_field = Text(
             analyzer=mappingutil.get_standard_analyzer(),
             fields={

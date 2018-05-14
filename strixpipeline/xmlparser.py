@@ -56,6 +56,7 @@ class StrixParser:
         #state
         self.current_part_tokens = []
         self.current_word_annotations = {}
+        self.all_word_level_annotations = set()
         self.current_struct_annotations = {}
 
         self.current_token_lookup = []
@@ -137,14 +138,16 @@ class StrixParser:
 
     def handle_endtag(self, tag):
         if tag == self.split_document:
+            current_part = {}
             if self.text_attributes:
                 for text_attribute in self.text_attributes.values():
                     if "pipelinePlugin" in text_attribute:
                         plugin = config.corpusconf.get_plugin(text_attribute["pipelinePlugin"])
                         plugin.process_text_attributes(self.part_attributes)
-                current_part = self.part_attributes
-            else:
-                current_part = {}
+                for key, val in self.part_attributes.items():
+                    current_part["text_" + key] = val
+                current_part["text_attributes"] = self.part_attributes
+
             current_part["token_lookup"] = self.current_token_lookup
 
             if len(self.lines[-1]) == 1 and self.lines[-1][0] != -1:
@@ -153,7 +156,15 @@ class StrixParser:
             current_part["lines"] = self.lines
 
             current_part["word_count"] = len(self.current_part_tokens)
-            current_part["text"] = mappingutil.token_separator.join(self.current_part_tokens)
+
+            current_part["text"] = mappingutil.token_separator.join(map(lambda x: x["token"], self.current_part_tokens))
+            for key in self.all_word_level_annotations:
+                res = mappingutil.token_separator.join(map(lambda x: x.get(key, mappingutil.empty_set), self.current_part_tokens))
+                if key == "wid":
+                    current_part["wid"] = res
+                else:
+                    current_part["pos_" + key] = res
+
             if self.add_similarity_tags:
                 current_part["similarity_tags"] = " ".join(self.similarity_tags)
             self.current_parts.append(current_part)
@@ -166,6 +177,7 @@ class StrixParser:
             self.dump = [""]
             self.lines = [[0]]
             self.similarity_tags = []
+            self.all_word_level_annotations = set()
         elif tag in self.struct_annotations:
             # at close we go thorugh each <w>-tag in the structural element and
             # assign the length (which can't be known until the element closes)
@@ -190,10 +202,13 @@ class StrixParser:
                     values = [v.split(":")[0] for v in annotation_value]
                     token_data[annotation_name + "_alt"] = values
                     annotation_value = values[0] if values else None
+                    self.all_word_level_annotations.add(annotation_name + "_alt")
                 token_data[annotation_name] = annotation_value
+                self.all_word_level_annotations.add(annotation_name)
 
             if self.token_count_id:
                 token_data["wid"] = self.token_count
+                self.all_word_level_annotations.add("wid")
 
             struct_data = {}
             struct_annotations = {}
@@ -215,24 +230,26 @@ class StrixParser:
                                 index = annotation.get("index_in_text", True)
                                 break
                         if index:
-                            struct_data[tag_name + "_" + annotation_name] = v
+                            x = tag_name + "_" + annotation_name
+                            struct_data[x] = v
+                            self.all_word_level_annotations.add(x)
 
             self.process_token(token_data)
             all_data = dict(token_data)
             all_data.update(struct_data)
 
-            str_attrs = []
+            str_attrs = {}
             for attr, v in sorted(all_data.items()):
                 if isinstance(v, list):
                     v = mappingutil.set_delimiter + mappingutil.set_delimiter.join(v) + mappingutil.set_delimiter if len(v) > 0 else mappingutil.set_delimiter
                 if v is None:
                     v = mappingutil.empty_set
-                str_attrs.append(attr + "=" + str(v))
+                str_attrs[attr] = str(v)
 
             token = self.current_word_content.strip()
             self.dump[-1] += token
-            word = token + mappingutil.annotation_separator + mappingutil.annotation_separator.join(str_attrs) + mappingutil.annotation_separator
-            self.current_part_tokens.append(word)
+            str_attrs["token"] = token
+            self.current_part_tokens.append(str_attrs)
 
             token_lookup_data = dict(token_data)
             token_lookup_data.update(struct_annotations)
