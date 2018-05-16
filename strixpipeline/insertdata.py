@@ -27,7 +27,7 @@ class InsertData:
         self.index = index
         self.corpus_conf = config.corpusconf.get_corpus_conf(self.index)
 
-    def get_id_func(self, doc_count):
+    def get_id_func(self):
         """
         the supported strategies for "document_id" are:
         - "filename" - use the filename / task id. Each file must contain only
@@ -87,7 +87,7 @@ class InsertData:
 
     def process_work(self, task_id, task, _):
         word_annotations = {"w": [config.corpusconf.get_word_attribute(attr_name) for attr_name in self.corpus_conf["analyze_config"]["word_attributes"]]}
-        struct_annotations =  {}
+        struct_annotations = {}
         for node_name, attr_names in self.corpus_conf["analyze_config"]["struct_attributes"].items():
             struct_annotations[node_name] = [config.corpusconf.get_struct_attribute(attr_name) for attr_name in attr_names]
 
@@ -97,7 +97,7 @@ class InsertData:
             text_attribute = config.corpusconf.get_text_attribute(attr_name)
             text_attributes[attr_name] = text_attribute
             if text_attribute.get("ignore", False):
-                remove_later.append("text_"+ attr_name)
+                remove_later.append("text_" + attr_name)
 
         split_document = "text"
         file_name = task["text"]
@@ -110,7 +110,7 @@ class InsertData:
 
         tasks = []
         terms = []
-        get_id = self.get_id_func(len(texts))
+        get_id = self.get_id_func()
         for text in texts:
             doc_id = get_id(task_id, text)
             text["doc_id"] = doc_id
@@ -157,8 +157,7 @@ class InsertData:
         else:
             title = text.get("text_title")
             if title:
-                text["title"]  = title
-                del text["text_title"]
+                text["title"] = title
 
         if "title" not in text:
             raise RuntimeError("Configure \"title\" for corpus")
@@ -173,13 +172,15 @@ class InsertData:
     def create_term_positions(self, text_id, token_lookup):
         terms = []
         for token in token_lookup:
-            term = {"doc_id": text_id,
-                    "doc_type": "text",
-                    "_index": self.index + "_terms",
-                    "_type": "term",
-                    "_op_type": "index",
-                    "position": token["position"],
-                    "pos_str": str(token["position"]),
-                    "term": token}
+            term = {
+                "doc_id": text_id,
+                "doc_type": "text",
+                "_index": self.index + "_terms",
+                "_type": "term",
+                "_op_type": "index",
+                "position": token["position"],
+                "pos_str": str(token["position"]),
+                "term": token
+            }
             terms.append(term)
         return terms
