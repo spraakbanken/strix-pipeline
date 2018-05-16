@@ -4,6 +4,7 @@ import logging
 import strixpipeline.loghelper
 import strixpipeline.pipeline as pipeline
 from strixpipeline.config import config
+import strixpipeline.elasticapi as elasticapi
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
 
@@ -25,7 +26,7 @@ if __name__ == '__main__':
         indices = args.index
         if indices:
             strixpipeline.loghelper.setup_pipeline_logging("|".join(indices) + "-reindex")
-            pipeline.recreate_indices(indices)
+            elasticapi.recreate_indices(indices)
 
     def do_delete(args):
         index = args.index

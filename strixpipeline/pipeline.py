@@ -19,7 +19,6 @@ MAX_UPLOAD_WORKERS = config.concurrency_upload_threads
 GROUP_SIZE = config.concurrency_group_size
 MAX_GROUP_SIZE_KB = 250 * 1024
 
-elastic_hosts = [config.elastic_hosts]
 es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500, retry_on_timeout=True)
 
 _logger = logging.getLogger(__name__)
@@ -211,39 +210,6 @@ def process_corpus(index, limit_to=None, doc_ids=()):
     _logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))
 
 
-def reindex_corpus(source_alias, target_index):
-    body = {
-        "source": {
-            "index": source_alias
-        },
-        "dest": {
-            "index": target_index,
-            "version_type": "internal"
-        }
-    }
-    task = es.reindex(body=body, requests_per_second=20000, wait_for_completion=False)
-    task_id = task["task"]
-    completed = False
-    while not completed:
-        time.sleep(10)
-        task_info = es.tasks.get(task_id)
-        _logger.info("Waiting on reindexing")
-        completed = task_info["completed"]
-    _logger.info("Reindexing done")
-
-
-def delete_index(alias):
-    es.indices.delete(index=alias, ignore=[400, 404])
-
-
-def setup_alias(alias_name, index_name):
-    es.indices.put_alias(index=index_name, name=alias_name)
-
-
-def delete_index_by_prefix(prefix):
-    es.indices.delete(prefix + "_*")
-
-
 def do_run(index, doc_ids=(), limit_to=None):
     strixpipeline.runhistory.create()
     before_t = time.time()
@@ -270,32 +236,6 @@ def do_run(index, doc_ids=(), limit_to=None):
         "elastic_hosts": config.elastic_hosts,
         "timestamp": datetime.datetime.now()
     })
-
-
-def recreate_indices(indices):
-    for index in indices:
-        if config.corpusconf.is_corpus(index):
-            delete_index_by_prefix(index)
-            ci = create_index_strix.CreateIndex(index)
-            try:
-                index_name = ci.create_index()
-                setup_alias(index, index_name)
-            except elasticsearch.exceptions.TransportError as e:
-                _logger.exception("transport error")
-                raise e
-        else:
-            _logger.error("\"" + index + "\" is not a configured corpus")
-
-
-def reindex(indices):
-    for alias in indices:
-        ci = create_index_strix.CreateIndex(alias, reindexing=True)
-        new_index_name = ci.create_index()
-        ci.enable_insert_settings(index_name=new_index_name)
-        reindex_corpus(alias, new_index_name)
-        ci.enable_postinsert_settings(index_name=new_index_name)
-        delete_index(alias)
-        setup_alias(alias, new_index_name)
 
 
 def remove_by_filename(index, filenames):
