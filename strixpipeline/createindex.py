@@ -1,9 +1,10 @@
 import time
 import logging
 
-from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date, GeoPoint, Nested, Double
+from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date, GeoPoint, Nested, Double, MetaField, InnerDoc
 import strixpipeline.mappingutil as mappingutil
 from strixpipeline.config import config
+import strixpipeline.elasticapi as elasticapi
 import elasticsearch
 
 
@@ -50,10 +51,9 @@ class CreateIndex:
     def create_index(self):
         base_index, index_name = self.get_unique_index()
         base_index.create()
-        self.es.cluster.health(index=index_name, wait_for_status="yellow")
-        self.es.indices.close(index=index_name)
+        elasticapi.close_index(index_name)
         self.create_text_type(index_name)
-        self.es.indices.open(index=index_name)
+        elasticapi.open_index(index_name)
 
         self.create_term_position_index()
         return index_name
@@ -72,7 +72,7 @@ class CreateIndex:
         terms.delete(ignore=404)
         terms.create()
 
-        m = Mapping("term")
+        m = Mapping("doc")
         m.meta("_all", enabled=False)
         m.meta("dynamic", "strict")
         m.meta("date_detection", False)
@@ -102,9 +102,9 @@ class CreateIndex:
             something = {attr["name"]: Nested(properties=props)}
             fixed_props[node_name] = Object(properties={"attrs": Object(properties=something)})
 
-        m.field("term", "object", dynamic=True, properties={"attrs": Object("attrs", properties=fixed_props)})
-        m.field("doc_id", "keyword", index="not_analyzed")
-        m.field("doc_type", "keyword", index="not_analyzed")
+        m.field("term", Object(dynamic=True, properties={"attrs": Object(properties=fixed_props)}))
+        m.field("doc_id", "keyword")
+        m.field("doc_type", "keyword")
         m.save(self.alias + "_terms", using=self.es)
 
     @staticmethod
@@ -122,7 +122,7 @@ class CreateIndex:
         )
 
     def create_text_type(self, index_name):
-        m = Mapping("text")
+        m = Mapping("doc")
         m.meta("_all", enabled=False)
         m.meta("dynamic", "strict")
         excludes = ["text", "wid"]
@@ -157,18 +157,18 @@ class CreateIndex:
             elif "properties" in attr:
                 props = {}
                 for prop_name, prop_val in attr["properties"].items():
-                    props[prop_name] = Keyword(index="not_analyzed")
+                    props[prop_name] = Keyword()
                 mapping_type = Object(properties=props)
             else:
-                mapping_type = Keyword(index="not_analyzed")
+                mapping_type = Keyword()
             m.field("text_" + attr["name"], mapping_type)
             excludes.append("text_" + attr["name"])
 
         m.meta("_source", excludes=excludes)
 
-        m.field("text_attributes", Object(enabled=False))
+        m.field("text_attributes", Object(DisabledObject))
         m.field("dump", Keyword(index=False, doc_values=False))
-        m.field("lines", Object(enabled=False))
+        m.field("lines", Object(DisabledObject))
         m.field("word_count", Integer())
         m.field("similarity_tags", Text(analyzer=mappingutil.similarity_tags_analyzer(), term_vector="yes"))
 
@@ -202,3 +202,23 @@ class CreateIndex:
             "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
         })
         self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")
+
+
+class DisabledObject(InnerDoc):
+    class Meta:
+        enabled = MetaField(False)
+
+
+def recreate_indices(indices):
+    for index in indices:
+        if config.corpusconf.is_corpus(index):
+            elasticapi.delete_index_by_prefix(index)
+            ci = CreateIndex(index)
+            try:
+                index_name = ci.create_index()
+                elasticapi.setup_alias(index, index_name)
+            except elasticsearch.exceptions.TransportError as e:
+                _logger.exception("transport error")
+                raise e
+        else:
+            _logger.error("\"" + index + "\" is not a configured corpus")

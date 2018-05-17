@@ -117,7 +117,7 @@ class InsertData:
             self.generate_title(text, text_attributes)
             text["corpus_id"] = self.index
             text["original_file"] = os.path.basename(file_name)
-            task = self.get_doc_task("text", text)
+            task = self.get_doc_task(text)
             task_terms = self.create_term_positions(doc_id, text["token_lookup"])
             del text["token_lookup"]
             for attribute in remove_later:
@@ -162,10 +162,10 @@ class InsertData:
         if "title" not in text:
             raise RuntimeError("Configure \"title\" for corpus")
 
-    def get_doc_task(self, doc_type, text):
+    def get_doc_task(self, text):
         return {
             "_index": self.index,
-            "_type": doc_type,
+            "_type": "doc",
             "_source": text
         }
 
@@ -176,7 +176,7 @@ class InsertData:
                 "doc_id": text_id,
                 "doc_type": "text",
                 "_index": self.index + "_terms",
-                "_type": "term",
+                "_type": "doc",
                 "_op_type": "index",
                 "position": token["position"],
                 "pos_str": str(token["position"]),
