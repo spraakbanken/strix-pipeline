@@ -16,7 +16,8 @@ def parse_pipeline_xml(file_name,
                        text_attributes=None,
                        process_token=lambda x: None,
                        add_similarity_tags=False,
-                       save_whitespace_per_token=False):
+                       save_whitespace_per_token=False,
+                       plugin=None):
     """
     split_document: everything under this node will go into separate documents
     word_annotations: a map of tag names and the attributes of those tags that
@@ -24,7 +25,7 @@ def parse_pipeline_xml(file_name,
     """
     if text_attributes is None:
         text_attributes = {}
-    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token)
+    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin)
     iterparse_parser(file_name, strix_parser)
     res = strix_parser.get_result()
     return res
@@ -42,7 +43,7 @@ def parse_properties(annotation, in_value):
 
 class StrixParser:
 
-    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token):
+    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin):
         #input
         self.split_document = split_document
         self.word_annotations = word_annotations
@@ -52,6 +53,7 @@ class StrixParser:
         self.process_token = process_token
         self.add_similarity_tags = add_similarity_tags
         self.save_whitespace_per_token = save_whitespace_per_token
+        self.plugin = plugin
 
         #state
         self.current_part_tokens = []
@@ -140,10 +142,8 @@ class StrixParser:
         if tag == self.split_document:
             current_part = {}
             if self.text_attributes:
-                for text_attribute in self.text_attributes.values():
-                    if "pipelinePlugin" in text_attribute:
-                        plugin = config.corpusconf.get_plugin(text_attribute["pipelinePlugin"])
-                        plugin.process_text_attributes(self.part_attributes)
+                if self.plugin:
+                    self.plugin.process_text_attributes(self.part_attributes)
                 for key, val in self.part_attributes.items():
                     current_part["text_" + key] = val
                 current_part["text_attributes"] = self.part_attributes

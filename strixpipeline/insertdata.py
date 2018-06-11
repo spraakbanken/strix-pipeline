@@ -99,13 +99,19 @@ class InsertData:
             if text_attribute.get("ignore", False):
                 remove_later.append("text_" + attr_name)
 
+        plugin = None
+        pipeline_plugin = self.corpus_conf.get("pipeline_plugin")
+        if pipeline_plugin:
+            plugin = config.corpusconf.get_plugin(pipeline_plugin)
+
         split_document = "text"
         file_name = task["text"]
 
         texts = []
         for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations,
                                                  struct_annotations=struct_annotations, text_attributes=text_attributes,
-                                                 token_count_id=True, add_similarity_tags=True, save_whitespace_per_token=True):
+                                                 token_count_id=True, add_similarity_tags=True, save_whitespace_per_token=True,
+                                                 plugin=plugin):
             texts.append(text)
 
         tasks = []
