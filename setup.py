@@ -3,9 +3,9 @@ from setuptools import setup
 
 setup(
     name='strixpipeline',
-    version='0.1',
-    description='TODO',
-    url='TODO',
+    version='1.0.dev0',
+    description='',
+    url='',
     author='Språkbanken',
     author_email='sb-strix@svenska.gu.se',
     license='MIT',
