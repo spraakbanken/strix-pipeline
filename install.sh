@@ -2,18 +2,20 @@
 rm -r virtual_env
 rm -r config
 
-echo "elastic_hosts: [{host: XXXXXX, port: XXXX}]" > config.yml
-echo "base_dir: ." >> config.yml
-echo "settings_dir: config" >> config.yml
-echo "texts_dir: ???" >> config.yml
-echo "concurrency_upload_threads: X" >> config.yml
-echo "concurrency_queue_size: X" >> config.yml
-echo "concurrency_group_size: X" >> config.yml
+if [ ! -f config.yml ]; then
+    echo "elastic_hosts: [{host: XXXXXX, port: XXXX}]" > config.yml
+    echo "base_dir: ." >> config.yml
+    echo "settings_dir: config" >> config.yml
+    echo "texts_dir: ???" >> config.yml
+    echo "concurrency_upload_threads: X" >> config.yml
+    echo "concurrency_queue_size: X" >> config.yml
+    echo "concurrency_group_size: X" >> config.yml
 
-echo "number_of_shards: X" >> config.yml
-echo "number_of_replicas: 1" >> config.yml
-echo "terms_number_of_shards: X" >> config.yml
-echo "terms_number_of_replicas: 1" >> config.yml
+    echo "number_of_shards: X" >> config.yml
+    echo "number_of_replicas: 1" >> config.yml
+    echo "terms_number_of_shards: X" >> config.yml
+    echo "terms_number_of_replicas: 1" >> config.yml
+fi
 
 
 python3 -m venv virtual_env
