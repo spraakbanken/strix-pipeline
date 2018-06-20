@@ -38,8 +38,8 @@ class StrixConfig:
             self.config["base_dir"] = "."
 
     def create_corpus_config(self):
-        import strixconfig.corpusconf
-        self.config["corpusconf"] = strixconfig.corpusconf.CorpusConfig(config.settings_dir)
+        import strixconfigurer.corpusconf
+        self.config["corpusconf"] = strixconfigurer.corpusconf.CorpusConfig(config.settings_dir)
 
 
 config = StrixConfig()

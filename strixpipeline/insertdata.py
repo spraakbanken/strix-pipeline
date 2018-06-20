@@ -27,7 +27,7 @@ class InsertData:
         self.index = index
         self.corpus_conf = config.corpusconf.get_corpus_conf(self.index)
 
-    def get_id_func(self, doc_count):
+    def get_id_func(self):
         """
         the supported strategies for "document_id" are:
         - "filename" - use the filename / task id. Each file must contain only
@@ -56,11 +56,11 @@ class InsertData:
             if "document_id_hash" in self.corpus_conf and self.corpus_conf["document_id_hash"]:
                 def attribute_id(_, text):
                     m = hashlib.md5()
-                    m.update(text[id_strategy].encode("utf-8"))
+                    m.update(text["text_" + id_strategy].encode("utf-8"))
                     return str(int(m.hexdigest(), 16))[0:12]
             else:
                 def attribute_id(_, text):
-                    return text[id_strategy]
+                    return text["text_" + id_strategy]
             get_id = attribute_id
         return get_id
 
@@ -87,7 +87,7 @@ class InsertData:
 
     def process_work(self, task_id, task, _):
         word_annotations = {"w": [config.corpusconf.get_word_attribute(attr_name) for attr_name in self.corpus_conf["analyze_config"]["word_attributes"]]}
-        struct_annotations =  {}
+        struct_annotations = {}
         for node_name, attr_names in self.corpus_conf["analyze_config"]["struct_attributes"].items():
             struct_annotations[node_name] = [config.corpusconf.get_struct_attribute(attr_name) for attr_name in attr_names]
 
@@ -97,7 +97,12 @@ class InsertData:
             text_attribute = config.corpusconf.get_text_attribute(attr_name)
             text_attributes[attr_name] = text_attribute
             if text_attribute.get("ignore", False):
-                remove_later.append(attr_name)
+                remove_later.append("text_" + attr_name)
+
+        plugin = None
+        pipeline_plugin = self.corpus_conf.get("pipeline_plugin")
+        if pipeline_plugin:
+            plugin = config.corpusconf.get_plugin(pipeline_plugin)
 
         split_document = "text"
         file_name = task["text"]
@@ -105,19 +110,20 @@ class InsertData:
         texts = []
         for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations,
                                                  struct_annotations=struct_annotations, text_attributes=text_attributes,
-                                                 token_count_id=True, add_similarity_tags=True, save_whitespace_per_token=True):
+                                                 token_count_id=True, add_similarity_tags=True, save_whitespace_per_token=True,
+                                                 plugin=plugin):
             texts.append(text)
 
         tasks = []
         terms = []
-        get_id = self.get_id_func(len(texts))
+        get_id = self.get_id_func()
         for text in texts:
             doc_id = get_id(task_id, text)
             text["doc_id"] = doc_id
             self.generate_title(text, text_attributes)
             text["corpus_id"] = self.index
             text["original_file"] = os.path.basename(file_name)
-            task = self.get_doc_task("text", text)
+            task = self.get_doc_task(text)
             task_terms = self.create_term_positions(doc_id, text["token_lookup"])
             del text["token_lookup"]
             for attribute in remove_later:
@@ -131,8 +137,8 @@ class InsertData:
         if "title" in self.corpus_conf:
             for setting in self.corpus_conf["title"]:
                 if "title" in setting:
-                    if setting["title"] in text:
-                        text["title"] = text[setting["title"]]
+                    if "text_" + setting["title"] in text:
+                        text["title"] = text["text_" + setting["title"]]
                         break
                 if "pattern" in setting:
                     title_keys = setting["keys"]
@@ -140,10 +146,10 @@ class InsertData:
                     try:
                         for title_key in title_keys:
                             if "translation_value" in text_attributes[title_key]:
-                                attr = text_attributes[title_key]["translation_value"][text[title_key]]
+                                attr = text_attributes[title_key]["translation_value"][text["text_" + title_key]]
                                 format_params[title_key] = attr.get("-") or attr.get("swe")
                             else:
-                                format_params[title_key] = text[title_key]
+                                format_params[title_key] = text["text_" + title_key]
 
                         title_pattern = setting["pattern"]
                         text["title"] = title_pattern.format(**format_params)
@@ -154,26 +160,33 @@ class InsertData:
 
             if "title" not in text:
                 raise RuntimeError("Failed to set title for text")
-        elif "title" not in text:
+        else:
+            title = text.get("text_title")
+            if title:
+                text["title"] = title
+
+        if "title" not in text:
             raise RuntimeError("Configure \"title\" for corpus")
 
-    def get_doc_task(self, doc_type, text):
+    def get_doc_task(self, text):
         return {
             "_index": self.index,
-            "_type": doc_type,
+            "_type": "doc",
             "_source": text
         }
 
     def create_term_positions(self, text_id, token_lookup):
         terms = []
         for token in token_lookup:
-            term = {"doc_id": text_id,
-                    "doc_type": "text",
-                    "_index": self.index + "_terms",
-                    "_type": "term",
-                    "_op_type": "index",
-                    "position": token["position"],
-                    "pos_str": str(token["position"]),
-                    "term": token}
+            term = {
+                "doc_id": text_id,
+                "doc_type": "text",
+                "_index": self.index + "_terms",
+                "_type": "doc",
+                "_op_type": "index",
+                "position": token["position"],
+                "pos_str": str(token["position"]),
+                "term": token
+            }
             terms.append(term)
         return terms

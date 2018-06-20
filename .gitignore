@@ -4,4 +4,6 @@ virtual_env
 *egg-info
 logs
 __pycache__
+dist
+config
 
