@@ -15,20 +15,17 @@ Strix uses virtuals envs for python version and virtual environment management. 
 
 ### Deployment
 
-1. `wget http://demo.spraakdata.gu.se/mariao/strix/settings/strix-sbconfig_1.0.dev.zip`
-2. `pip install http://demo.spraakdata.gu.se/mariao/strix/python/strixconfigurer_1.0.dev0.zip`
-
-   or
-
-   `pip install git+ssh://git@github.com/spraakbanken/strix-config-configurer.git@dev`
+Run `install.sh`
 
 ### Local development
 
 1. `cd ..`
-2. `git clone git@github.com:spraakbanken/strix-config-configurer.git` (use dev)
-3. `git clone git@github.com:spraakbanken/strix-settings-sb.git` (use dev)
+2. `git clone git@github.com:spraakbanken/strix-config-configurer.git`
+3. `git clone git@github.com:spraakbanken/strix-settings-sb.git`
 4. cd strix-pipeline
-5. pip install -e ../strix-config-configurer
+5. Update `settings_dir` in `config.yml`
+6. pip install -e ../strix-config-configurer
+7. Make sure the correct branch is used in the other repositories
 
 ## Configuration
 
@@ -46,7 +43,7 @@ settings_dir: /home/strix/settings
 
 Download elasticsearch with required plugin and config:
 
-1. `wget http://demo.spraakdata.gu.se/mariao/strix/elasticsearch/strix-elasticsearch_1.0.dev.zip`
+1. `wget http://demo.spraakdata.gu.se/mariao/strix/elasticsearch/strix-elasticsearch_1.0.zip`
 2. Unpack and run `elasticsearch_6.2.4/bin/elasticsearch`
 3. Set java heap size using (optional):
    `export ES_JAVA_OPTS="-Xms8g -Xmx8g"`

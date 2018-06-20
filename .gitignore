@@ -5,4 +5,5 @@ virtual_env
 logs
 __pycache__
 dist
+config
 

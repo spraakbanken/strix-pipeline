@@ -1,4 +1,8 @@
 
+strix_es_version="1.0"
+settings_version="1.0"
+configurer_version="1.0"
+
 rm -r virtual_env
 rm -r config
 
@@ -25,8 +29,15 @@ source virtual_env/bin/activate
 pip install --upgrade pip
 pip install .
 
-wget http://demo.spraakdata.gu.se/mariao/strix/settings/strix-sbconfig_1.0.dev.zip
-unzip strix-sbconfig_1.0.dev.zip
-rm strix-sbconfig_1.0.dev.zip
-pip install http://demo.spraakdata.gu.se/mariao/strix/python/strixconfigurer-1.0.dev0.zip
+wget http://demo.spraakdata.gu.se/mariao/strix/settings/strix-sbconfig_$settings_version.zip
+unzip strix-sbconfig_$settings_version.zip
+rm strix-sbconfig_$settings_version.zip
+
+pip install http://demo.spraakdata.gu.se/mariao/strix/python/strixconfigurer-$configurer_version.zip
+
+echo ""
+echo "---------------------------------"
+echo "Make sure you have the correct version of strix elasticsearch"
+echo "http://demo.spraakdata.gu.se/mariao/strix/elasticsearch/strix-elasticsearch_$strix_es_version.zip"
+echo "---------------------------------"
 
