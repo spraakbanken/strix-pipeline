@@ -23,7 +23,7 @@ class CreateIndex:
         self.es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
         w, s, t = self.set_attributes(index)
         self.word_attributes = w
-        self.fixed_structs= s
+        self.fixed_structs = s
         self.text_attributes = t
         self.alias = index
 
@@ -205,6 +205,10 @@ class CreateIndex:
 
 
 class DisabledObject(InnerDoc):
+    """
+    Object(enabled=false) is not supported by DSL so this is needed to make objects disabled
+    m.field("test", Object(DisabledObject))
+    """
     class Meta:
         enabled = MetaField(False)
 

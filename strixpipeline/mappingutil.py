@@ -32,7 +32,7 @@ def as_you_type_analyzer():
 
 
 def pattern_tokenizer():
-    return analysis.tokenizer("strix_tokenizer", "pattern", pattern=token_separator)
+    return analysis.tokenizer("strix_tokenizer", "simple_pattern_split", pattern=token_separator)
 
 
 def get_swedish_analyzer():
