@@ -36,7 +36,9 @@ class CreateIndex:
         for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
             for attr_name in attributes:
                 attr = config.corpusconf.get_struct_attribute(attr_name)
-                if attr.get("index_in_text", True):
+                if attr.get("ignore", False):
+                    pass
+                elif attr.get("index_in_text", True):
                     new_attr = dict(attr)
                     new_attr["name"] = node_name + "_" + attr["name"]
                     word_attributes.append(new_attr)
