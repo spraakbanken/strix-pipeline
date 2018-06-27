@@ -221,16 +221,9 @@ class StrixParser:
 
                 if "attrs" in annotations:
                     for annotation_name, v in annotations["attrs"].items():
-                        index = True
-                        # TODO don't loop
-                        for annotation in self.struct_annotations[tag_name]:
-                            if annotation["name"] == annotation_name:
-                                index = annotation.get("index_in_text", True)
-                                break
-                        if index:
-                            x = tag_name + "_" + annotation_name
-                            struct_data[x] = v
-                            self.all_word_level_annotations.add(x)
+                        x = tag_name + "_" + annotation_name
+                        struct_data[x] = v
+                        self.all_word_level_annotations.add(x)
 
             self.process_token(token_data)
             all_data = dict(token_data)

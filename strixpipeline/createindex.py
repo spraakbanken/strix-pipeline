@@ -21,9 +21,8 @@ class CreateIndex:
         :param index: name of index (alias name, date and time will be appended)
         """
         self.es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
-        w, s, t = self.set_attributes(index)
+        w, t = self.set_attributes(index)
         self.word_attributes = w
-        self.fixed_structs = s
         self.text_attributes = t
         self.alias = index
 
@@ -32,23 +31,20 @@ class CreateIndex:
         word_attributes = []
         for attr_name in corpus_config["analyze_config"]["word_attributes"]:
             word_attributes.append(config.corpusconf.get_word_attribute(attr_name))
-        fixed_structs = []
+
         for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
             for attr_name in attributes:
                 attr = config.corpusconf.get_struct_attribute(attr_name)
                 if attr.get("ignore", False):
                     pass
-                elif attr.get("index_in_text", True):
-                    new_attr = dict(attr)
-                    new_attr["name"] = node_name + "_" + attr["name"]
-                    word_attributes.append(new_attr)
-                else:
-                    fixed_structs.append((node_name, attr))
+                new_attr = dict(attr)
+                new_attr["name"] = node_name + "_" + attr["name"]
+                word_attributes.append(new_attr)
 
         text_attributes = [config.corpusconf.get_text_attribute(attr_name) for attr_name in corpus_config["analyze_config"]["text_attributes"]]
         text_attributes = filter(lambda x: not x.get("ignore", False), text_attributes)
 
-        return word_attributes, fixed_structs, text_attributes
+        return word_attributes, text_attributes
 
     def create_index(self):
         base_index, index_name = self.get_unique_index()
@@ -93,18 +89,7 @@ class CreateIndex:
         m.field("position", "integer")
         m.field("pos_str", "keyword")
 
-        fixed_props = {}
-        for (node_name, attr) in self.fixed_structs:
-            props = {}
-            for prop_name, prop_value in attr["properties"].items():
-                if prop_value["type"] == "geopoint":
-                    props[prop_name] = GeoPoint()
-                else:
-                    props[prop_name] = Keyword()
-            something = {attr["name"]: Nested(properties=props)}
-            fixed_props[node_name] = Object(properties={"attrs": Object(properties=something)})
-
-        m.field("term", Object(dynamic=True, properties={"attrs": Object(properties=fixed_props)}))
+        m.field("term", Object(dynamic=True, properties={"attrs": Object()}))
         m.field("doc_id", "keyword")
         m.field("doc_type", "keyword")
         m.save(self.alias + "_terms", using=self.es)
@@ -152,6 +137,7 @@ class CreateIndex:
                 mapping_type = Double(ignore_malformed=True)
             elif attr.get("type") == "integer":
                 mapping_type = Integer()
+
             elif "properties" in attr:
                 props = {}
                 for prop_name, prop_val in attr["properties"].items():
