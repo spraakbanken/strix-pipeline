@@ -200,9 +200,7 @@ class StrixParser:
                     annotation_value = list(filter(bool, annotation_value.split("|")))
                 if annotation.get("ranked", False):
                     values = [v.split(":")[0] for v in annotation_value]
-                    token_data[annotation_name + "_alt"] = values
                     annotation_value = values[0] if values else None
-                    self.all_word_level_annotations.add(annotation_name + "_alt")
                 token_data[annotation_name] = annotation_value
                 self.all_word_level_annotations.add(annotation_name)
 

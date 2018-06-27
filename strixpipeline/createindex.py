@@ -136,10 +136,6 @@ class CreateIndex:
             annotation_name = attr["name"]
             excludes.append("pos_" + annotation_name)
 
-            if "ranked" in attr and attr["ranked"]:
-                m.field("pos_" + annotation_name + "_alt", Text(analyzer=mappingutil.set_annotation_analyzer()))
-                excludes.append("pos_" + annotation_name + "_alt")
-
             if attr.get("set", False):
                 m.field("pos_" + annotation_name, Text(analyzer=mappingutil.set_annotation_analyzer()))
             else:
