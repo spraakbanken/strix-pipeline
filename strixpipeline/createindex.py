@@ -30,19 +30,29 @@ class CreateIndex:
         corpus_config = config.corpusconf.get_corpus_conf(index)
         word_attributes = []
         for attr_name in corpus_config["analyze_config"]["word_attributes"]:
-            word_attributes.append(config.corpusconf.get_word_attribute(attr_name))
+            attr = config.corpusconf.get_word_attribute(attr_name)
+            if attr.get("index", True):
+                # TODO map these in _terms index
+                pass
+            if attr.get("posIndex", False):
+                word_attributes.append(attr)
 
         for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
             for attr_name in attributes:
                 attr = config.corpusconf.get_struct_attribute(attr_name)
-                if attr.get("ignore", False):
+                if attr.get("index", True):
+                    # TODO map these in _terms index
                     pass
-                new_attr = dict(attr)
-                new_attr["name"] = node_name + "_" + attr["name"]
-                word_attributes.append(new_attr)
+                if attr.get("posIndex", False):
+                    new_attr = dict(attr)
+                    new_attr["name"] = node_name + "_" + attr["name"]
+                    word_attributes.append(new_attr)
 
-        text_attributes = [config.corpusconf.get_text_attribute(attr_name) for attr_name in corpus_config["analyze_config"]["text_attributes"]]
-        text_attributes = filter(lambda x: not x.get("ignore", False), text_attributes)
+        text_attributes = []
+        for attr_name in corpus_config["analyze_config"]["text_attributes"]:
+            attr = config.corpusconf.get_text_attribute(attr_name)
+            if attr.get("index", True):
+                text_attributes.append(attr)
 
         return word_attributes, text_attributes
 
