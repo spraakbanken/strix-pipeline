@@ -8,13 +8,13 @@ empty_set = "\u2205"
 
 def set_annotation_analyzer():
     set_filter = analysis.token_filter("set_token_filter", "set_delimiter_token_filter", delimiter=set_delimiter)
-    token_filters = ["lowercase", set_filter]
+    token_filters = [set_filter]
     return analysis.analyzer("set_annotation_analyzer", tokenizer=pattern_tokenizer(), filter=token_filters)
 
 
 def annotation_analyzer():
     stop_empty_filter = analysis.token_filter("stop", "stop", stopwords=[empty_set])
-    token_filters = ["lowercase", stop_empty_filter]
+    token_filters = [stop_empty_filter]
     return analysis.analyzer("annotation_analyzer", tokenizer=pattern_tokenizer(), filter=token_filters)
 
 
@@ -32,7 +32,7 @@ def as_you_type_analyzer():
 
 
 def pattern_tokenizer():
-    return analysis.tokenizer("strix_tokenizer", "pattern", pattern=token_separator)
+    return analysis.tokenizer("strix_tokenizer", "simple_pattern_split", pattern=token_separator)
 
 
 def get_swedish_analyzer():

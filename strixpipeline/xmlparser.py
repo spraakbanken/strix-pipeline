@@ -17,7 +17,8 @@ def parse_pipeline_xml(file_name,
                        process_token=lambda x: None,
                        add_similarity_tags=False,
                        save_whitespace_per_token=False,
-                       plugin=None):
+                       plugin=None,
+                       pos_index_attributes=()):
     """
     split_document: everything under this node will go into separate documents
     word_annotations: a map of tag names and the attributes of those tags that
@@ -25,7 +26,7 @@ def parse_pipeline_xml(file_name,
     """
     if text_attributes is None:
         text_attributes = {}
-    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin)
+    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin, pos_index_attributes)
     iterparse_parser(file_name, strix_parser)
     res = strix_parser.get_result()
     return res
@@ -43,7 +44,7 @@ def parse_properties(annotation, in_value):
 
 class StrixParser:
 
-    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin):
+    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin, pos_index_attributes):
         #input
         self.split_document = split_document
         self.word_annotations = word_annotations
@@ -54,6 +55,7 @@ class StrixParser:
         self.add_similarity_tags = add_similarity_tags
         self.save_whitespace_per_token = save_whitespace_per_token
         self.plugin = plugin
+        self.pos_index_attributes = pos_index_attributes
 
         #state
         self.current_part_tokens = []
@@ -145,7 +147,8 @@ class StrixParser:
                 if self.plugin:
                     self.plugin.process_text_attributes(self.part_attributes)
                 for key, val in self.part_attributes.items():
-                    current_part["text_" + key] = val
+                    if key in self.text_attributes and self.text_attributes[key].get("index", True):
+                        current_part["text_" + key] = val
                 current_part["text_attributes"] = self.part_attributes
 
             current_part["token_lookup"] = self.current_token_lookup
@@ -162,7 +165,7 @@ class StrixParser:
                 res = mappingutil.token_separator.join(map(lambda x: x.get(key, mappingutil.empty_set), self.current_part_tokens))
                 if key == "wid":
                     current_part["wid"] = res
-                else:
+                elif key in self.pos_index_attributes:
                     current_part["pos_" + key] = res
 
             if self.add_similarity_tags:
@@ -200,9 +203,7 @@ class StrixParser:
                     annotation_value = list(filter(bool, annotation_value.split("|")))
                 if annotation.get("ranked", False):
                     values = [v.split(":")[0] for v in annotation_value]
-                    token_data[annotation_name + "_alt"] = values
                     annotation_value = values[0] if values else None
-                    self.all_word_level_annotations.add(annotation_name + "_alt")
                 token_data[annotation_name] = annotation_value
                 self.all_word_level_annotations.add(annotation_name)
 
@@ -223,16 +224,9 @@ class StrixParser:
 
                 if "attrs" in annotations:
                     for annotation_name, v in annotations["attrs"].items():
-                        index = True
-                        # TODO don't loop
-                        for annotation in self.struct_annotations[tag_name]:
-                            if annotation["name"] == annotation_name:
-                                index = annotation.get("index_in_text", True)
-                                break
-                        if index:
-                            x = tag_name + "_" + annotation_name
-                            struct_data[x] = v
-                            self.all_word_level_annotations.add(x)
+                        x = tag_name + "_" + annotation_name
+                        struct_data[x] = v
+                        self.all_word_level_annotations.add(x)
 
             self.process_token(token_data)
             all_data = dict(token_data)

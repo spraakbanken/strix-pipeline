@@ -1,6 +1,6 @@
 
 strix_es_version="1.0"
-settings_version="1.0"
+settings_version="2.0"
 configurer_version="1.0"
 
 rm -r virtual_env
