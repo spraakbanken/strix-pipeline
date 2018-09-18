@@ -1,5 +1,5 @@
 
-strix_es_version="1.0"
+strix_es_version="1.x"
 settings_version="2.0"
 configurer_version="1.0"
 
