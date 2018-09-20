@@ -122,7 +122,7 @@ class InsertData:
         if pipeline_plugin:
             plugin = config.corpusconf.get_plugin(pipeline_plugin)
 
-        split_document = "text"
+        split_document = self.corpus_conf.get("split", "text")
         file_name = task["text"]
 
         texts = []
