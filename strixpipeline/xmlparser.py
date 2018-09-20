@@ -255,7 +255,7 @@ class StrixParser:
                 if "lemma" in token_data:
                     annotation_value = token_data["lemma"]
                 else:
-                    annotation_value = [lemma for lemma in self.word_attrs["lemma"].split("|") if lemma and ":" not in lemma]
+                    annotation_value = [lemma for lemma in self.word_attrs.get("lemma", "").split("|") if lemma and ":" not in lemma]
                 if not annotation_value:
                     annotation_value = [token]
                 self.similarity_tags.extend(annotation_value)
