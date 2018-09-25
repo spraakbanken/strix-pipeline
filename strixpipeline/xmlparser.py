@@ -192,73 +192,74 @@ class StrixParser:
                 token["attrs"][tag]["length"] = annotation_length
             del self.current_struct_annotations[tag]
         elif tag == "w":
-            token_data = dict(self.current_word_annotations)
-            for annotation in self.word_annotations.get("w", []):
-                annotation_name = annotation["name"]
-                if "nodeName" in annotation:
-                    annotation_value = self.word_attrs.get(annotation["nodeName"])
-                else:
-                    annotation_value = self.word_attrs.get(annotation_name)
-                if annotation.get("set", False) or annotation.get("ranked", False):
-                    annotation_value = list(filter(bool, annotation_value.split("|")))
-                if annotation.get("ranked", False):
-                    values = [v.split(":")[0] for v in annotation_value]
-                    annotation_value = values[0] if values else None
-                token_data[annotation_name] = annotation_value
-                self.all_word_level_annotations.add(annotation_name)
-
-            if self.token_count_id:
-                token_data["wid"] = self.token_count
-                self.all_word_level_annotations.add("wid")
-
-            struct_data = {}
-            struct_annotations = {}
-            for tag_name, annotations in self.current_struct_annotations.items():
-                struct_annotations[tag_name] = {"attrs": annotations["attrs"]}
-                if "start_wid" not in annotations:
-                    annotations["start_wid"] = token_data["wid"]
-                    annotations["start_pos"] = self.token_count
-                    struct_annotations[tag_name]["is_start"] = True
-                struct_annotations[tag_name]["start_wid"] = annotations["start_wid"]
-                annotations["length"] = self.token_count - annotations["start_pos"] + 1
-
-                if "attrs" in annotations:
-                    for annotation_name, v in annotations["attrs"].items():
-                        x = tag_name + "_" + annotation_name
-                        struct_data[x] = v
-                        self.all_word_level_annotations.add(x)
-
-            self.process_token(token_data)
-            all_data = dict(token_data)
-            all_data.update(struct_data)
-
-            str_attrs = {}
-            for attr, v in sorted(all_data.items()):
-                if isinstance(v, list):
-                    v = mappingutil.set_delimiter + mappingutil.set_delimiter.join(v) + mappingutil.set_delimiter if len(v) > 0 else mappingutil.set_delimiter
-                if v is None:
-                    v = mappingutil.empty_set
-                str_attrs[attr] = str(v)
-
             token = self.current_word_content.strip()
-            self.dump[-1] += token
-            str_attrs["token"] = token
-            self.current_part_tokens.append(str_attrs)
+            if len(token) != 0:
+                token_data = dict(self.current_word_annotations)
+                for annotation in self.word_annotations.get("w", []):
+                    annotation_name = annotation["name"]
+                    if "nodeName" in annotation:
+                        annotation_value = self.word_attrs.get(annotation["nodeName"])
+                    else:
+                        annotation_value = self.word_attrs.get(annotation_name)
+                    if annotation.get("set", False) or annotation.get("ranked", False):
+                        annotation_value = list(filter(bool, annotation_value.split("|")))
+                    if annotation.get("ranked", False):
+                        values = [v.split(":")[0] for v in annotation_value]
+                        annotation_value = values[0] if values else None
+                    token_data[annotation_name] = annotation_value
+                    self.all_word_level_annotations.add(annotation_name)
 
-            token_lookup_data = dict(token_data)
-            token_lookup_data.update(struct_annotations)
-            self.current_token_lookup.append({"word": token, "attrs": token_lookup_data, "position": self.token_count})
+                if self.token_count_id:
+                    token_data["wid"] = self.token_count
+                    self.all_word_level_annotations.add("wid")
 
-            self.token_count += 1
+                struct_data = {}
+                struct_annotations = {}
+                for tag_name, annotations in self.current_struct_annotations.items():
+                    struct_annotations[tag_name] = {"attrs": annotations["attrs"]}
+                    if "start_wid" not in annotations:
+                        annotations["start_wid"] = token_data["wid"]
+                        annotations["start_pos"] = self.token_count
+                        struct_annotations[tag_name]["is_start"] = True
+                    struct_annotations[tag_name]["start_wid"] = annotations["start_wid"]
+                    annotations["length"] = self.token_count - annotations["start_pos"] + 1
 
-            if self.add_similarity_tags and token_data["pos"] == "NN":
-                if "lemma" in token_data:
-                    annotation_value = token_data["lemma"]
-                else:
-                    annotation_value = [lemma for lemma in self.word_attrs["lemma"].split("|") if lemma and ":" not in lemma]
-                if not annotation_value:
-                    annotation_value = [token]
-                self.similarity_tags.extend(annotation_value)
+                    if "attrs" in annotations:
+                        for annotation_name, v in annotations["attrs"].items():
+                            x = tag_name + "_" + annotation_name
+                            struct_data[x] = v
+                            self.all_word_level_annotations.add(x)
+
+                self.process_token(token_data)
+                all_data = dict(token_data)
+                all_data.update(struct_data)
+
+                str_attrs = {}
+                for attr, v in sorted(all_data.items()):
+                    if isinstance(v, list):
+                        v = mappingutil.set_delimiter + mappingutil.set_delimiter.join(v) + mappingutil.set_delimiter if len(v) > 0 else mappingutil.set_delimiter
+                    if v is None:
+                        v = mappingutil.empty_set
+                    str_attrs[attr] = str(v)
+
+                self.dump[-1] += token
+                str_attrs["token"] = token
+                self.current_part_tokens.append(str_attrs)
+
+                token_lookup_data = dict(token_data)
+                token_lookup_data.update(struct_annotations)
+                self.current_token_lookup.append({"word": token, "attrs": token_lookup_data, "position": self.token_count})
+
+                self.token_count += 1
+
+                if self.add_similarity_tags and token_data["pos"] == "NN":
+                    if "lemma" in token_data:
+                        annotation_value = token_data["lemma"]
+                    else:
+                        annotation_value = [lemma for lemma in self.word_attrs.get("lemma", "").split("|") if lemma and ":" not in lemma]
+                    if not annotation_value:
+                        annotation_value = [token]
+                    self.similarity_tags.extend(annotation_value)
             self.in_word = False
             self.current_word_content = ""
 
