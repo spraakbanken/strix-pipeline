@@ -186,10 +186,10 @@ class StrixParser:
             # assign the length (which can't be known until the element closes)
             # TODO do this once for ALL structural elements to avoid editing each token more than one
             #   (save all structs and do this when the document is done)
-            annotation_length = self.current_struct_annotations[tag]["length"]
-
-            for token in self.current_token_lookup[-annotation_length:]:
-                token["attrs"][tag]["length"] = annotation_length
+            if "length" in self.current_struct_annotations[tag]:
+                annotation_length = self.current_struct_annotations[tag]["length"]
+                for token in self.current_token_lookup[-annotation_length:]:
+                    token["attrs"][tag]["length"] = annotation_length
             del self.current_struct_annotations[tag]
         elif tag == "w":
             token = self.current_word_content.strip()
