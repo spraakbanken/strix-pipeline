@@ -14,6 +14,6 @@ setup(
     install_requires=[
         'elasticsearch==6.2.0',
         'elasticsearch-dsl==6.1.0',
-        'PyYAML==3.12',
+        'PyYAML==3.13',
       ]
 )
