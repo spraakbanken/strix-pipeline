@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='strixpipeline',
-    version='1.3',
+    version='1.4',
     description='',
     url='',
     author='Språkbanken',

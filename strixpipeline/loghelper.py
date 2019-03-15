@@ -51,7 +51,7 @@ def setup_pipeline_logging(task_name):
         for log in current_logs:
             shutil.move(path.join("logs", log), "logs/old")
 
-    date_format = "%Y-%m-%d_%H:%M:%S"
+    date_format = "%Y-%m-%d_%H:%M:%S.%f"
     if path.exists("logs/old"):
         for old_log in os.listdir("logs/old"):
             if "__" in path.basename(old_log):
