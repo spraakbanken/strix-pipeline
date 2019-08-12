@@ -17,7 +17,7 @@ def get_git_commit_id():
 
 def put(obj):
     obj["git_commitid"] = get_git_commit_id()
-    es.index(index_name, "entry", obj)
+    es.index(index_name, obj)
 
 
 def create():
@@ -48,11 +48,9 @@ def create():
                 "number_of_replicas": 1
             }
         },
-        "mappings": {
-            "entry": mappings
-        }
+        "mappings": mappings
     }
     if es.indices.exists(index_name):
-        es.indices.put_mapping(doc_type="entry", index=index_name, body=mappings)
+        es.indices.put_mapping(index=index_name, body=mappings)
     else:
         es.indices.create(index_name, body=settings)

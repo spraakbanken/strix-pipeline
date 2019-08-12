@@ -12,8 +12,8 @@ setup(
     packages=['strixpipeline'],
     zip_safe=False,
     install_requires=[
-        'elasticsearch==6.2.0',
-        'elasticsearch-dsl==6.1.0',
-        'PyYAML==3.13',
+        'elasticsearch==7.0.2',
+        'elasticsearch-dsl==7.0.0',
+        'PyYAML==5.1.2',
       ]
 )
