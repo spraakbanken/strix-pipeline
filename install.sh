@@ -1,5 +1,5 @@
 
-strix_es_version="1.x"
+strix_es_version="1.2" # es7
 configurer_version="1.0"
 
 rm -r virtual_env
