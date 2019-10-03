@@ -80,8 +80,7 @@ class CreateIndex:
         terms.delete(ignore=404)
         terms.create()
 
-        m = Mapping("doc")
-        m.meta("_all", enabled=False)
+        m = Mapping()
         m.meta("dynamic", "strict")
         m.meta("date_detection", False)
         m.meta("dynamic_templates", [
@@ -119,8 +118,7 @@ class CreateIndex:
         )
 
     def create_text_type(self, index_name):
-        m = Mapping("doc")
-        m.meta("_all", enabled=False)
+        m = Mapping()
         m.meta("dynamic", "strict")
         excludes = ["text", "wid"]
 
@@ -165,7 +163,6 @@ class CreateIndex:
         m.field("lines", Object(DisabledObject))
         m.field("word_count", Integer())
         m.field("similarity_tags", Text(analyzer=mappingutil.similarity_tags_analyzer(), term_vector="yes"))
-
 
         # TODO: is the standard analyzer field used? otherwise move "analyzed" sub-field to top level
         title_field = Text(

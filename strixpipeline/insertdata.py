@@ -190,7 +190,6 @@ class InsertData:
     def get_doc_task(self, text):
         return {
             "_index": self.index,
-            "_type": "doc",
             "_source": text
         }
 
@@ -201,7 +200,6 @@ class InsertData:
                 "doc_id": text_id,
                 "doc_type": "text",
                 "_index": self.index + "_terms",
-                "_type": "doc",
                 "_op_type": "index",
                 "position": token["position"],
                 "pos_str": str(token["position"]),
