@@ -98,12 +98,13 @@ def get_content_of_bulk(task_chunk):
             doc_type = task["doc_type"]
             doc_id = task["doc_id"]
         else:
-            doc_type = task["_type"]
-            if doc_type == "text":
-                files.add(task["_source"]["original_file"])
+            doc_type = "text"
+            if "_source" in task and "doc_id" in task["_source"]:
                 doc_id = task["_source"]["doc_id"]
-            else:
+            elif "_id" in task:
                 doc_id = task["_id"]
+            else:
+                doc_id = "unknown"
 
         if doc_type not in docs:
             docs[doc_type] = set()
