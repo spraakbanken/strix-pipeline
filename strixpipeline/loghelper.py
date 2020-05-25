@@ -49,7 +49,10 @@ def setup_pipeline_logging(task_name):
     if len(current_logs) > 0:
         os.makedirs("logs/old", exist_ok=True)
         for log in current_logs:
-            shutil.move(path.join("logs", log), "logs/old")
+            try:
+                shutil.move(path.join("logs", log), "logs/old")
+            except FileNotFoundError:
+                pass
 
     date_format = "%Y-%m-%d_%H:%M:%S.%f"
     if path.exists("logs/old"):
@@ -58,7 +61,10 @@ def setup_pipeline_logging(task_name):
                 date_str = old_log.split("__")[1]
                 date = datetime.strptime(date_str, date_format)
                 if date < (datetime.now() - timedelta(30)):
-                    os.remove(path.join("logs/old", old_log))
+                    try:
+                        os.remove(path.join("logs/old", old_log))
+                    except FileNotFoundError:
+                        pass
 
     file_name = task_name + "__" + datetime.now().strftime(date_format)
 
