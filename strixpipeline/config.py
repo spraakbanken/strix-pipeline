@@ -3,6 +3,12 @@ import sys
 import os
 import logging
 
+import elasticsearch
+from elasticsearch.connection import create_ssl_context
+import ssl
+import urllib3
+
+
 
 class StrixConfig:
 
@@ -44,3 +50,19 @@ class StrixConfig:
 
 config = StrixConfig()
 
+def get_es_connection():
+    if config.connection_type == "insecure_ssl":
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        ssl_context = create_ssl_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+
+        return elasticsearch.Elasticsearch(hosts=config.elastic_hosts,
+                            scheme="https",
+                            ssl_context=ssl_context,
+                            timeout=1200,
+                            retry_on_timeout=True,
+                            http_auth=config.http_auth)
+    else:
+        elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
+        

@@ -6,7 +6,7 @@ import multiprocessing
 import elasticsearch
 import elasticsearch.helpers
 import elasticsearch.exceptions
-from strixpipeline.config import config
+from strixpipeline.config import config, get_es_connection
 import strixpipeline.insertdata as insert_data_strix
 import strixpipeline.createindex as create_index_strix
 import strixpipeline.runhistory
@@ -19,7 +19,8 @@ MAX_UPLOAD_WORKERS = config.concurrency_upload_threads
 GROUP_SIZE = config.concurrency_group_size
 MAX_GROUP_SIZE_KB = 250 * 1024
 
-es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500, retry_on_timeout=True)
+# es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500, retry_on_timeout=True)
+es = get_es_connection()
 
 _logger = logging.getLogger(__name__)
 
@@ -61,8 +62,10 @@ def process_task(insert_data, task_queue, size, process_args):
 
     try:
         (tasks, delta_t) = insert_data.process(*process_args)
-    except Exception:
-        _logger.exception("Failed to process %s" % _task_id)
+    except Exception as e:
+        # _logger.exception("Failed to process %s" % _task_id)
+        _logger.error("Failed to process %s" % _task_id)
+        _logger.error(str(e))
         tasks = []
         delta_t = -1
 
@@ -74,7 +77,8 @@ def process_task(insert_data, task_queue, size, process_args):
         else:
             _logger.error("Did not process id: %s" % _task_id)
     except queue.Full:
-        _logger.exception("queue.put exception")
+        # _logger.exception("queue.put exception")
+        _logger.error("queue.put exception ")
         raise
 
 
@@ -174,11 +178,14 @@ def upload_executor(task_queue, tot_size, num_tasks):
                                 for doc_id in doc_ids:
                                     type_output = doc_type + "-" if doc_type != "text" else ""
                                     _logger.error(type_output + doc_id)
+                                    _logger.error(error_obj)
                 else:
                     try:
                         raise future.exception() from None
-                    except Exception:
-                        _logger.exception("Failed bulk upload of a chunk.")
+                    except Exception as e:
+                        # _logger.exception("Failed bulk upload of a chunk.")
+                        _logger.error("Failed bulk upload of a chunk. " + str(e))
+                        # pass
                 if tot_size > 0:
                     _logger.info("%.1f%%" % (100 * (size_accu / tot_size)))
                     _logger.info("------------------")
@@ -190,7 +197,10 @@ def bulk_insert(tasks):
     try:
         elasticsearch.helpers.bulk(es, tasks)
     except Exception as e:
-        _logger.exception("Error in bulk upload")
+        # _logger.exception("Error in bulk upload")
+        # _logger.error("Error in bulk upload " + str(e))
+        # TODO: write which book is in error, maybe with error_obj below?
+        _logger.error("Error in bulk upload. %(status)s %(error)s" % e.errors[0]['index'] )
         error_obj = get_content_of_bulk(tasks)
 
     return len(tasks), time.time() - insert_t, error_obj
