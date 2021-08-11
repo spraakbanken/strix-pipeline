@@ -51,7 +51,7 @@ def setup_pipeline_logging(task_name):
         for log in current_logs:
             try:
                 shutil.move(path.join("logs", log), "logs/old")
-            except FileNotFoundError:
+            except:
                 pass
 
     date_format = "%Y-%m-%d_%H:%M:%S.%f"
