@@ -17,7 +17,7 @@ import datetime
 QUEUE_SIZE = config.concurrency_queue_size
 MAX_UPLOAD_WORKERS = config.concurrency_upload_threads
 GROUP_SIZE = config.concurrency_group_size
-MAX_GROUP_SIZE_KB = 250 * 1024
+MAX_GROUP_SIZE_KB = 500 * 1024
 
 # es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500, retry_on_timeout=True)
 es = get_es_connection()
@@ -70,10 +70,11 @@ def process_task(insert_data, task_queue, size, process_args):
         delta_t = -1
 
     try:
+        put_delta_t = time.time()
         task_queue.put((tasks, delta_t, size), block=True)
 
         if tasks:
-            _logger.info("Processed id: %s, took %0.1fs" % (_task_id, delta_t))
+            _logger.info("Processed id: %s, took %0.1fs. Upload queue wait %0.1fs" % (_task_id, delta_t, time.time() - put_delta_t))
         else:
             _logger.error("Did not process id: %s" % _task_id)
     except queue.Full:
@@ -119,6 +120,34 @@ def get_content_of_bulk(task_chunk):
 
 
 def upload_executor(task_queue, tot_size, num_tasks):
+    sizes = {}
+    size_accu = 0
+    def gen_actions(num_tasks):
+        while True:
+            if num_tasks < 1:
+                break
+        
+            num_tasks -= 1
+            (task_data, process_time, work_size) = task_queue.get()
+            if hasattr(task_data, "work"):
+                sizes[task_data.work["_id"]] = work_size
+            yield from task_data
+
+    for success, info in elasticsearch.helpers.parallel_bulk(es,
+                                                            gen_actions(num_tasks),
+                                                            thread_count=16, queue_size=16):
+        if not success:
+            print('A document failed:', info)
+        else:
+            target = info['index']['_index'].split("_")[-1]
+            id = info["index"]["_id"]
+            if target in ("etext", "faksimil") and id in sizes:
+                size_accu += sizes[id]
+                _logger.info(f"Indexed {id}. At {int((size_accu / tot_size)* 100) :}%")
+                
+
+    
+def old_upload_executor(task_queue, tot_size, num_tasks):
 
     with futures.ThreadPoolExecutor(max_workers=MAX_UPLOAD_WORKERS) as executor:
 
