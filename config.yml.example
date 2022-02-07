@@ -1,6 +1,6 @@
 elastic_hosts: [{host: localhost, port: 9200}]
 texts_dir: /home/strix/texts
-settings_dir: /home/strix/settings
+settings_dir: /home/strix/strix-settings-sb/config
 base_dir: .
 
 # concurrency settings
@@ -9,10 +9,10 @@ concurrency_queue_size: 20
 concurrency_group_size: 20
 
 # index settings
-# number_of_shards: 1
-# number_of_replicas: 0
-# terms_number_of_shards: 1
-# terms_number_of_replicas: 0
+number_of_shards: 1
+number_of_replicas: 0
+terms_number_of_shards: 1
+terms_number_of_replicas: 0
 
 # log settings
 # log_level: INFO # choose between DEBUG, INFO, WARN, ERROR

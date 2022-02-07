@@ -1,8 +1,8 @@
 
-strix_es_version="1.x"
+strix_es_version="1.2" # es7
 configurer_version="1.0"
 
-rm -r virtual_env
+rm -r .venv
 rm -r config
 
 if [ ! -f config.yml ]; then
@@ -21,9 +21,9 @@ if [ ! -f config.yml ]; then
 fi
 
 
-python3 -m venv virtual_env
+python3 -m venv .venv
 
-source virtual_env/bin/activate
+source .venv/bin/activate
 
 pip install --upgrade pip
 pip install .
