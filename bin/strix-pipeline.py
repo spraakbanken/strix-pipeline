@@ -13,8 +13,6 @@ if __name__ == '__main__':
     import argparse
     logger = logging.getLogger("strix_pipeline")
 
-    config.create_corpus_config()
-
     def do_run(args):
         doc_ids = args.doc_ids if args.doc_ids else []
         index = args.index

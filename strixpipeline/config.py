@@ -25,6 +25,7 @@ class StrixConfig:
         self.logger.info("Config file in use: %s", os.path.realpath(file.name))
         self.config = yaml.safe_load(file)
         self.set_defaults()
+        self.create_corpus_config()
 
     def __getattr__(self, item):
         try:
@@ -45,7 +46,7 @@ class StrixConfig:
 
     def create_corpus_config(self):
         import strixconfigurer.corpusconf
-        self.config["corpusconf"] = strixconfigurer.corpusconf.CorpusConfig(config.settings_dir)
+        self.config["corpusconf"] = strixconfigurer.corpusconf.CorpusConfig(self.settings_dir)
 
 
 config = StrixConfig()
