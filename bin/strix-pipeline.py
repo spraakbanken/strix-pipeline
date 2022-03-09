@@ -16,7 +16,7 @@ if __name__ == '__main__':
     def do_run(args):
         doc_ids = args.doc_ids if args.doc_ids else []
         index = args.index
-        limit_to = args.limit_to
+        limit_to = args.limit_to if hasattr(args, "limit_to") else None
         strixpipeline.loghelper.setup_pipeline_logging(index + "-run")
         pipeline.do_run(index, doc_ids, limit_to)
 
@@ -36,6 +36,11 @@ if __name__ == '__main__':
     def do_merge(args):
         index = args.index
         pipeline.merge_indices(index)
+
+    def do_all(args):
+        do_recreate(args)
+        do_run(args)
+        do_merge(args)
 
     # Parse command line arguments
 
@@ -73,6 +78,12 @@ if __name__ == '__main__':
     merge_parser = subparsers.add_parser("merge", help="Run forcemerge on index")
     merge_parser.add_argument("--index", required=True, help="Index to merge")
     merge_parser.set_defaults(func=do_merge)
+
+    all_parser = subparsers.add_parser("all", help="Run recreate, run and merge on index")
+    all_parser.add_argument("--index", required=True, help="Index to create")
+    all_parser.add_argument('--doc-ids', nargs='*', help='An optional list of IDs (filenames). Default is to run all files. ')
+    all_parser.set_defaults(func=do_all)
+
 
     args = parser.parse_args()
 
