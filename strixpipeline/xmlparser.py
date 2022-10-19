@@ -4,6 +4,7 @@ import re
 import xml.etree.cElementTree as etree
 from strixpipeline.config import config
 import strixpipeline.mappingutil as mappingutil
+from collections import Counter
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
 
@@ -68,6 +69,7 @@ class StrixParser:
         self.token_count = 0
         self.lines = [[0]]
         self.similarity_tags = []
+        self.ner_tags = []
 
         self.in_word = False
         self.word_attrs = {}
@@ -79,6 +81,7 @@ class StrixParser:
         return self.current_parts
 
     def handle_starttag(self, tag, attrs):
+        # print(tag)
         if self.text_attributes and tag == self.split_document:
             self.part_attributes = {}
             # TODO: don't loop through both text attributes and XML-node attributes
@@ -141,12 +144,42 @@ class StrixParser:
                 self.current_word_annotations[annotation_name] = a_value
 
     def handle_endtag(self, tag):
+        # print(tag)
         if tag == self.split_document:
             current_part = {}
             if self.text_attributes:
+                dateFrom = ''
+                dateTo = ''
+                givenDate = ''
+                if 'year' not in self.part_attributes.keys():
+                    if 'datefrom' in self.part_attributes.keys():
+                        dateFrom = self.part_attributes['datefrom'][0:4]
+                    if 'dateto' in self.part_attributes.keys():
+                        dateTo = self.part_attributes['dateto'][0:4]
+                    if 'date' in self.part_attributes.keys():
+                        givenDate = self.part_attributes['date'][0:4]
+                    if 'datum' in self.part_attributes.keys():
+                        givenDate = self.part_attributes['datum'][0:4]
+                    if not dateFrom and (not dateTo and (not givenDate)):
+                        self.part_attributes['year'] = '2050'
+                    elif givenDate:
+                        self.part_attributes['year'] = givenDate
+                    elif dateTo and not dateFrom:
+                        self.part_attributes['year'] = dateTo
+                    elif dateFrom and not dateTo:
+                        self.part_attributes['year'] = dateFrom
+                    elif dateFrom == dateTo:
+                        self.part_attributes['year'] = dateFrom
+                    elif dateFrom != dateTo and (dateFrom and (dateTo)):
+                        self.part_attributes['year'] = dateFrom + ', ' + dateTo
+                    else:
+                        pass
+                        
                 if self.plugin:
                     self.plugin.process_text_attributes(self.part_attributes)
                 for key, val in self.part_attributes.items():
+                    # if key == 'year':
+                    #     print(key,val)
                     if key in self.text_attributes and self.text_attributes[key].get("index", True):
                         current_part["text_" + key] = val
                 current_part["text_attributes"] = self.part_attributes
@@ -168,8 +201,13 @@ class StrixParser:
                 elif key in self.pos_index_attributes:
                     current_part["pos_" + key] = res
 
+            if self.ner_tags:
+                current_part["ner_tags"] = ", ".join([key+" ("+str(value)+")" for key, value in dict(Counter([i for i in self.ner_tags if len(i) > 3]).most_common(10)).items()])
+
             if self.add_similarity_tags:
                 current_part["similarity_tags"] = " ".join(self.similarity_tags)
+                current_part["most_common_words"] = ", ".join([key+" ("+str(value)+")" for key, value in dict(Counter([i for i in self.similarity_tags if len(i) > 3]).most_common(20)).items()])
+                # current_part["most_common_words"] = " ".join(list(dict(Counter([i for i in self.similarity_tags if len(i) > 3]).most_common(50)).keys()))
             self.current_parts.append(current_part)
 
             self.token_count = 0
@@ -180,6 +218,7 @@ class StrixParser:
             self.dump = [""]
             self.lines = [[0]]
             self.similarity_tags = []
+            self.ner_tags = []
             self.all_word_level_annotations = set()
         elif tag in self.struct_annotations:
             # at close we go thorugh each <w>-tag in the structural element and
@@ -233,6 +272,10 @@ class StrixParser:
                 self.process_token(token_data)
                 all_data = dict(token_data)
                 all_data.update(struct_data)
+
+                if "ne_name" in struct_data.keys():
+                    if struct_data["ne_type"] != "MSR" and (struct_data["ne_type"] != "TME"):
+                        self.ner_tags.append(struct_data["ne_name"])
 
                 str_attrs = {}
                 for attr, v in sorted(all_data.items()):

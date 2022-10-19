@@ -136,6 +136,7 @@ class InsertData:
         terms = []
         get_id = self.get_id_func()
         for text in texts:
+            text["mode_id"] = self.corpus_conf["mode_id"]
             doc_id = get_id(task_id, text)
             text["doc_id"] = doc_id
             self.generate_title(text, text_attributes)

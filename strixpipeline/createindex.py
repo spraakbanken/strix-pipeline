@@ -128,7 +128,9 @@ class CreateIndex:
         for attr in self.word_attributes:
             annotation_name = attr["name"]
             excludes.append("pos_" + annotation_name)
-
+            # if annotation_name == "complemgram":
+            #     print("----", annotation_name)
+            #     m.field("pos_" + annotation_name, Text(analyzer=mappingutil.annotation_analyzer()))
             if attr.get("set", False):
                 m.field("pos_" + annotation_name, Text(analyzer=mappingutil.set_annotation_analyzer()))
             else:
@@ -163,6 +165,8 @@ class CreateIndex:
         m.field("lines", Object(DisabledObject))
         m.field("word_count", Integer())
         m.field("similarity_tags", Text(analyzer=mappingutil.similarity_tags_analyzer(), term_vector="yes"))
+        m.field("most_common_words", Text())
+        m.field("ner_tags", Text())
 
         # TODO: is the standard analyzer field used? otherwise move "analyzed" sub-field to top level
         title_field = Text(
@@ -176,6 +180,7 @@ class CreateIndex:
         m.field("original_file", Keyword())
         m.field("doc_id", Keyword())
         m.field("corpus_id", Keyword())
+        m.field("mode_id", Keyword())
 
         m.save(index_name, using=self.es)
 
