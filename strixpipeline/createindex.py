@@ -185,6 +185,7 @@ class CreateIndex:
         m.save(index_name, using=self.es)
 
     def enable_insert_settings(self, index_name=None):
+        # set refresh_interval to -1 to speed up indexing
         self.set_refresh_interval(index_name, -1)
 
     def enable_postinsert_settings(self, index_name=None):
@@ -196,6 +197,8 @@ class CreateIndex:
             "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
         })
         self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")
+
+        # set and unset refresh_interval to force a refresh on the index
         self.set_refresh_interval(index_name, "1s")
         self.set_refresh_interval(index_name, -1)
 
