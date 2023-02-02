@@ -1,3 +1,4 @@
+# xmlparser
 # coding=utf-8
 import os
 import re
@@ -5,6 +6,7 @@ import xml.etree.cElementTree as etree
 from strixpipeline.config import config
 import strixpipeline.mappingutil as mappingutil
 from collections import Counter
+import json
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
 
@@ -19,7 +21,8 @@ def parse_pipeline_xml(file_name,
                        add_similarity_tags=False,
                        save_whitespace_per_token=False,
                        plugin=None,
-                       pos_index_attributes=()):
+                       pos_index_attributes=(),
+                       text_tags=None):
     """
     split_document: everything under this node will go into separate documents
     word_annotations: a map of tag names and the attributes of those tags that
@@ -27,7 +30,9 @@ def parse_pipeline_xml(file_name,
     """
     if text_attributes is None:
         text_attributes = {}
-    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin, pos_index_attributes)
+    if text_tags is None:
+        text_tags = []
+    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin, pos_index_attributes, text_tags)
     iterparse_parser(file_name, strix_parser)
     res = strix_parser.get_result()
     return res
@@ -45,7 +50,7 @@ def parse_properties(annotation, in_value):
 
 class StrixParser:
 
-    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin, pos_index_attributes):
+    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin, pos_index_attributes, text_tags):
         #input
         self.split_document = split_document
         self.word_annotations = word_annotations
@@ -57,6 +62,7 @@ class StrixParser:
         self.save_whitespace_per_token = save_whitespace_per_token
         self.plugin = plugin
         self.pos_index_attributes = pos_index_attributes
+        self.text_tags = text_tags
 
         #state
         self.current_part_tokens = []
@@ -76,34 +82,46 @@ class StrixParser:
         self.current_word_content = ""
 
         self.current_parts = []
+        self.start_tag = ""
 
     def get_result(self):
         return self.current_parts
 
     def handle_starttag(self, tag, attrs):
-        # print(tag)
-        if self.text_attributes and tag == self.split_document:
-            self.part_attributes = {}
+        if self.text_attributes and tag in self.text_tags: # tag == self.split_document:
+            if not self.start_tag:
+                self.start_tag = tag
+                self.part_attributes = {}
             # TODO: don't loop through both text attributes and XML-node attributes
             for text_attr, text_attr_obj in self.text_attributes.items():
                 for attribute in attrs:
-                    if attribute == text_attr:
-                        nodeName = attribute
-                        newName = attribute
-                    elif attribute == text_attr_obj.get("nodeName", None):
-                        nodeName = attribute
-                        newName = text_attr
+                    if tag == "text":
+                        if attribute == text_attr:
+                            nodeName = attribute
+                            newName = attribute
+                        elif attribute == text_attr_obj.get("nodeName", None):
+                            nodeName = attribute
+                            newName = text_attr
+                        else:
+                            continue
                     else:
-                        continue
+                        if tag+"_"+attribute == text_attr:
+                            nodeName = attribute
+                            newName = text_attr
+                        elif tag+"_"+attribute == text_attr_obj.get("nodeName", None):
+                            nodeName = attribute
+                            newName = text_attr
+                        else:
+                            continue
 
                     text_attr_value = attrs[nodeName]
-                    if self.text_attributes[newName].get("set", False):
+                    if self.text_attributes[newName].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
                         text_attr_value = list(filter(bool, text_attr_value.split("|")))
                     if self.text_attributes[newName].get("type", "") == "double":
                         text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
                     self.part_attributes[newName] = text_attr_value
 
-        elif tag == "w":
+        elif tag == "token":
             self.in_word = True
             self.word_attrs = attrs
 
@@ -131,7 +149,7 @@ class StrixParser:
 
                 self.current_struct_annotations[tag]["attrs"][annotation_name] = a_value
 
-        elif tag != "w" and tag in self.word_annotations:
+        elif tag != "token" and tag in self.word_annotations:
             annotations = self.word_annotations[tag]
 
             for annotation in annotations:
@@ -144,8 +162,7 @@ class StrixParser:
                 self.current_word_annotations[annotation_name] = a_value
 
     def handle_endtag(self, tag):
-        # print(tag)
-        if tag == self.split_document:
+        if tag == self.start_tag: # self.split_document:
             current_part = {}
             if self.text_attributes:
                 dateFrom = ''
@@ -178,8 +195,6 @@ class StrixParser:
                 if self.plugin:
                     self.plugin.process_text_attributes(self.part_attributes)
                 for key, val in self.part_attributes.items():
-                    # if key == 'year':
-                    #     print(key,val)
                     if key in self.text_attributes and self.text_attributes[key].get("index", True):
                         current_part["text_" + key] = val
                 current_part["text_attributes"] = self.part_attributes
@@ -220,6 +235,7 @@ class StrixParser:
             self.similarity_tags = []
             self.ner_tags = []
             self.all_word_level_annotations = set()
+            self.start_tag = ""
         elif tag in self.struct_annotations:
             # at close we go thorugh each <w>-tag in the structural element and
             # assign the length (which can't be known until the element closes)
@@ -230,11 +246,11 @@ class StrixParser:
                 for token in self.current_token_lookup[-annotation_length:]:
                     token["attrs"][tag]["length"] = annotation_length
             del self.current_struct_annotations[tag]
-        elif tag == "w":
+        elif tag == "token":
             token = self.current_word_content.strip()
             if len(token) != 0:
                 token_data = dict(self.current_word_annotations)
-                for annotation in self.word_annotations.get("w", []):
+                for annotation in self.word_annotations.get("token", []):
                     annotation_name = annotation["name"]
                     if "nodeName" in annotation:
                         annotation_value = self.word_attrs.get(annotation["nodeName"])
@@ -306,28 +322,29 @@ class StrixParser:
             self.in_word = False
             self.current_word_content = ""
 
-    def handle_data(self, data):
+    def handle_data(self, data, tag_value):
         if self.in_word:
             self.current_word_content += data.strip()
         else:
-            whitespaces = data.splitlines(True)
-            for ws in whitespaces:
-                self.dump[-1] += ws
-                if self.save_whitespace_per_token:
-                    try:
-                        self.current_token_lookup[-1]["whitespace"] = ws
-                    except IndexError:
-                        pass
-                if ws[-1] == "\n":
-                    current_token = self.token_count - 1
-                    self.dump.append("")
-                    [begin] = self.lines[-1]
-                    if begin == current_token + 1:
-                        self.lines[-1] = [-1]
-                    else:
-                        self.lines[-1] = [begin, current_token]
-                    self.lines.append([current_token + 1])
-
+            if tag_value == "token":
+                whitespaces = self.word_attrs.get("_tail", "").replace("\\s", " ").replace("\\n", "y").replace("\\t", "x")
+                whitespaces = whitespaces.replace("x", "").replace("y", "\n")
+                for ws in whitespaces:
+                    self.dump[-1] += ws
+                    if self.save_whitespace_per_token:
+                        try:
+                            self.current_token_lookup[-1]["whitespace"] = ws
+                        except IndexError:
+                            pass
+                    if "\n" in ws[-1]:
+                        current_token = self.token_count - 1
+                        self.dump.append("")
+                        [begin] = self.lines[-1]
+                        if begin == current_token + 1:
+                            self.lines[-1] = [-1]
+                        else:
+                            self.lines[-1] = [begin, current_token]
+                        self.lines.append([current_token + 1])
 
 def iterparse_parser(file_name, strix_parser):
     book_iter = etree.iterparse(file_name, events=("start", "end"))
@@ -349,10 +366,10 @@ def iterparse_parser(file_name, strix_parser):
 
         if event == "end":
             if element.text:
-                strix_parser.handle_data(element.text)
+                strix_parser.handle_data(element.text, element.tag)
             strix_parser.handle_endtag(element.tag)
             if element.tail:
-                strix_parser.handle_data(element.tail)
+                strix_parser.handle_data(element.tail, element.tag)
             root.clear()
 
         if event == "start":

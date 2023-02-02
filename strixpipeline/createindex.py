@@ -29,30 +29,41 @@ class CreateIndex:
     def set_attributes(self, index):
         corpus_config = config.corpusconf.get_corpus_conf(index)
         word_attributes = []
+        print(corpus_config["analyze_config"]["word_attributes"])
         for attr_name in corpus_config["analyze_config"]["word_attributes"]:
-            attr = config.corpusconf.get_word_attribute(attr_name)
-            if attr.get("index", True):
-                # TODO map these in _terms index
-                pass
-            if attr.get("posIndex", False):
-                word_attributes.append(attr)
-
-        for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
-            for attr_name in attributes:
-                attr = config.corpusconf.get_struct_attribute(attr_name)
+            for attr_type, attr in attr_name.items():
+                if type(attr) is str:
+                    attr = config.corpusconf.get_word_attributeX(attr)
+                # attr = config.corpusconf.get_word_attribute(attr_name)
                 if attr.get("index", True):
                     # TODO map these in _terms index
                     pass
                 if attr.get("posIndex", False):
-                    new_attr = dict(attr)
-                    new_attr["name"] = node_name + "_" + attr["name"]
-                    word_attributes.append(new_attr)
+                    word_attributes.append(attr)
+        print(word_attributes)
+
+        for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
+            for attr_name in attributes:
+                for attr_type, attr in attr_name.items():
+                    if type(attr) is str:
+                        attr = config.corpusconf.get_struct_attributeX(attr)
+                    # attr = config.corpusconf.get_struct_attribute(attr_name)
+                    if attr.get("index", True):
+                        # TODO map these in _terms index
+                        pass
+                    if attr.get("posIndex", False):
+                        new_attr = dict(attr)
+                        new_attr["name"] = node_name + "_" + attr["name"]
+                        word_attributes.append(new_attr)
 
         text_attributes = []
         for attr_name in corpus_config["analyze_config"]["text_attributes"]:
-            attr = config.corpusconf.get_text_attribute(attr_name)
-            if attr.get("index", True):
-                text_attributes.append(attr)
+            for attr_type, attr in attr_name.items():
+                if type(attr) is str:
+                    attr = config.corpusconf.get_text_attributeX(attr)
+                # attr = config.corpusconf.get_text_attribute(attr_name)
+                if attr.get("index", True):
+                    text_attributes.append(attr)
 
         return word_attributes, text_attributes
 
@@ -197,6 +208,13 @@ class CreateIndex:
             "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
         })
         self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")
+        self.set_refresh_interval(index_name, "1s")
+        self.set_refresh_interval(index_name, -1)
+
+    def set_refresh_interval(self, index_name, interval):
+        self.es.indices.put_settings(index=(index_name or self.alias) + "," + self.alias + "_terms", body={
+            "index.refresh_interval": interval,
+        })
 
         # set and unset refresh_interval to force a refresh on the index
         self.set_refresh_interval(index_name, "1s")

@@ -1,3 +1,4 @@
+# insertdata
 import os
 import logging
 import itertools
@@ -49,8 +50,9 @@ class InsertData:
         else:
             found = False
             for text_attr in self.corpus_conf["analyze_config"]["text_attributes"]:
-                if text_attr == id_strategy:
-                    found = True
+                for text_att, text_at in text_attr.items():
+                    if text_at == id_strategy:
+                        found = True
             if not found:
                 raise ValueError("\"" + id_strategy + "\" is not a text attribute, not possible to use for IDs")
             if "document_id_hash" in self.corpus_conf and self.corpus_conf["document_id_hash"]:
@@ -60,7 +62,10 @@ class InsertData:
                     return str(int(m.hexdigest(), 16))[0:12]
             else:
                 def attribute_id(_, text):
-                    return text["text_attributes"][id_strategy]
+                    if "_id" in text["text_attributes"]:
+                        return text["text_attributes"][id_strategy]
+                    else:
+                        return uuid.uuid4()
             get_id = attribute_id
         return get_id
 
@@ -89,33 +94,42 @@ class InsertData:
         word_attrs = []
         pos_index = []
         for attr_name in self.corpus_conf["analyze_config"]["word_attributes"]:
-            attr = config.corpusconf.get_word_attribute(attr_name)
-            if attr.get("parse", True):
-                word_attrs.append(attr)
-            if attr.get("posIndex", False):
-                pos_index.append(attr_name)
-        word_annotations = {"w": word_attrs}
+            for attr_type, attr in attr_name.items():
+                if type(attr) is str:
+                    attr = config.corpusconf.get_word_attributeX(attr)
+                # attr = config.corpusconf.get_word_attribute(attr_name)
+                if attr.get("parse", True):
+                    word_attrs.append(attr)
+                if attr.get("posIndex", False):
+                    pos_index.append(attr_type)
+        word_annotations = {"token": word_attrs}
 
         struct_annotations = {}
         for node_name, attr_names in self.corpus_conf["analyze_config"]["struct_attributes"].items():
             structs = []
             for attr_name in attr_names:
-                attr = config.corpusconf.get_struct_attribute(attr_name)
-                if attr.get("parse", True):
-                    structs.append(attr)
-                if attr.get("posIndex", False):
-                    # TODO this is probably the wrong name
-                    pos_index.append(attr_name)
+                for attr_type, attr in attr_name.items():
+                    if type(attr) is str:
+                        attr = config.corpusconf.get_struct_attributeX(attr)
+                    # attr = config.corpusconf.get_struct_attribute(attr_name)
+                    if attr.get("parse", True):
+                        structs.append(attr)
+                    if attr.get("posIndex", False):
+                        # TODO this is probably the wrong name
+                        pos_index.append(attr_type)
             struct_annotations[node_name] = structs
 
         text_attributes = {}
         remove_later = []
         for attr_name in self.corpus_conf["analyze_config"]["text_attributes"]:
-            text_attribute = config.corpusconf.get_text_attribute(attr_name)
-            if text_attribute.get("parse", True):
-                text_attributes[attr_name] = text_attribute
-                if not text_attribute.get("save", True):
-                    remove_later.append(attr_name)
+            for attr_type, text_attribute in attr_name.items():
+                if type(text_attribute) is str:
+                    text_attribute = config.corpusconf.get_text_attributeX(text_attribute)
+                # text_attribute = config.corpusconf.get_text_attribute(attr_name)
+                if text_attribute.get("parse", True):
+                    text_attributes[attr_type] = text_attribute
+                    if not text_attribute.get("save", True):
+                        remove_later.append(attr_type)
 
         plugin = None
         pipeline_plugin = self.corpus_conf.get("pipeline_plugin")
@@ -124,12 +138,13 @@ class InsertData:
 
         split_document = self.corpus_conf.get("split", "text")
         file_name = task["text"]
+        text_tags = self.corpus_conf.get("text_tags")
 
         texts = []
         for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations,
                                                  struct_annotations=struct_annotations, text_attributes=text_attributes,
                                                  token_count_id=True, add_similarity_tags=True, save_whitespace_per_token=True,
-                                                 plugin=plugin, pos_index_attributes=pos_index):
+                                                 plugin=plugin, pos_index_attributes=pos_index, text_tags=text_tags):
             texts.append(text)
 
         tasks = []
@@ -154,36 +169,14 @@ class InsertData:
         return itertools.chain(tasks, terms or [])
 
     def generate_title(self, text, text_attributes):
-        if "title" in self.corpus_conf:
-            for setting in self.corpus_conf["title"]:
-                if "title" in setting:
-                    if "text_" + setting["title"] in text:
-                        text["title"] = text["text_attributes"][setting["title"]]
-                        break
-                if "pattern" in setting:
-                    title_keys = setting["keys"]
-                    format_params = {}
-                    try:
-                        for title_key in title_keys:
-                            if "translation_value" in text_attributes[title_key]:
-                                attr = text_attributes[title_key]["translation_value"][text["text_attributes"][title_key]]
-                                format_params[title_key] = attr.get("-") or attr.get("swe")
-                            else:
-                                format_params[title_key] = text["text_attributes"][title_key]
-
-                        title_pattern = setting["pattern"]
-                        text["title"] = title_pattern.format(**format_params)
-                        break
-                    except KeyError:
-                        # if something breaks, just try the next setting for title
-                        pass
-
-            if "title" not in text:
-                raise RuntimeError("Failed to set title for text")
+        if self.corpus_conf["title"] == "n/a":
+            text["title"] = "N/A"
         else:
-            title = text["text_attributes"].get("title")
+            title = text["text_attributes"].get(self.corpus_conf["title"])
             if title:
                 text["title"] = title
+            else:
+                text["title"] = "Title missing"
 
         if "title" not in text:
             raise RuntimeError("Configure \"title\" for corpus")
