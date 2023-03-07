@@ -58,7 +58,7 @@ def getConfig(data):
             for x in value:
                 for k1, v1 in x.items():
                     if type(v1) is str:
-                        textList.append({k1.split(":")[1] :  v1})
+                        textList.append({k1.split(":")[1] :  v1.replace("text_", "")})
                         textListX.append(k1.split(":")[1])
                     else:
                         textList.append({k1.split(":")[1] : replaceKeyText(v1, k1.split(":")[1])})
@@ -92,6 +92,7 @@ def getConfig(data):
             corpusTemplate["text_tags"].append("text")
         elif key == "word_attributes":
             wordList = []
+            wordList.append({"lemgram" : "lemgram"})
             for x in value:
                 for k1, v1 in x.items():
                     if k1 not in ["ufeats", "lex", "_tail", "_head"]:
@@ -103,7 +104,7 @@ def getConfig(data):
         elif key == "mode":
             corpusTemplate["mode_id"] = value[0]["name"]
             if "folder" in value[0].keys():
-                corpusTemplate["folderName"] = value[0]["folder"]
+                corpusTemplate["folderName"] = value[0]["folder"].capitalize()
             else:
                 corpusTemplate["folderName"] = ""
             corpusTemplate["mode_name"] = currentModes[value[0]["name"]]["translation_name"]
@@ -132,7 +133,6 @@ def getConfig(data):
     corpusTemplate["analyze_config"]["text_attributes"] = []
     corpusTemplate["analyze_config"]["text_attributes"].extend(textList)
     corpusTemplate["analyze_config"]["text_attributes"].extend(tempList_struct)
-    # print(textListX)
     for xItem in textListX:
         if xItem == "_id":
             corpusTemplate["document_id"] = "_id"
@@ -151,8 +151,8 @@ def getConfig(data):
 def createDict(item):
     item_dict = {}
     item_dict["translation_name"] = {}
-    item_dict["translation_name"]["swe"] = item.split("_")
-    item_dict["translation_name"]["eng"] = item.split("_")
+    item_dict["translation_name"]["swe"] = item.replace("_", " ").capitalize()
+    item_dict["translation_name"]["eng"] = item.replace("_", " ").capitalize()
     item_dict["name"] = item
     return item_dict
 
@@ -160,8 +160,14 @@ def createDict(item):
 def replaceKey(item, item_name):
     itemX = {}
     for key, value in item.items():
-        if key == "label":
-            itemX["translation_name"] = value
+        if key == "label" and type(value) is str:
+            itemX["translation_name"] = {}
+            itemX["translation_name"]["swe"] = value.replace("_", " ").capitalize()
+            itemX["translation_name"]["eng"] = value.replace("_", " ").capitalize()
+        elif key == "label" and type(value) is dict:
+            itemX["translation_name"] = {}
+            itemX["translation_name"]["swe"] = value["swe"].capitalize()
+            itemX["translation_name"]["eng"] = value["eng"].capitalize()
         else:
             itemX[key] = value
     itemX["name"] = item_name
@@ -171,8 +177,14 @@ def replaceKey(item, item_name):
 def replaceKeyText(item, item_name):
     itemX = {}
     for key, value in item.items():
-        if key == "label":
-            itemX["translation_name"] = value
+        if key == "label" and type(value) is str:
+            itemX["translation_name"] = {}
+            itemX["translation_name"]["swe"] = value.replace("_", " ").capitalize()
+            itemX["translation_name"]["eng"] = value.replace("_", " ").capitalize()
+        elif key == "label" and type(value) is dict:
+            itemX["translation_name"] = {}
+            itemX["translation_name"]["swe"] = value["swe"].capitalize()
+            itemX["translation_name"]["eng"] = value["eng"].capitalize()
         else:
             itemX[key] = value
     itemX["name"] = item_name
@@ -182,8 +194,14 @@ def replaceKeyText(item, item_name):
 def replaceKeyStruct(item, item_name):
     itemX = {}
     for key, value in item.items():
-        if key == "label":
-            itemX["translation_name"] = value
+        if key == "label" and type(value) is str:
+            itemX["translation_name"] = {}
+            itemX["translation_name"]["swe"] = value.replace("_", " ").capitalize()
+            itemX["translation_name"]["eng"] = value.replace("_", " ").capitalize()
+        elif key == "label" and type(value) is dict:
+            itemX["translation_name"] = {}
+            itemX["translation_name"]["swe"] = value["swe"].capitalize()
+            itemX["translation_name"]["eng"] = value["eng"].capitalize()
         else:
             itemX[key] = value
     itemX["name"] = item_name.split("_")[1]

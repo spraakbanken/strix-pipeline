@@ -29,7 +29,7 @@ class CreateIndex:
     def set_attributes(self, index):
         corpus_config = config.corpusconf.get_corpus_conf(index)
         word_attributes = []
-        print(corpus_config["analyze_config"]["word_attributes"])
+        # print(corpus_config["analyze_config"]["word_attributes"])
         for attr_name in corpus_config["analyze_config"]["word_attributes"]:
             for attr_type, attr in attr_name.items():
                 if type(attr) is str:
@@ -40,7 +40,7 @@ class CreateIndex:
                     pass
                 if attr.get("posIndex", False):
                     word_attributes.append(attr)
-        print(word_attributes)
+        # print(word_attributes)
 
         for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
             for attr_name in attributes:

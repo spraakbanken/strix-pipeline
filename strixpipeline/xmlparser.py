@@ -91,11 +91,11 @@ class StrixParser:
         if self.text_attributes and tag in self.text_tags: # tag == self.split_document:
             if not self.start_tag:
                 self.start_tag = tag
+                self.upper_level = {}
+            if tag == "text":
                 self.part_attributes = {}
-            # TODO: don't loop through both text attributes and XML-node attributes
-            for text_attr, text_attr_obj in self.text_attributes.items():
-                for attribute in attrs:
-                    if tag == "text":
+                for text_attr, text_attr_obj in self.text_attributes.items():
+                    for attribute in attrs:
                         if attribute == text_attr:
                             nodeName = attribute
                             newName = attribute
@@ -104,7 +104,18 @@ class StrixParser:
                             newName = text_attr
                         else:
                             continue
-                    else:
+                    
+                        text_attr_value = attrs[nodeName]
+                        if self.text_attributes[newName].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
+                            text_attr_value = list(filter(bool, text_attr_value.split("|")))
+                        if self.text_attributes[newName].get("type", "") == "double":
+                            text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
+                        self.part_attributes[newName] = text_attr_value
+                for key, value in self.upper_level.items():
+                    self.part_attributes[key] = value
+            if tag != "text":
+                for text_attr, text_attr_obj in self.text_attributes.items():
+                    for attribute in attrs:
                         if tag+"_"+attribute == text_attr:
                             nodeName = attribute
                             newName = text_attr
@@ -113,13 +124,42 @@ class StrixParser:
                             newName = text_attr
                         else:
                             continue
+                    
+                        text_attr_value = attrs[nodeName]
+                        if self.text_attributes[newName].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
+                            text_attr_value = list(filter(bool, text_attr_value.split("|")))
+                        if self.text_attributes[newName].get("type", "") == "double":
+                            text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
+                        self.upper_level[newName] = text_attr_value
 
-                    text_attr_value = attrs[nodeName]
-                    if self.text_attributes[newName].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
-                        text_attr_value = list(filter(bool, text_attr_value.split("|")))
-                    if self.text_attributes[newName].get("type", "") == "double":
-                        text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
-                    self.part_attributes[newName] = text_attr_value
+            # # TODO: don't loop through both text attributes and XML-node attributes
+            # for text_attr, text_attr_obj in self.text_attributes.items():
+            #     for attribute in attrs:
+            #         if tag == "text":
+            #             if attribute == text_attr:
+            #                 nodeName = attribute
+            #                 newName = attribute
+            #             elif attribute == text_attr_obj.get("nodeName", None):
+            #                 nodeName = attribute
+            #                 newName = text_attr
+            #             else:
+            #                 continue
+            #         else:
+            #             if tag+"_"+attribute == text_attr:
+            #                 nodeName = attribute
+            #                 newName = text_attr
+            #             elif tag+"_"+attribute == text_attr_obj.get("nodeName", None):
+            #                 nodeName = attribute
+            #                 newName = text_attr
+            #             else:
+            #                 continue
+
+            #         text_attr_value = attrs[nodeName]
+            #         if self.text_attributes[newName].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
+            #             text_attr_value = list(filter(bool, text_attr_value.split("|")))
+            #         if self.text_attributes[newName].get("type", "") == "double":
+            #             text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
+            #         self.part_attributes[newName] = text_attr_value
 
         elif tag == "token":
             self.in_word = True
@@ -162,7 +202,7 @@ class StrixParser:
                 self.current_word_annotations[annotation_name] = a_value
 
     def handle_endtag(self, tag):
-        if tag == self.start_tag: # self.split_document:
+        if tag == "text": # self.start_tag: # self.split_document:
             current_part = {}
             if self.text_attributes:
                 dateFrom = ''
@@ -175,8 +215,10 @@ class StrixParser:
                         dateTo = self.part_attributes['dateto'][0:4]
                     if 'date' in self.part_attributes.keys():
                         givenDate = self.part_attributes['date'][0:4]
-                    if 'datum' in self.part_attributes.keys():
+                    elif 'datum' in self.part_attributes.keys():
                         givenDate = self.part_attributes['datum'][0:4]
+                    elif 'topic_year' in self.part_attributes.keys():
+                        givenDate = self.part_attributes['topic_year']
                     if not dateFrom and (not dateTo and (not givenDate)):
                         self.part_attributes['year'] = '2050'
                     elif givenDate:
@@ -235,7 +277,7 @@ class StrixParser:
             self.similarity_tags = []
             self.ner_tags = []
             self.all_word_level_annotations = set()
-            self.start_tag = ""
+            # self.start_tag = ""
         elif tag in self.struct_annotations:
             # at close we go thorugh each <w>-tag in the structural element and
             # assign the length (which can't be known until the element closes)
