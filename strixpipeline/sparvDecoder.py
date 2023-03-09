@@ -160,11 +160,11 @@ def createDict(item):
 def replaceKey(item, item_name):
     itemX = {}
     for key, value in item.items():
-        if key == "label" and type(value) is str:
+        if key == "label" and type(value) is str or (key == "preset" and type(value) is str):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value.replace("_", " ").capitalize()
             itemX["translation_name"]["eng"] = value.replace("_", " ").capitalize()
-        elif key == "label" and type(value) is dict:
+        elif key == "label" and type(value) is dict or (key == "preset" and type(value) is dict):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value["swe"].capitalize()
             itemX["translation_name"]["eng"] = value["eng"].capitalize()
@@ -177,11 +177,11 @@ def replaceKey(item, item_name):
 def replaceKeyText(item, item_name):
     itemX = {}
     for key, value in item.items():
-        if key == "label" and type(value) is str:
+        if key == "label" and type(value) is str or (key == "preset" and type(value) is str):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value.replace("_", " ").capitalize()
             itemX["translation_name"]["eng"] = value.replace("_", " ").capitalize()
-        elif key == "label" and type(value) is dict:
+        elif key == "label" and type(value) is dict or (key == "preset" and type(value) is dict):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value["swe"].capitalize()
             itemX["translation_name"]["eng"] = value["eng"].capitalize()
@@ -194,11 +194,11 @@ def replaceKeyText(item, item_name):
 def replaceKeyStruct(item, item_name):
     itemX = {}
     for key, value in item.items():
-        if key == "label" and type(value) is str:
+        if key == "label" and type(value) is str or (key == "preset" and type(value) is str):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value.replace("_", " ").capitalize()
             itemX["translation_name"]["eng"] = value.replace("_", " ").capitalize()
-        elif key == "label" and type(value) is dict:
+        elif key == "label" and type(value) is dict or (key == "preset" and type(value) is dict):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value["swe"].capitalize()
             itemX["translation_name"]["eng"] = value["eng"].capitalize()
