@@ -80,14 +80,20 @@ def process_task(insert_data, task_queue, size, process_args):
 
 def process(task_queue, insert_data, task_data, corpus_data, limit_to=None):
     executor = futures.ProcessPoolExecutor(max_workers=min(multiprocessing.cpu_count(), 16))
-
+    number_of_task = 1
     if limit_to:
         task_data = task_data[:limit_to]
-    assert len(task_data)
-    _logger.info("Scheduling %s tasks..." % len(task_data))
-    for (task_type, task_id, size, task) in task_data:
-        task_args = (task_type, task_id, task, corpus_data)
-        executor.submit(process_task, insert_data, task_queue, size, task_args)
+    assert number_of_task
+    _logger.info("Scheduling %s tasks..." % number_of_task)
+    task_type = task_data[0]
+    task_id = task_data[1]
+    size = task_data[2]
+    task = task_data[3]
+    task_args = (task_type, task_id, task, corpus_data)
+    executor.submit(process_task, insert_data, task_queue, size, task_args)
+    # for (task_type, task_id, size, task) in task_data:
+    #     task_args = (task_type, task_id, task, corpus_data)
+    #     executor.submit(process_task, insert_data, task_queue, size, task_args)
 
 
 def get_content_of_bulk(task_chunk):
@@ -203,12 +209,13 @@ def process_corpus(index, limit_to=None, doc_ids=()):
     task_data, tot_size = insert_data.prepare_urls(doc_ids)
 
     from multiprocessing import Manager
-    with Manager() as manager:
-        task_queue = manager.Queue(maxsize=QUEUE_SIZE)
-        process(task_queue, insert_data, task_data, {}, limit_to)
-        upload_executor(task_queue, tot_size, len(task_data))
+    for i in range(len(task_data)):
+        with Manager() as manager:
+            task_queue = manager.Queue(maxsize=QUEUE_SIZE)
+            process(task_queue, insert_data, task_data[i], {}, limit_to)
+            upload_executor(task_queue, tot_size[i], 1)
 
-    _logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))
+        _logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))
 
 
 def do_run(index, doc_ids=(), limit_to=None):
