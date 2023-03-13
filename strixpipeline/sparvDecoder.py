@@ -48,6 +48,7 @@ def createConfig(data, currentModes):
 
 # create config data
 def getConfig(data):
+    yearExist = False
     corpusTemplate = {}
     corpusTemplate["analyze_config"] = {}
     textList = []
@@ -57,6 +58,8 @@ def getConfig(data):
         if key == "text_attributes":
             for x in value:
                 for k1, v1 in x.items():
+                    if k1 == "text:year":
+                        yearExist = True
                     if type(v1) is str:
                         textList.append({k1.split(":")[1] :  v1.replace("text_", "")})
                         textListX.append(k1.split(":")[1])
@@ -133,6 +136,8 @@ def getConfig(data):
     corpusTemplate["analyze_config"]["text_attributes"] = []
     corpusTemplate["analyze_config"]["text_attributes"].extend(textList)
     corpusTemplate["analyze_config"]["text_attributes"].extend(tempList_struct)
+    if not yearExist:
+        corpusTemplate["analyze_config"]["text_attributes"].append({'year' : 'year'})
     for xItem in textListX:
         if xItem == "_id":
             corpusTemplate["document_id"] = "_id"
