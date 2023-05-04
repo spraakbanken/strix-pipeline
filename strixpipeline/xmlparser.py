@@ -295,7 +295,12 @@ class StrixParser:
                 for annotation in self.word_annotations.get("token", []):
                     annotation_name = annotation["name"]
                     if "nodeName" in annotation:
-                        annotation_value = self.word_attrs.get(annotation["nodeName"])
+                        # annotation_value = self.word_attrs.get(annotation["nodeName"])
+                        annotation_value = [lemma for lemma in self.word_attrs.get(annotation["nodeName"]).split("|") if lemma and (":" not in lemma and ("--" not in lemma))]
+                        if annotation_value:
+                            annotation_value = annotation_value[0]
+                        else:
+                            annotation_value = ""
                     else:
                         annotation_value = self.word_attrs.get(annotation_name)
                     if annotation.get("set", False) or annotation.get("ranked", False):
@@ -355,9 +360,10 @@ class StrixParser:
 
                 if self.add_similarity_tags and token_data["pos"] == "NN":
                     if "lemma" in token_data:
-                        annotation_value = token_data["lemma"]
+                        annotation_value = [lemma for lemma in token_data["lemma"] if ":" not in lemma and ("--" not in lemma)]
+                        # annotation_value = token_data["lemma"]
                     else:
-                        annotation_value = [lemma for lemma in self.word_attrs.get("lemma", "").split("|") if lemma and ":" not in lemma]
+                        annotation_value = [lemma for lemma in self.word_attrs.get("lemma", "").split("|") if lemma and (":" not in lemma and ("--" not in lemma))]
                     if not annotation_value:
                         annotation_value = [token]
                     self.similarity_tags.extend(annotation_value)
