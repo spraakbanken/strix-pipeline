@@ -1,7 +1,7 @@
 import time
 import logging
 
-from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date, GeoPoint, Nested, Double, MetaField, InnerDoc
+from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date, GeoPoint, Nested, Double, MetaField, InnerDoc, DenseVector
 import strixpipeline.mappingutil as mappingutil
 from strixpipeline.config import config
 import strixpipeline.elasticapi as elasticapi
@@ -178,6 +178,8 @@ class CreateIndex:
         m.field("similarity_tags", Text(analyzer=mappingutil.similarity_tags_analyzer(), term_vector="yes"))
         m.field("most_common_words", Text())
         m.field("ner_tags", Text())
+        m.field("geo_location", Keyword(multi=True))
+        m.field("sent_vector", DenseVector(dims=768))
 
         # TODO: is the standard analyzer field used? otherwise move "analyzed" sub-field to top level
         title_field = Text(

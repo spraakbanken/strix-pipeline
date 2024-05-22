@@ -10,6 +10,10 @@ import json
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
 
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer("KBLab/sentence-bert-swedish-cased")
+
 
 def parse_pipeline_xml(file_name,
                        split_document,
@@ -63,6 +67,7 @@ class StrixParser:
         self.plugin = plugin
         self.pos_index_attributes = pos_index_attributes
         self.text_tags = text_tags
+        self.model = model
 
         #state
         self.current_part_tokens = []
@@ -76,6 +81,8 @@ class StrixParser:
         self.lines = [[0]]
         self.similarity_tags = []
         self.ner_tags = []
+        self.geo_locations = []
+        self.sent_vect = []
 
         self.in_word = False
         self.word_attrs = {}
@@ -251,6 +258,8 @@ class StrixParser:
             current_part["word_count"] = len(self.current_part_tokens)
 
             current_part["text"] = mappingutil.token_separator.join(map(lambda x: x["token"], self.current_part_tokens))
+            self.sent_vect = self.model.encode(" ".join(current_part["dump"]).replace("\n", ""))
+            current_part['sent_vector'] = self.sent_vect
             for key in self.all_word_level_annotations:
                 res = mappingutil.token_separator.join(map(lambda x: x.get(key, mappingutil.empty_set), self.current_part_tokens))
                 if key == "wid":
@@ -260,6 +269,9 @@ class StrixParser:
 
             if self.ner_tags:
                 current_part["ner_tags"] = ", ".join([key+" ("+str(value)+")" for key, value in dict(Counter([i for i in self.ner_tags if len(i) > 3]).most_common(10)).items()])
+
+            if self.geo_locations:
+                current_part["geo_location"] = self.geo_locations         
 
             if self.add_similarity_tags:
                 current_part["similarity_tags"] = " ".join(self.similarity_tags)
@@ -276,9 +288,13 @@ class StrixParser:
             self.lines = [[0]]
             self.similarity_tags = []
             self.ner_tags = []
+            self.geo_locations = []
+            self.sent_vect = []
             self.all_word_level_annotations = set()
             # self.start_tag = ""
         elif tag in self.struct_annotations:
+            if tag == "sentence" and self.current_struct_annotations[tag]['attrs']['_geocontext'] != "|":
+                self.geo_locations.extend(self.current_struct_annotations[tag]['attrs']['_geocontext'].split("|")[1:-1])
             # at close we go thorugh each <w>-tag in the structural element and
             # assign the length (which can't be known until the element closes)
             # TODO do this once for ALL structural elements to avoid editing each token more than one
