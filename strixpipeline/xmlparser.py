@@ -311,10 +311,16 @@ class StrixParser:
                 for annotation in self.word_annotations.get("token", []):
                     annotation_name = annotation["name"]
                     if "nodeName" in annotation:
-                        # annotation_value = self.word_attrs.get(annotation["nodeName"])
-                        annotation_value = [lemma for lemma in self.word_attrs.get(annotation["nodeName"]).split("|") if lemma and (":" not in lemma and ("--" not in lemma))]
+                        annotation_value = []
+                        for lemma in self.word_attrs.get(annotation["nodeName"]).split("|"):
+                            if lemma and (":" not in lemma):
+                                annotation_value.append(lemma)
+                            elif lemma and (":" in lemma):
+                                annotation_value.append(lemma.split(":")[0])
+                            else:
+                                pass
                         if annotation_value:
-                            annotation_value = annotation_value[0]
+                            annotation_value = "|".join(annotation_value)
                         else:
                             annotation_value = ""
                     else:
