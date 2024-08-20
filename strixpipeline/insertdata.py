@@ -145,7 +145,7 @@ class InsertData:
         texts = []
         for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations,
                                                  struct_annotations=struct_annotations, text_attributes=text_attributes,
-                                                 token_count_id=True, add_similarity_tags=True, save_whitespace_per_token=True,
+                                                 token_count_id=True, add_most_common_words=True, save_whitespace_per_token=True,
                                                  plugin=plugin, pos_index_attributes=pos_index, text_tags=text_tags):
             texts.append(text)
 

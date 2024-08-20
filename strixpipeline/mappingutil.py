@@ -40,10 +40,6 @@ def get_swedish_analyzer():
     return analyzer("swedish",  tokenizer="standard", filter=["lowercase", stemmer])
 
 
-def similarity_tags_analyzer():
-    return analysis.analyzer("similarity_tags", tokenizer="whitespace", filter=["lowercase"])
-
-
 def ranked_text_analyzer(annotation_name):
     rank_strip = analysis.token_filter("rank_strip", "pattern_capture", preserve_original=False, patterns=["^(.*?):.*"])
     return analysis.analyzer(annotation_name + "_text_analyzer", tokenizer="keyword", filter=[rank_strip])

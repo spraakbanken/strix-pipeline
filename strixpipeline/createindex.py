@@ -175,7 +175,6 @@ class CreateIndex:
         m.field("dump", Keyword(index=False, doc_values=False))
         m.field("lines", Object(DisabledObject))
         m.field("word_count", Integer())
-        m.field("similarity_tags", Text(analyzer=mappingutil.similarity_tags_analyzer(), term_vector="yes"))
         m.field("most_common_words", Text())
         m.field("ner_tags", Text())
         m.field("geo_location", Keyword(multi=True))

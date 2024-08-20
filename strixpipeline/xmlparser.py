@@ -22,7 +22,7 @@ def parse_pipeline_xml(file_name,
                        token_count_id=False,
                        text_attributes=None,
                        process_token=lambda x: None,
-                       add_similarity_tags=False,
+                       add_most_common_words=False,
                        save_whitespace_per_token=False,
                        plugin=None,
                        pos_index_attributes=(),
@@ -36,7 +36,7 @@ def parse_pipeline_xml(file_name,
         text_attributes = {}
     if text_tags is None:
         text_tags = []
-    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin, pos_index_attributes, text_tags)
+    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_most_common_words, save_whitespace_per_token, plugin, pos_index_attributes, text_tags)
     iterparse_parser(file_name, strix_parser)
     res = strix_parser.get_result()
     return res
@@ -54,7 +54,7 @@ def parse_properties(annotation, in_value):
 
 class StrixParser:
 
-    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin, pos_index_attributes, text_tags):
+    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_most_common_words, save_whitespace_per_token, plugin, pos_index_attributes, text_tags):
         #input
         self.split_document = split_document
         self.word_annotations = word_annotations
@@ -62,7 +62,7 @@ class StrixParser:
         self.token_count_id = token_count_id
         self.text_attributes = text_attributes
         self.process_token = process_token
-        self.add_similarity_tags = add_similarity_tags
+        self.add_most_common_words = add_most_common_words
         self.save_whitespace_per_token = save_whitespace_per_token
         self.plugin = plugin
         self.pos_index_attributes = pos_index_attributes
@@ -79,7 +79,7 @@ class StrixParser:
         self.dump = [""]
         self.token_count = 0
         self.lines = [[0]]
-        self.similarity_tags = []
+        self.most_common_words = []
         self.ner_tags = []
         self.geo_locations = []
         self.sent_vect = []
@@ -273,10 +273,8 @@ class StrixParser:
             if self.geo_locations:
                 current_part["geo_location"] = self.geo_locations         
 
-            if self.add_similarity_tags:
-                current_part["similarity_tags"] = " ".join(self.similarity_tags)
-                current_part["most_common_words"] = ", ".join([key+" ("+str(value)+")" for key, value in dict(Counter([i for i in self.similarity_tags if len(i) > 3]).most_common(20)).items()])
-                # current_part["most_common_words"] = " ".join(list(dict(Counter([i for i in self.similarity_tags if len(i) > 3]).most_common(50)).keys()))
+            if self.add_most_common_words:
+                current_part["most_common_words"] = ", ".join([key +" (" + str(value) +")" for key, value in dict(Counter([i for i in self.most_common_words if len(i) > 3]).most_common(20)).items()])
             self.current_parts.append(current_part)
 
             self.token_count = 0
@@ -286,7 +284,7 @@ class StrixParser:
             self.current_struct_annotations = {}
             self.dump = [""]
             self.lines = [[0]]
-            self.similarity_tags = []
+            self.most_common_words = []
             self.ner_tags = []
             self.geo_locations = []
             self.sent_vect = []
@@ -323,9 +321,9 @@ class StrixParser:
                             annotation_value = "|".join(annotation_value)
                         else:
                             annotation_value = ""
-                    else:
+                    elif annotation == "???":
                         annotation_value = self.word_attrs.get(annotation_name)
-                    if annotation.get("set", False) or annotation.get("ranked", False):
+                    elif annotation.get("set", False) or annotation.get("ranked", False):
                         annotation_value = list(filter(bool, annotation_value.split("|")))
                     if annotation.get("ranked", False):
                         values = [v.split(":")[0] for v in annotation_value]
@@ -380,7 +378,7 @@ class StrixParser:
 
                 self.token_count += 1
 
-                if self.add_similarity_tags and token_data["pos"] == "NN":
+                if self.add_most_common_words and token_data["pos"] == "NN":
                     if "lemma" in token_data:
                         annotation_value = [lemma for lemma in token_data["lemma"] if ":" not in lemma and ("--" not in lemma)]
                         # annotation_value = token_data["lemma"]
@@ -388,7 +386,7 @@ class StrixParser:
                         annotation_value = [lemma for lemma in self.word_attrs.get("lemma", "").split("|") if lemma and (":" not in lemma and ("--" not in lemma))]
                     if not annotation_value:
                         annotation_value = [token]
-                    self.similarity_tags.extend(annotation_value)
+                    self.most_common_words.extend(annotation_value)
             self.in_word = False
             self.current_word_content = ""
 
