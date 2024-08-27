@@ -321,9 +321,9 @@ class StrixParser:
                             annotation_value = "|".join(annotation_value)
                         else:
                             annotation_value = ""
-                    elif annotation == "???":
+                    else:
                         annotation_value = self.word_attrs.get(annotation_name)
-                    elif annotation.get("set", False) or annotation.get("ranked", False):
+                    if annotation.get("set", False) or annotation.get("ranked", False):
                         annotation_value = list(filter(bool, annotation_value.split("|")))
                     if annotation.get("ranked", False):
                         values = [v.split(":")[0] for v in annotation_value]
