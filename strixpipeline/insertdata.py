@@ -197,7 +197,6 @@ class InsertData:
                 "_index": self.index + "_terms",
                 "_op_type": "index",
                 "position": token["position"],
-                "pos_str": str(token["position"]),
                 "term": token
             }
             terms.append(term)

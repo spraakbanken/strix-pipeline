@@ -107,7 +107,6 @@ class CreateIndex:
             ])
 
         m.field("position", "integer")
-        m.field("pos_str", "keyword")
 
         m.field("term", Object(dynamic=True, properties={"attrs": Object()}))
         m.field("doc_id", "keyword")
