@@ -194,7 +194,6 @@ class InsertData:
         for token in token_lookup:
             term = {
                 "doc_id": text_id,
-                "doc_type": "text",
                 "_index": self.index + "_terms",
                 "_op_type": "index",
                 "position": token["position"],

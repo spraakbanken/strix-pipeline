@@ -97,14 +97,11 @@ def process(task_queue, insert_data, task_data, corpus_data, limit_to=None):
 
 
 def get_content_of_bulk(task_chunk):
-    docs = {}
-    files = set()
+    docs = set()
     for task in task_chunk:
         if task["_index"].endswith("_terms"):
-            doc_type = task["doc_type"]
             doc_id = task["doc_id"]
         else:
-            doc_type = "text"
             if "_source" in task and "doc_id" in task["_source"]:
                 doc_id = task["_source"]["doc_id"]
             elif "_id" in task:
@@ -112,12 +109,8 @@ def get_content_of_bulk(task_chunk):
             else:
                 doc_id = "unknown"
 
-        if doc_type not in docs:
-            docs[doc_type] = set()
-
-        docs[doc_type].add(doc_id)
-
-    return docs, files
+        docs.add(doc_id)
+    return docs
 
 
 def upload_executor(task_queue, tot_size, num_tasks):
@@ -169,17 +162,9 @@ def upload_executor(task_queue, tot_size, num_tasks):
                         _logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (chunk_len, t))
                     else:
                         _logger.error("Failed bulk upload of a chunk.")
-                        (docs, files) = error_obj
-                        if files:
-                            _logger.error("The following files need to be rerun:")
-                            for file_name in files:
-                                _logger.error(file_name)
-                        if docs:
-                            _logger.error("The following documents need to be deleted and added again (terms and document):")
-                            for doc_type, doc_ids in docs.items():
-                                for doc_id in doc_ids:
-                                    type_output = doc_type + "-" if doc_type != "text" else ""
-                                    _logger.error(type_output + doc_id)
+                        _logger.error("The following documents need to be deleted and added again (terms and document):")
+                        for doc_id in error_obj:
+                            _logger.error(doc_id)
                 else:
                     try:
                         raise future.exception() from None
@@ -259,7 +244,7 @@ def remove_by_filename(index, filenames):
     }
 
     delete_texts_ids = set()
-    for doc in elasticsearch.helpers.scan(es, index=index, doc_type="text", query=query, _source_include=["doc_id"]):
+    for doc in elasticsearch.helpers.scan(es, index=index, query=query, _source_include=["doc_id"]):
         doc_id = doc["_source"]["doc_id"]
         delete_texts_ids.add(doc_id)
     remove_by_doc_id(index, list(delete_texts_ids))
@@ -282,8 +267,8 @@ def remove_by_doc_id(index, doc_ids):
     }
 
     _logger.info("Deleting doc_ids: " + ",".join(doc_ids))
-    es.delete_by_query(index=index, doc_type="text", body=query, conflicts="proceed")
-    es.delete_by_query(index=index + "_terms", doc_type="term", body=query, conflicts="proceed")
+    es.delete_by_query(index=index, body=query, conflicts="proceed")
+    es.delete_by_query(index=index + "_terms", body=query, conflicts="proceed")
     es.indices.forcemerge(index=index + "," + index + "_terms")
 
 

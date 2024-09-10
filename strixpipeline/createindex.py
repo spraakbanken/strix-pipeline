@@ -111,7 +111,6 @@ class CreateIndex:
 
         m.field("term", Object(dynamic=True, properties={"attrs": Object()}))
         m.field("doc_id", "keyword")
-        m.field("doc_type", "keyword")
         m.save(self.alias + "_terms", using=self.es)
 
     @staticmethod
