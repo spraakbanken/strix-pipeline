@@ -129,7 +129,7 @@ class CreateIndex:
     def create_text_type(self, index_name):
         m = Mapping()
         m.meta("dynamic", "strict")
-        excludes = ["text", "wid"]
+        excludes = ["text", "wid", "sent_vector"]
 
         m.field("text", Text(analyzer=mappingutil.token_analyzer()))
         m.field("wid", Text(analyzer=mappingutil.annotation_analyzer()))
