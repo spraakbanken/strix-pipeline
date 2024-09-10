@@ -95,79 +95,49 @@ class StrixParser:
         return self.current_parts
 
     def handle_starttag(self, tag, attrs):
-        if self.text_attributes and tag in self.text_tags: # tag == self.split_document:
+        if self.text_attributes and tag in self.text_tags:
             if not self.start_tag:
                 self.start_tag = tag
                 self.upper_level = {}
-            if tag == "text":
+            if tag == self.split_document:
                 self.part_attributes = {}
                 for text_attr, text_attr_obj in self.text_attributes.items():
                     for attribute in attrs:
                         if attribute == text_attr:
-                            nodeName = attribute
-                            newName = attribute
+                            node_name = attribute
+                            new_name = attribute
                         elif attribute == text_attr_obj.get("nodeName", None):
-                            nodeName = attribute
-                            newName = text_attr
+                            node_name = attribute
+                            new_name = text_attr
                         else:
                             continue
                     
-                        text_attr_value = attrs[nodeName]
-                        if self.text_attributes[newName].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
+                        text_attr_value = attrs[node_name]
+                        if self.text_attributes[new_name].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
                             text_attr_value = list(filter(bool, text_attr_value.split("|")))
-                        if self.text_attributes[newName].get("type", "") == "double":
+                        if self.text_attributes[new_name].get("type", "") == "double":
                             text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
-                        self.part_attributes[newName] = text_attr_value
+                        self.part_attributes[new_name] = text_attr_value
                 for key, value in self.upper_level.items():
                     self.part_attributes[key] = value
-            if tag != "text":
+            if tag != self.split_document:
                 for text_attr, text_attr_obj in self.text_attributes.items():
                     for attribute in attrs:
                         if tag+"_"+attribute == text_attr:
-                            nodeName = attribute
-                            newName = text_attr
+                            node_name = attribute
+                            new_name = text_attr
                         elif tag+"_"+attribute == text_attr_obj.get("nodeName", None):
-                            nodeName = attribute
-                            newName = text_attr
+                            node_name = attribute
+                            new_name = text_attr
                         else:
                             continue
                     
-                        text_attr_value = attrs[nodeName]
-                        if self.text_attributes[newName].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
+                        text_attr_value = attrs[node_name]
+                        if self.text_attributes[new_name].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
                             text_attr_value = list(filter(bool, text_attr_value.split("|")))
-                        if self.text_attributes[newName].get("type", "") == "double":
+                        if self.text_attributes[new_name].get("type", "") == "double":
                             text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
-                        self.upper_level[newName] = text_attr_value
-
-            # # TODO: don't loop through both text attributes and XML-node attributes
-            # for text_attr, text_attr_obj in self.text_attributes.items():
-            #     for attribute in attrs:
-            #         if tag == "text":
-            #             if attribute == text_attr:
-            #                 nodeName = attribute
-            #                 newName = attribute
-            #             elif attribute == text_attr_obj.get("nodeName", None):
-            #                 nodeName = attribute
-            #                 newName = text_attr
-            #             else:
-            #                 continue
-            #         else:
-            #             if tag+"_"+attribute == text_attr:
-            #                 nodeName = attribute
-            #                 newName = text_attr
-            #             elif tag+"_"+attribute == text_attr_obj.get("nodeName", None):
-            #                 nodeName = attribute
-            #                 newName = text_attr
-            #             else:
-            #                 continue
-
-            #         text_attr_value = attrs[nodeName]
-            #         if self.text_attributes[newName].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
-            #             text_attr_value = list(filter(bool, text_attr_value.split("|")))
-            #         if self.text_attributes[newName].get("type", "") == "double":
-            #             text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
-            #         self.part_attributes[newName] = text_attr_value
-
+                        self.upper_level[new_name] = text_attr_value
         elif tag == "token":
             self.in_word = True
             self.word_attrs = attrs
@@ -209,37 +179,39 @@ class StrixParser:
                 self.current_word_annotations[annotation_name] = a_value
 
     def handle_endtag(self, tag):
-        if tag == "text": # self.start_tag: # self.split_document:
+        if tag == self.split_document:
             current_part = {}
             if self.text_attributes:
-                dateFrom = ''
-                dateTo = ''
-                givenDate = ''
-                if 'year' not in self.part_attributes.keys():
+                if "year" not in self.part_attributes.keys():
+                    # TODO do not augment data inside XML-parser
+                    date_from = ""
+                    date_to = ""
+                    given_date = ""
                     if 'datefrom' in self.part_attributes.keys():
-                        dateFrom = self.part_attributes['datefrom'][0:4]
+                        date_from = self.part_attributes['datefrom'][0:4]
                     if 'dateto' in self.part_attributes.keys():
-                        dateTo = self.part_attributes['dateto'][0:4]
+                        date_to = self.part_attributes['dateto'][0:4]
+
                     if 'date' in self.part_attributes.keys():
-                        givenDate = self.part_attributes['date'][0:4]
+                        given_date = self.part_attributes['date'][0:4]
                     elif 'datum' in self.part_attributes.keys():
-                        givenDate = self.part_attributes['datum'][0:4]
+                        given_date = self.part_attributes['datum'][0:4]
                     elif 'topic_year' in self.part_attributes.keys():
-                        givenDate = self.part_attributes['topic_year']
-                    if not dateFrom and (not dateTo and (not givenDate)):
+                        given_date = self.part_attributes['topic_year']
+
+                    # TODO find permanent solution
+                    if not date_from and (not date_to and (not given_date)):
                         self.part_attributes['year'] = '2050'
-                    elif givenDate:
-                        self.part_attributes['year'] = givenDate
-                    elif dateTo and not dateFrom:
-                        self.part_attributes['year'] = dateTo
-                    elif dateFrom and not dateTo:
-                        self.part_attributes['year'] = dateFrom
-                    elif dateFrom == dateTo:
-                        self.part_attributes['year'] = dateFrom
-                    elif dateFrom != dateTo and (dateFrom and (dateTo)):
-                        self.part_attributes['year'] = dateFrom + ', ' + dateTo
-                    else:
-                        pass
+                    elif given_date:
+                        self.part_attributes['year'] = given_date
+                    elif date_to and not date_from:
+                        self.part_attributes['year'] = date_to
+                    elif date_from and not date_to:
+                        self.part_attributes['year'] = date_from
+                    elif date_from == date_to:
+                        self.part_attributes['year'] = date_from
+                    elif date_from != date_to:
+                        self.part_attributes['year'] = date_from + ', ' + date_to
                         
                 if self.plugin:
                     self.plugin.process_text_attributes(self.part_attributes)
