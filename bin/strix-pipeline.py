@@ -26,13 +26,6 @@ if __name__ == '__main__':
             strixpipeline.loghelper.setup_pipeline_logging("|".join(indices) + "-reindex")
             createindex.recreate_indices(indices)
 
-    def do_delete(args):
-        index = args.index
-        filenames = args.filenames if args.filenames else []
-        doc_ids = args.doc_ids if args.doc_ids else []
-        pipeline.remove_by_filename(index, filenames)
-        pipeline.remove_by_doc_id(index, doc_ids)
-
     def do_merge(args):
         index = args.index
         pipeline.merge_indices(index)
@@ -68,12 +61,6 @@ if __name__ == '__main__':
                               help="Deletes index and everything in it, then recreates it.")
 
     reset_parser.set_defaults(func=do_recreate)
-
-    delete_parser = subparsers.add_parser("delete", help="Delete documents by document id or filename")
-    delete_parser.add_argument("--index", required=True, help="Index to delete documents in")
-    delete_parser.add_argument("--filenames", nargs="*", help="Original file names to delete by")
-    delete_parser.add_argument('--doc-ids', nargs='*', help="Document ids to delete by")
-    delete_parser.set_defaults(func=do_delete)
 
     merge_parser = subparsers.add_parser("merge", help="Run forcemerge on index")
     merge_parser.add_argument("--index", required=True, help="Index to merge")
