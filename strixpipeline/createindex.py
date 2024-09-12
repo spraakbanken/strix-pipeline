@@ -38,7 +38,7 @@ class CreateIndex:
                 if attr.get("index", True):
                     # TODO map these in _terms index
                     pass
-                if attr.get("posIndex", False):
+                if attr.get("pos_index", False):
                     word_attributes.append(attr)
         # print(word_attributes)
 
@@ -51,7 +51,7 @@ class CreateIndex:
                     if attr.get("index", True):
                         # TODO map these in _terms index
                         pass
-                    if attr.get("posIndex", False):
+                    if attr.get("pos_index", False):
                         new_attr = dict(attr)
                         new_attr["name"] = node_name + "_" + attr["name"]
                         word_attributes.append(new_attr)

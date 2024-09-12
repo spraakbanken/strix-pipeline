@@ -102,7 +102,7 @@ class InsertData:
                 # attr = config.corpusconf.get_word_attribute(attr_name)
                 if attr.get("parse", True):
                     word_attrs.append(attr)
-                if attr.get("posIndex", False):
+                if attr.get("pos_index", False):
                     pos_index.append(attr_type)
         word_annotations = {"token": word_attrs}
 
@@ -116,7 +116,7 @@ class InsertData:
                     # attr = config.corpusconf.get_struct_attribute(attr_name)
                     if attr.get("parse", True):
                         structs.append(attr)
-                    if attr.get("posIndex", False):
+                    if attr.get("pos_index", False):
                         # TODO this is probably the wrong name
                         pos_index.append(attr_type)
             struct_annotations[node_name] = structs
