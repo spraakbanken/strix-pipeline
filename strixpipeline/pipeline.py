@@ -163,8 +163,10 @@ def upload_executor(task_queue, tot_size, num_tasks):
                     else:
                         _logger.error("Failed bulk upload of a chunk.")
                         _logger.error("The following documents need to be deleted and added again (terms and document):")
-                        for doc_id in error_obj:
+                        docs, exception = error_obj
+                        for doc_id in docs:
                             _logger.error(doc_id)
+                        _logger.error(exception)
                 else:
                     try:
                         raise future.exception() from None
@@ -182,7 +184,7 @@ def bulk_insert(tasks):
         elasticsearch.helpers.bulk(es, tasks)
     except Exception as e:
         _logger.exception("Error in bulk upload")
-        error_obj = get_content_of_bulk(tasks)
+        error_obj = get_content_of_bulk(tasks), e
 
     return len(tasks), time.time() - insert_t, error_obj
 
