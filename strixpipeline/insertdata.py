@@ -97,15 +97,15 @@ class InsertData:
                 size = os.fstat(f.fileno()).st_size
                 tot_size += size
                 urls.append(("text", text_id, size, {"text": text}))
-                _logger.info(text)
+                _logger.info(f"Adding file: {text}")
         return urls, tot_size
 
-    def process(self, _, task_id, task_data, corpus_data):
+    def process(self, _, task_id, task_data):
         process_t = time.time()
-        tasks = self.process_work(task_id, task_data, corpus_data)
+        tasks = self.process_work(task_id, task_data)
         return tasks, time.time() - process_t
 
-    def process_work(self, task_id, task, _):
+    def process_work(self, task_id, task):
         word_attrs = []
         pos_index = []
         for attr_name in self.corpus_conf["analyze_config"]["word_attributes"]:

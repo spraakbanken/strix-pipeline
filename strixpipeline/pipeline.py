@@ -81,7 +81,7 @@ def process_task(insert_data, task_queue, size, process_args):
         raise
 
 
-def process(task_queue, insert_data, task_data, corpus_data, limit_to=None):
+def process(task_queue, insert_data, task_data, limit_to=None):
     executor = futures.ProcessPoolExecutor(
         max_workers=min(multiprocessing.cpu_count(), 16)
     )
@@ -91,7 +91,7 @@ def process(task_queue, insert_data, task_data, corpus_data, limit_to=None):
     assert len(task_data)
     _logger.info("Scheduling %s tasks..." % len(task_data))
     for task_type, task_id, size, task in task_data:
-        task_args = (task_type, task_id, task, corpus_data)
+        task_args = (task_type, task_id, task)
         executor.submit(process_task, insert_data, task_queue, size, task_args)
 
 
@@ -205,7 +205,7 @@ def process_corpus(index, limit_to=None, doc_ids=()):
 
     with Manager() as manager:
         task_queue = manager.Queue(maxsize=QUEUE_SIZE)
-        process(task_queue, insert_data, task_data, {}, limit_to)
+        process(task_queue, insert_data, task_data, limit_to)
         upload_executor(task_queue, tot_size, len(task_data))
 
     _logger.info(
