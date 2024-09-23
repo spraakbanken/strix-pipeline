@@ -11,7 +11,7 @@ then
   exit 1
 else
   echo "delete Corpus $1"
-  curl -X DELETE 'localhost:9214/'$1'*'
+  curl -X DELETE 'localhost:9214/'$1'_*'
   echo "Corpus is deleted"
 fi
 
