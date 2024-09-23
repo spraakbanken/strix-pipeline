@@ -1,4 +1,5 @@
 set -x
+cd $(dirname $0)
 source venv/bin/activate
 
 if [ $# -eq 0 ];
@@ -12,6 +13,7 @@ then
 else
   echo "delete Corpus $1"
   curl -X DELETE 'localhost:9214/'$1'_*'
+  rm ../strix-settings-sb/config/corpora/$1.yaml
   echo "Corpus is deleted"
 fi
 

@@ -1,5 +1,6 @@
 
 set -x
+cd $(dirname $0)
 source venv/bin/activate
 
 if [ $# -eq 0 ];
@@ -11,6 +12,7 @@ then
   echo "$0: Too many arguments $@"
   exit 1
 else
+  rm -f ../strix-settings-sb/config/corpora/$1.yaml
   echo "createConfig $1"
   python strixpipeline/sparvDecoder.py $1
 fi
