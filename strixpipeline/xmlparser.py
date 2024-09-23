@@ -270,7 +270,7 @@ class StrixParser:
                 map(lambda x: x["token"], self.current_part_tokens)
             )
             current_part["sent_vector"] = self.model.encode(
-                " ".join(current_part["dump"]).replace("\n", "")
+                " ".join(current_part["dump"]).replace("\n", ""), show_progress_bar=False
             )
 
             for key in self.all_word_level_annotations:
