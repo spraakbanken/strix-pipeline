@@ -150,11 +150,6 @@ class InsertData:
                     if not text_attribute.get("save", True):
                         remove_later.append(attr_type)
 
-        plugin = None
-        pipeline_plugin = self.corpus_conf.get("pipeline_plugin")
-        if pipeline_plugin:
-            plugin = config.corpusconf.get_plugin(pipeline_plugin)
-
         split_document = self.corpus_conf.get("split", "text")
         file_name = task["text"]
         text_tags = self.corpus_conf.get("text_tags")
@@ -169,7 +164,6 @@ class InsertData:
             token_count_id=True,
             add_most_common_words=True,
             save_whitespace_per_token=True,
-            plugin=plugin,
             pos_index_attributes=pos_index,
             text_tags=text_tags,
         ):

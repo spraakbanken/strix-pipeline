@@ -23,7 +23,6 @@ def parse_pipeline_xml(
     process_token=lambda x: None,
     add_most_common_words=False,
     save_whitespace_per_token=False,
-    plugin=None,
     pos_index_attributes=(),
     text_tags=None,
 ):
@@ -45,7 +44,6 @@ def parse_pipeline_xml(
         process_token,
         add_most_common_words,
         save_whitespace_per_token,
-        plugin,
         pos_index_attributes,
         text_tags,
     )
@@ -75,7 +73,6 @@ class StrixParser:
         process_token,
         add_most_common_words,
         save_whitespace_per_token,
-        plugin,
         pos_index_attributes,
         text_tags,
     ):
@@ -88,7 +85,6 @@ class StrixParser:
         self.process_token = process_token
         self.add_most_common_words = add_most_common_words
         self.save_whitespace_per_token = save_whitespace_per_token
-        self.plugin = plugin
         self.pos_index_attributes = pos_index_attributes
         self.text_tags = text_tags
         self.model = model
@@ -254,8 +250,6 @@ class StrixParser:
                     elif date_from != date_to:
                         self.part_attributes["year"] = date_from + ", " + date_to
 
-                if self.plugin:
-                    self.plugin.process_text_attributes(self.part_attributes)
                 for key, val in self.part_attributes.items():
                     if key in self.text_attributes and self.text_attributes[key].get(
                         "index", True
