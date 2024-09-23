@@ -113,6 +113,7 @@ def get_content_of_bulk(task_chunk):
 
 
 def upload_executor(task_queue, tot_size, num_tasks):
+    _logger.info("Starting upload executor process")
     with futures.ThreadPoolExecutor(max_workers=MAX_UPLOAD_WORKERS) as executor:
 
         def grouper(max_group_size, tasks):
@@ -187,11 +188,12 @@ def bulk_insert(tasks):
     insert_t = time.time()
     error_obj = None
     try:
+        size = len(tasks)
+        _logger.info(f"Doing bulk insert on {size} documents")
         elasticsearch.helpers.bulk(es, tasks)
     except Exception as e:
         _logger.exception("Error in bulk upload")
         error_obj = get_content_of_bulk(tasks), e
-
     return len(tasks), time.time() - insert_t, error_obj
 
 
