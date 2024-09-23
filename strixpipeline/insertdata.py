@@ -71,8 +71,7 @@ class InsertData:
 
     def prepare_urls(self, doc_ids):
         urls = []
-        # tot_size = 0
-        tot_size = []
+        tot_size = 0
         paths = get_paths_for_corpus(self.index)
 
         for text in paths:
@@ -81,9 +80,8 @@ class InsertData:
             if include_doc and os.path.isfile(text):
                 f = open(text)
                 size = os.fstat(f.fileno()).st_size
-                # tot_size += size
+                tot_size += size
                 urls.append(("text", text_id, size, {"text": text}))
-                tot_size.append(size)
                 _logger.info(text)
         return urls, tot_size
 
