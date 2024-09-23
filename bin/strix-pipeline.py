@@ -3,14 +3,14 @@ import os
 import logging
 import strixpipeline.loghelper
 import strixpipeline.pipeline as pipeline
-from strixpipeline.config import config
 import strixpipeline.createindex as createindex
 
 os.environ["PYTHONIOENCODING"] = "utf_8"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
+
     logger = logging.getLogger("strix_pipeline")
 
     def do_run(args):
@@ -23,7 +23,9 @@ if __name__ == '__main__':
     def do_recreate(args):
         indices = args.index
         if indices:
-            strixpipeline.loghelper.setup_pipeline_logging("|".join(indices) + "-reindex")
+            strixpipeline.loghelper.setup_pipeline_logging(
+                "|".join(indices) + "-reindex"
+            )
             createindex.recreate_indices(indices)
 
     def do_merge(args):
@@ -37,28 +39,35 @@ if __name__ == '__main__':
 
     # Parse command line arguments
 
-    parser = argparse.ArgumentParser(description='Run the pipeline.')
+    parser = argparse.ArgumentParser(description="Run the pipeline.")
     subparsers = parser.add_subparsers()
 
     # *** Run parser ***
     run_parser = subparsers.add_parser("run", help="Run the pipeline with input files.")
-    run_parser.add_argument('--index', required=True,
-                            help='Index to run files on')
+    run_parser.add_argument("--index", required=True, help="Index to run files on")
 
-    run_parser.add_argument('--limit-to', type=int,
-                            help='only process so many of the input urls.')
+    run_parser.add_argument(
+        "--limit-to", type=int, help="only process so many of the input urls."
+    )
 
-    run_parser.add_argument('--doc-ids', nargs='*',
-                            help='An optional list of IDs (filenames). Default is to run all files. ')
+    run_parser.add_argument(
+        "--doc-ids",
+        nargs="*",
+        help="An optional list of IDs (filenames). Default is to run all files. ",
+    )
 
     run_parser.set_defaults(func=do_run)
 
     # *** Reset parser ***
-    reset_parser = subparsers.add_parser('recreate',
-                                         help='delete all data in given corpora and create index')
+    reset_parser = subparsers.add_parser(
+        "recreate", help="delete all data in given corpora and create index"
+    )
 
-    reset_parser.add_argument("--index", nargs="+",
-                              help="Deletes index and everything in it, then recreates it.")
+    reset_parser.add_argument(
+        "--index",
+        nargs="+",
+        help="Deletes index and everything in it, then recreates it.",
+    )
 
     reset_parser.set_defaults(func=do_recreate)
 
@@ -66,11 +75,16 @@ if __name__ == '__main__':
     merge_parser.add_argument("--index", required=True, help="Index to merge")
     merge_parser.set_defaults(func=do_merge)
 
-    all_parser = subparsers.add_parser("all", help="Run recreate, run and merge on index")
+    all_parser = subparsers.add_parser(
+        "all", help="Run recreate, run and merge on index"
+    )
     all_parser.add_argument("--index", required=True, help="Index to create")
-    all_parser.add_argument('--doc-ids', nargs='*', help='An optional list of IDs (filenames). Default is to run all files. ')
+    all_parser.add_argument(
+        "--doc-ids",
+        nargs="*",
+        help="An optional list of IDs (filenames). Default is to run all files. ",
+    )
     all_parser.set_defaults(func=do_all)
-
 
     args = parser.parse_args()
 
