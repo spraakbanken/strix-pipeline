@@ -20,9 +20,10 @@ class MsgCounterHandler(logging.Handler):
         self.levelcount = {}
 
     def emit(self, record):
-        l = record.levelname
-        self.levelcount.setdefault(l, 0)
-        self.levelcount[l] += 1
+        level = record.levelname
+        self.levelcount.setdefault(level, 0)
+        self.levelcount[level] += 1
+
 
 logcounter = MsgCounterHandler()
 
@@ -51,7 +52,7 @@ def setup_pipeline_logging(task_name):
         for log in current_logs:
             try:
                 shutil.move(path.join("logs", log), "logs/old")
-            except:
+            except Exception:
                 pass
 
     date_format = "%Y-%m-%d_%H:%M:%S.%f"
@@ -68,11 +69,15 @@ def setup_pipeline_logging(task_name):
 
     file_name = task_name + "__" + datetime.now().strftime(date_format)
 
-    fh = logging.FileHandler("logs/pipeline-" + file_name, mode="w", encoding="UTF-8", delay=True)
+    fh = logging.FileHandler(
+        "logs/pipeline-" + file_name, mode="w", encoding="UTF-8", delay=True
+    )
     fh.setLevel(log_level)
     fh.setFormatter(formatter)
 
-    errh = logging.FileHandler("logs/pipeline-err-" + file_name, mode="w", encoding="UTF-8", delay=True)
+    errh = logging.FileHandler(
+        "logs/pipeline-err-" + file_name, mode="w", encoding="UTF-8", delay=True
+    )
     errh.setLevel(logging.ERROR)
 
     logging.root.addHandler(fh)

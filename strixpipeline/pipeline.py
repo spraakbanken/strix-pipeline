@@ -19,7 +19,9 @@ MAX_UPLOAD_WORKERS = config.concurrency_upload_threads
 GROUP_SIZE = config.concurrency_group_size
 MAX_GROUP_SIZE_KB = 250 * 1024
 
-es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500, retry_on_timeout=True)
+es = elasticsearch.Elasticsearch(
+    config.elastic_hosts, timeout=500, retry_on_timeout=True
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -79,13 +81,15 @@ def process_task(insert_data, task_queue, size, process_args):
 
 
 def process(task_queue, insert_data, task_data, corpus_data, limit_to=None):
-    executor = futures.ProcessPoolExecutor(max_workers=min(multiprocessing.cpu_count(), 16))
+    executor = futures.ProcessPoolExecutor(
+        max_workers=min(multiprocessing.cpu_count(), 16)
+    )
 
     if limit_to:
         task_data = task_data[:limit_to]
     assert len(task_data)
     _logger.info("Scheduling %s tasks..." % len(task_data))
-    for (task_type, task_id, size, task) in task_data:
+    for task_type, task_id, size, task in task_data:
         task_args = (task_type, task_id, task, corpus_data)
         executor.submit(process_task, insert_data, task_queue, size, task_args)
 
@@ -108,7 +112,6 @@ def get_content_of_bulk(task_chunk):
 
 
 def upload_executor(task_queue, tot_size, num_tasks):
-
     with futures.ThreadPoolExecutor(max_workers=MAX_UPLOAD_WORKERS) as executor:
 
         def grouper(max_group_size, tasks):
@@ -118,7 +121,10 @@ def upload_executor(task_queue, tot_size, num_tasks):
             while True:
                 try:
                     (task, task_size, accu_size) = next(tasks)
-                    if current_group_size + task_size > MAX_GROUP_SIZE_KB or current_group_length == max_group_size:
+                    if (
+                        current_group_size + task_size > MAX_GROUP_SIZE_KB
+                        or current_group_length == max_group_size
+                    ):
                         yield current_group
                         current_group = []
                         current_group_size = 0
@@ -139,7 +145,7 @@ def upload_executor(task_queue, tot_size, num_tasks):
             future_map = {}
             chunks = filter(bool, chunks)
 
-            for (task_chunk, size) in chunks:
+            for task_chunk, size in chunks:
                 if not task_chunk:
                     continue
                 # TODO: this bulk_insert should be replaced with
@@ -153,10 +159,15 @@ def upload_executor(task_queue, tot_size, num_tasks):
                 if future.exception() is None:
                     chunk_len, t, error_obj = future.result()
                     if not error_obj:
-                        _logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (chunk_len, t))
+                        _logger.info(
+                            "Bulk uploaded a chunk of length %s, took %0.1fs"
+                            % (chunk_len, t)
+                        )
                     else:
                         _logger.error("Failed bulk upload of a chunk.")
-                        _logger.error("The following documents need to be deleted and added again (terms and document):")
+                        _logger.error(
+                            "The following documents need to be deleted and added again (terms and document):"
+                        )
                         docs, exception = error_obj
                         for doc_id in docs:
                             _logger.error(doc_id)
@@ -190,12 +201,16 @@ def process_corpus(index, limit_to=None, doc_ids=()):
     task_data, tot_size = insert_data.prepare_urls(doc_ids)
 
     from multiprocessing import Manager
+
     with Manager() as manager:
         task_queue = manager.Queue(maxsize=QUEUE_SIZE)
         process(task_queue, insert_data, task_data, {}, limit_to)
         upload_executor(task_queue, tot_size, len(task_data))
 
-    _logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))
+    _logger.info(
+        index
+        + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60)
+    )
 
 
 def do_run(index, doc_ids=(), limit_to=None):
@@ -203,7 +218,7 @@ def do_run(index, doc_ids=(), limit_to=None):
     before_t = time.time()
 
     if not config.corpusconf.is_corpus(index):
-        _logger.error("\"" + index + " is not a configured corpus.")
+        _logger.error('"' + index + " is not a configured corpus.")
         return
 
     ci = create_index_strix.CreateIndex(index)
@@ -212,21 +227,25 @@ def do_run(index, doc_ids=(), limit_to=None):
     ci.enable_postinsert_settings()
 
     total_t = time.time() - before_t
-    strixpipeline.runhistory.put({
-        "index": index,
-        "total_time": total_t,
-        "doc_ids": doc_ids,
-        "limit_to": limit_to,
-        "group_size": GROUP_SIZE,
-        "queue_size": QUEUE_SIZE,
-        "upload_threads": MAX_UPLOAD_WORKERS,
-        "max_group_size": MAX_GROUP_SIZE_KB,
-        "elastic_hosts": config.elastic_hosts,
-        "timestamp": datetime.datetime.now()
-    })
+    strixpipeline.runhistory.put(
+        {
+            "index": index,
+            "total_time": total_t,
+            "doc_ids": doc_ids,
+            "limit_to": limit_to,
+            "group_size": GROUP_SIZE,
+            "queue_size": QUEUE_SIZE,
+            "upload_threads": MAX_UPLOAD_WORKERS,
+            "max_group_size": MAX_GROUP_SIZE_KB,
+            "elastic_hosts": config.elastic_hosts,
+            "timestamp": datetime.datetime.now(),
+        }
+    )
 
 
 def merge_indices(index):
     _logger.info("Merging segments")
-    es.indices.forcemerge(index=index + "," + index + "_terms", max_num_segments=1, request_timeout=10000)
+    es.indices.forcemerge(
+        index=index + "," + index + "_terms", max_num_segments=1, request_timeout=10000
+    )
     _logger.info("Done merging segments")

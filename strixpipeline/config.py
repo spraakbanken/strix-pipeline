@@ -5,9 +5,7 @@ import logging
 
 
 class StrixConfig:
-
     def __init__(self):
-
         self.logger = logging.getLogger(__name__)
 
         if "--config" in sys.argv:
@@ -25,8 +23,8 @@ class StrixConfig:
         try:
             return self.config[item]
         except KeyError:
-            self.logger.error("Key: \"%s\" missing from config-file", item)
-            raise RuntimeError("Key: \"" + item + "\" missing from config-file")
+            self.logger.error('Key: "%s" missing from config-file', item)
+            raise RuntimeError('Key: "' + item + '" missing from config-file')
 
     def has_attr(self, item):
         return item in self.config
@@ -40,8 +38,10 @@ class StrixConfig:
 
     def create_corpus_config(self):
         import strixconfigurer.corpusconf
-        self.config["corpusconf"] = strixconfigurer.corpusconf.CorpusConfig(self.settings_dir)
+
+        self.config["corpusconf"] = strixconfigurer.corpusconf.CorpusConfig(
+            self.settings_dir
+        )
 
 
 config = StrixConfig()
-

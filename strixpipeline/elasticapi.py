@@ -3,7 +3,9 @@ import elasticsearch
 from strixpipeline.config import config
 from elasticsearch_dsl import Index
 
-es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500, retry_on_timeout=True)
+es = elasticsearch.Elasticsearch(
+    config.elastic_hosts, timeout=500, retry_on_timeout=True
+)
 _logger = logging.getLogger(__name__)
 
 
@@ -12,7 +14,7 @@ def setup_alias(alias_name, index_name):
 
 
 def delete_index_by_prefix(prefix):
-    es.options(ignore_status=[400,404]).indices.delete(index='prefix + "_*"')
+    es.options(ignore_status=[400, 404]).indices.delete(index='prefix + "_*"')
     # es.indices.delete(prefix + "_*")
 
 

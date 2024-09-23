@@ -19,11 +19,12 @@ def get_paths_for_corpus(corpus_id):
         texts_dir = os.path.join(config.texts_dir, corpus_dir_name)
     else:
         texts_dir = os.path.join(config.base_dir, config.texts_dir, corpus_dir_name)
-    return glob.glob(os.path.join(texts_dir, "**/*.xml")) + glob.glob(os.path.join(texts_dir, "*.xml"))
+    return glob.glob(os.path.join(texts_dir, "**/*.xml")) + glob.glob(
+        os.path.join(texts_dir, "*.xml")
+    )
 
 
 class InsertData:
-
     def __init__(self, index):
         self.index = index
         self.corpus_conf = config.corpusconf.get_corpus_conf(self.index)
@@ -40,12 +41,16 @@ class InsertData:
         """
         id_strategy = self.corpus_conf["document_id"]
         if id_strategy == "filename":
+
             def task_id_fun(task_id, _):
                 return task_id
+
             get_id = task_id_fun
         elif id_strategy == "generated":
+
             def generated_id(_, __):
                 return uuid.uuid4()
+
             get_id = generated_id
         else:
             found = False
@@ -54,18 +59,28 @@ class InsertData:
                     if text_at == id_strategy:
                         found = True
             if not found:
-                raise ValueError("\"" + id_strategy + "\" is not a text attribute, not possible to use for IDs")
-            if "document_id_hash" in self.corpus_conf and self.corpus_conf["document_id_hash"]:
+                raise ValueError(
+                    '"'
+                    + id_strategy
+                    + '" is not a text attribute, not possible to use for IDs'
+                )
+            if (
+                "document_id_hash" in self.corpus_conf
+                and self.corpus_conf["document_id_hash"]
+            ):
+
                 def attribute_id(_, text):
                     m = hashlib.md5()
                     m.update(text["text_attributes"][id_strategy].encode("utf-8"))
                     return str(int(m.hexdigest(), 16))[0:12]
             else:
+
                 def attribute_id(_, text):
                     if "_id" in text["text_attributes"]:
                         return text["text_attributes"][id_strategy]
                     else:
                         return uuid.uuid4()
+
             get_id = attribute_id
         return get_id
 
@@ -105,7 +120,9 @@ class InsertData:
         word_annotations = {"token": word_attrs}
 
         struct_annotations = {}
-        for node_name, attr_names in self.corpus_conf["analyze_config"]["struct_attributes"].items():
+        for node_name, attr_names in self.corpus_conf["analyze_config"][
+            "struct_attributes"
+        ].items():
             structs = []
             for attr_name in attr_names:
                 for attr_type, attr in attr_name.items():
@@ -124,7 +141,9 @@ class InsertData:
         for attr_name in self.corpus_conf["analyze_config"]["text_attributes"]:
             for attr_type, text_attribute in attr_name.items():
                 if type(text_attribute) is str:
-                    text_attribute = config.corpusconf.get_text_attributeX(text_attribute)
+                    text_attribute = config.corpusconf.get_text_attributeX(
+                        text_attribute
+                    )
                 # text_attribute = config.corpusconf.get_text_attribute(attr_name)
                 if text_attribute.get("parse", True):
                     text_attributes[attr_type] = text_attribute
@@ -141,10 +160,19 @@ class InsertData:
         text_tags = self.corpus_conf.get("text_tags")
 
         texts = []
-        for text in xmlparser.parse_pipeline_xml(file_name, split_document, word_annotations,
-                                                 struct_annotations=struct_annotations, text_attributes=text_attributes,
-                                                 token_count_id=True, add_most_common_words=True, save_whitespace_per_token=True,
-                                                 plugin=plugin, pos_index_attributes=pos_index, text_tags=text_tags):
+        for text in xmlparser.parse_pipeline_xml(
+            file_name,
+            split_document,
+            word_annotations,
+            struct_annotations=struct_annotations,
+            text_attributes=text_attributes,
+            token_count_id=True,
+            add_most_common_words=True,
+            save_whitespace_per_token=True,
+            plugin=plugin,
+            pos_index_attributes=pos_index,
+            text_tags=text_tags,
+        ):
             texts.append(text)
 
         tasks = []
@@ -179,13 +207,10 @@ class InsertData:
                 text["title"] = "Title missing"
 
         if "title" not in text:
-            raise RuntimeError("Configure \"title\" for corpus")
+            raise RuntimeError('Configure "title" for corpus')
 
     def get_doc_task(self, text):
-        return {
-            "_index": self.index,
-            "_source": text
-        }
+        return {"_index": self.index, "_source": text}
 
     def create_term_positions(self, text_id, token_lookup):
         terms = []
@@ -195,7 +220,7 @@ class InsertData:
                 "_index": self.index + "_terms",
                 "_op_type": "index",
                 "position": token["position"],
-                "term": token
+                "term": token,
             }
             terms.append(term)
         return terms

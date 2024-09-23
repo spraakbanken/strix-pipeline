@@ -1,7 +1,19 @@
 import time
 import logging
 
-from elasticsearch_dsl import Text, Keyword, Index, Object, Integer, Mapping, Date, GeoPoint, Nested, Double, MetaField, InnerDoc, DenseVector
+from elasticsearch_dsl import (
+    Text,
+    Keyword,
+    Index,
+    Object,
+    Integer,
+    Mapping,
+    Date,
+    Double,
+    MetaField,
+    InnerDoc,
+    DenseVector,
+)
 import strixpipeline.mappingutil as mappingutil
 from strixpipeline.config import config
 import strixpipeline.elasticapi as elasticapi
@@ -9,6 +21,7 @@ import elasticsearch
 
 
 _logger = logging.getLogger(__name__)
+
 
 class CreateIndex:
     number_of_shards = config.number_of_shards
@@ -42,7 +55,9 @@ class CreateIndex:
                     word_attributes.append(attr)
         # print(word_attributes)
 
-        for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
+        for node_name, attributes in corpus_config["analyze_config"][
+            "struct_attributes"
+        ].items():
             for attr_name in attributes:
                 for attr_type, attr in attr_name.items():
                     if type(attr) is str:
@@ -94,17 +109,18 @@ class CreateIndex:
         m = Mapping()
         m.meta("dynamic", "strict")
         m.meta("date_detection", False)
-        m.meta("dynamic_templates", [
+        m.meta(
+            "dynamic_templates",
+            [
                 {
                     "term_object_dynamic_template": {
                         "path_match": "term.*",
                         "match_mapping_type": "string",
-                        "mapping": {
-                            "type": "keyword"
-                        }
+                        "mapping": {"type": "keyword"},
                     }
                 }
-            ])
+            ],
+        )
 
         m.field("position", "integer")
 
@@ -117,13 +133,7 @@ class CreateIndex:
         index.settings(
             number_of_shards=number_shards,
             number_of_replicas=0,
-            index={
-                "unassigned": {
-                    "node_left": {
-                        "delayed_timeout": "1m"
-                    }
-                }
-            }
+            index={"unassigned": {"node_left": {"delayed_timeout": "1m"}}},
         )
 
     def create_text_type(self, index_name):
@@ -141,13 +151,22 @@ class CreateIndex:
             #     print("----", annotation_name)
             #     m.field("pos_" + annotation_name, Text(analyzer=mappingutil.annotation_analyzer()))
             if attr.get("set", False):
-                m.field("pos_" + annotation_name, Text(analyzer=mappingutil.set_annotation_analyzer()))
+                m.field(
+                    "pos_" + annotation_name,
+                    Text(analyzer=mappingutil.set_annotation_analyzer()),
+                )
             else:
-                m.field("pos_" + annotation_name, Text(analyzer=mappingutil.annotation_analyzer()))
+                m.field(
+                    "pos_" + annotation_name,
+                    Text(analyzer=mappingutil.annotation_analyzer()),
+                )
 
         for attr in self.text_attributes:
             if attr.get("ranked", False):
-                mapping_type = Text(analyzer=mappingutil.ranked_text_analyzer(attr["name"]), fielddata=True)
+                mapping_type = Text(
+                    analyzer=mappingutil.ranked_text_analyzer(attr["name"]),
+                    fielddata=True,
+                )
             elif attr.get("type") == "date":
                 mapping_type = Date(format="yyyyMMdd")
             elif attr.get("type") == "year":
@@ -183,8 +202,8 @@ class CreateIndex:
             analyzer=mappingutil.get_standard_analyzer(),
             fields={
                 "raw": Keyword(),
-                "analyzed": Text(analyzer=mappingutil.get_swedish_analyzer())
-            }
+                "analyzed": Text(analyzer=mappingutil.get_swedish_analyzer()),
+            },
         )
         m.field("title", title_field)
         m.field("original_file", Keyword())
@@ -199,30 +218,32 @@ class CreateIndex:
         self.set_refresh_interval(index_name, -1)
 
     def enable_postinsert_settings(self, index_name=None):
-        self.es.indices.put_settings(index=index_name or self.alias, body={
-            "index.number_of_replicas": CreateIndex.number_of_replicas,
-        })
+        self.es.indices.put_settings(
+            index=index_name or self.alias,
+            body={
+                "index.number_of_replicas": CreateIndex.number_of_replicas,
+            },
+        )
 
-        self.es.indices.put_settings(index=self.alias + "_terms", body={
-            "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
-        })
-        self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")
+        self.es.indices.put_settings(
+            index=self.alias + "_terms",
+            body={
+                "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
+            },
+        )
+        self.es.indices.forcemerge(
+            index=(index_name or self.alias) + "," + self.alias + "_terms"
+        )
         self.set_refresh_interval(index_name, "1s")
         self.set_refresh_interval(index_name, -1)
 
     def set_refresh_interval(self, index_name, interval):
-        self.es.indices.put_settings(index=(index_name or self.alias) + "," + self.alias + "_terms", body={
-            "index.refresh_interval": interval,
-        })
-
-        # set and unset refresh_interval to force a refresh on the index
-        self.set_refresh_interval(index_name, "1s")
-        self.set_refresh_interval(index_name, -1)
-
-    def set_refresh_interval(self, index_name, interval):
-        self.es.indices.put_settings(index=(index_name or self.alias) + "," + self.alias + "_terms", body={
-            "index.refresh_interval": interval,
-        })
+        self.es.indices.put_settings(
+            index=(index_name or self.alias) + "," + self.alias + "_terms",
+            body={
+                "index.refresh_interval": interval,
+            },
+        )
 
 
 class DisabledObject(InnerDoc):
@@ -230,6 +251,7 @@ class DisabledObject(InnerDoc):
     Object(enabled=false) is not supported by DSL so this is needed to make objects disabled
     m.field("test", Object(DisabledObject))
     """
+
     class Meta:
         enabled = MetaField(False)
 
@@ -246,4 +268,4 @@ def recreate_indices(indices):
                 _logger.exception("transport error")
                 raise e
         else:
-            _logger.error("\"" + index + "\" is not a configured corpus")
+            _logger.error('"' + index + '" is not a configured corpus')
