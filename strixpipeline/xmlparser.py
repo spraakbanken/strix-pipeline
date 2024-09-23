@@ -10,8 +10,6 @@ os.environ["PYTHONIOENCODING"] = "utf_8"
 
 from sentence_transformers import SentenceTransformer
 
-model = SentenceTransformer("KBLab/sentence-bert-swedish-cased")
-
 
 def parse_pipeline_xml(
     file_name,
@@ -87,7 +85,7 @@ class StrixParser:
         self.save_whitespace_per_token = save_whitespace_per_token
         self.pos_index_attributes = pos_index_attributes
         self.text_tags = text_tags
-        self.model = model
+        self.model = SentenceTransformer("KBLab/sentence-bert-swedish-cased")
 
         # state
         self.current_part_tokens = []
