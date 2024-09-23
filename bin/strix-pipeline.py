@@ -32,6 +32,10 @@ if __name__ == "__main__":
         index = args.index
         pipeline.merge_indices(index)
 
+    def do_delete(args):
+        corpus = args.corpus
+        pipeline.do_delete(corpus)
+
     def do_all(args):
         do_recreate(args)
         do_run(args)
@@ -85,6 +89,13 @@ if __name__ == "__main__":
         help="An optional list of IDs (filenames). Default is to run all files. ",
     )
     all_parser.set_defaults(func=do_all)
+
+    delete_parser = subparsers.add_parser(
+        "delete",
+        help="Delete corpus from instance. This will remove both Elasticsearch indices and the configuration files from <settings_dir>/corpora/",
+    )
+    delete_parser.add_argument("corpus", help="Corpus to delete")
+    delete_parser.set_defaults(func=do_delete)
 
     args = parser.parse_args()
 
