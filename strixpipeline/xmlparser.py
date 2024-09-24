@@ -1,12 +1,7 @@
-# xmlparser
-# coding=utf-8
-import os
 import re
 import xml.etree.cElementTree as etree
 import strixpipeline.mappingutil as mappingutil
 from collections import Counter
-
-os.environ["PYTHONIOENCODING"] = "utf_8"
 
 from sentence_transformers import SentenceTransformer
 
@@ -445,7 +440,6 @@ class StrixParser:
                             for lemma in token_data["lemma"]
                             if ":" not in lemma and ("--" not in lemma)
                         ]
-                        # annotation_value = token_data["lemma"]
                     else:
                         annotation_value = [
                             lemma

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from elasticsearch_dsl import analysis, analyzer
 
 token_separator = "\u241d"

@@ -15,7 +15,6 @@ def setup_alias(alias_name, index_name):
 
 def delete_index_by_prefix(prefix):
     es.options(ignore_status=[400, 404]).indices.delete(index='prefix + "_*"')
-    # es.indices.delete(prefix + "_*")
 
 
 def create_index(index_name):

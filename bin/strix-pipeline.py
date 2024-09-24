@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
 import os
 import logging
 import strixpipeline.loghelper
 import strixpipeline.pipeline as pipeline
 import strixpipeline.createindex as createindex
-
-os.environ["PYTHONIOENCODING"] = "utf_8"
 
 
 if __name__ == "__main__":
@@ -62,7 +59,6 @@ if __name__ == "__main__":
 
     run_parser.set_defaults(func=do_run)
 
-    # *** Reset parser ***
     reset_parser = subparsers.add_parser(
         "recreate", help="delete all data in given corpora and create index"
     )

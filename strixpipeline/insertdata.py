@@ -1,4 +1,3 @@
-# insertdata
 import os
 import logging
 import itertools
