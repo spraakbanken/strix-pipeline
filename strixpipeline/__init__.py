@@ -3,10 +3,9 @@ import sys
 
 # even if strix uses logging.DEBUG or logging.INFO
 # we don't want to log everything from libs
-el = logging.getLogger("elasticsearch")
-el.setLevel(logging.CRITICAL)
-url = logging.getLogger("urllib3")
-url.setLevel(logging.CRITICAL)
+for lib in ["elasticsearch", "elastic_transport", "urllib3", "sentence_transformers"]:
+    logger = logging.getLogger(lib)
+    logger.setLevel(logging.CRITICAL)
 
 FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 ch = logging.StreamHandler(stream=sys.stdout)
