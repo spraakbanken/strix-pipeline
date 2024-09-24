@@ -11,10 +11,10 @@ setup(
     packages=["strixpipeline"],
     zip_safe=False,
     install_requires=[
-        "elasticsearch==8.12.0",
+        "elasticsearch==8.15.1",
         "elasticsearch-dsl==8.12.0",
         "PyYAML==6.0.1",
-        "sentence-transformers==2.7.0",
+        "sentence-transformers==3.1.1",
         "ruff==0.5.7",
     ],
 )
