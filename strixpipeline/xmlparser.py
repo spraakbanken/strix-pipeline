@@ -80,7 +80,7 @@ class StrixParser:
         self.save_whitespace_per_token = save_whitespace_per_token
         self.pos_index_attributes = pos_index_attributes
         self.text_tags = text_tags
-        self.model = SentenceTransformer("KBLab/sentence-bert-swedish-cased")
+        self.model = SentenceTransformer("KBLab/sentence-bert-swedish-cased", tokenizer_kwargs={"clean_up_tokenization_spaces": True})
 
         # state
         self.current_part_tokens = []
