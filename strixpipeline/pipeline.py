@@ -1,3 +1,5 @@
+import glob
+import json
 import time
 from concurrent import futures
 import multiprocessing
@@ -5,6 +7,8 @@ import multiprocessing
 import elasticsearch
 import elasticsearch.helpers
 import elasticsearch.exceptions
+from elasticsearch_dsl import UpdateByQuery
+from pathlib import Path
 from strixpipeline.config import config
 import strixpipeline.insertdata as insert_data_strix
 import strixpipeline.createindex as create_index_strix
@@ -223,6 +227,13 @@ def do_run(index, doc_ids=(), limit_to=None):
         _logger.error('"' + index + " is not a configured corpus.")
         return
 
+    # check that user has set a directory for the transformers data and create directory structure
+    if not config.has_attr("transformers_postprocess_dir"):
+        _logger.error("transformers_postprocess_dir not set in config")
+    Path(os.path.join(config.transformers_postprocess_dir, index, "texts")).mkdir(
+        parents=True, exist_ok=True
+    )
+
     ci = create_index_strix.CreateIndex(index)
     ci.enable_insert_settings()
     process_corpus(index, limit_to=limit_to, doc_ids=doc_ids)
@@ -283,3 +294,20 @@ def do_delete(corpus):
         os.remove(fname)
     else:
         _logger.info(f"Corpus file: '{fname}' does not exist")
+
+
+def do_add_vector_data(corpus):
+    files = glob.glob(
+        os.path.join(config.transformers_postprocess_dir, f"{corpus}/vectors/*")
+    )
+    for file in files:
+        with open(file) as fp:
+            for line in fp:
+                [doc_id, vector] = json.loads(line)
+                ubq = (
+                    UpdateByQuery(using=es, index=corpus)
+                    .query("term", doc_id=doc_id)
+                    .script(source=f"ctx._source.sent_vector = {vector}")
+                )
+                ubq.execute()
+    merge_indices(corpus)

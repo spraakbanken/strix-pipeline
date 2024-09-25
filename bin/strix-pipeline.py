@@ -1,4 +1,3 @@
-import os
 import logging
 import strixpipeline.loghelper
 import strixpipeline.pipeline as pipeline
@@ -28,6 +27,10 @@ if __name__ == "__main__":
     def do_merge(args):
         index = args.index
         pipeline.merge_indices(index)
+
+    def do_add_vector_data(args):
+        corpus = args.corpus
+        pipeline.do_add_vector_data(corpus)
 
     def do_delete(args):
         corpus = args.corpus
@@ -92,6 +95,13 @@ if __name__ == "__main__":
     )
     delete_parser.add_argument("corpus", help="Corpus to delete")
     delete_parser.set_defaults(func=do_delete)
+
+    vector_parser = subparsers.add_parser(
+        "add_vector_data",
+        help="TODO",
+    )
+    vector_parser.add_argument("corpus", help="Corpus to update")
+    vector_parser.set_defaults(func=do_add_vector_data)
 
     args = parser.parse_args()
 

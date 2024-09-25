@@ -1,3 +1,4 @@
+import json
 import os
 import logging
 import itertools
@@ -150,12 +151,12 @@ class InsertData:
                         remove_later.append(attr_type)
 
         split_document = self.corpus_conf.get("split", "text")
-        file_name = task["text"]
+        file_path = task["text"]
         text_tags = self.corpus_conf.get("text_tags")
 
         texts = []
         for text in xmlparser.parse_pipeline_xml(
-            file_name,
+            file_path,
             split_document,
             word_annotations,
             struct_annotations=struct_annotations,
@@ -171,13 +172,16 @@ class InsertData:
         tasks = []
         terms = []
         get_id = self.get_id_func()
+
+        file_name = os.path.basename(file_path)
+        transformer_input = []
         for text in texts:
             text["mode_id"] = self.corpus_conf["mode_id"]
             doc_id = get_id(task_id, text)
             text["doc_id"] = doc_id
             self.generate_title(text, text_attributes)
             text["corpus_id"] = self.index
-            text["original_file"] = os.path.basename(file_name)
+            text["original_file"] = file_name
             task = self.get_doc_task(text)
             task_terms = self.create_term_positions(doc_id, text["token_lookup"])
             del text["token_lookup"]
@@ -186,6 +190,18 @@ class InsertData:
                     del text["text_attributes"][attribute]
             tasks.append(task)
             terms.extend(task_terms)
+            transformer_input.append([doc_id, " ".join(text["dump"]).replace("\n", "")])
+
+        with open(
+            os.path.join(
+                config.transformers_postprocess_dir,
+                self.index,
+                f"texts/{file_name}.jsonl",
+            ),
+            "w",
+        ) as fp:
+            for text in transformer_input:
+                fp.write(f"{json.dumps(text, ensure_ascii=False)}\n")
 
         return itertools.chain(tasks, terms or [])
 

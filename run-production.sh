@@ -27,6 +27,5 @@ do
   python bin/strix-pipeline.py recreate --index $corpus
   echo "run $corpus"
   python bin/strix-pipeline.py run --index $corpus
-  echo "merge $corpus"
   python bin/strix-pipeline.py merge --index $corpus
 done

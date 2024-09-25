@@ -14,7 +14,6 @@ setup(
         "elasticsearch==8.15.1",
         "elasticsearch-dsl==8.12.0",
         "PyYAML==6.0.1",
-        "sentence-transformers==3.1.1",
         "ruff==0.5.7",
     ],
 )

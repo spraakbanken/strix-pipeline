@@ -3,8 +3,6 @@ import xml.etree.cElementTree as etree
 import strixpipeline.mappingutil as mappingutil
 from collections import Counter
 
-from sentence_transformers import SentenceTransformer
-
 
 def parse_pipeline_xml(
     file_name,
@@ -80,7 +78,6 @@ class StrixParser:
         self.save_whitespace_per_token = save_whitespace_per_token
         self.pos_index_attributes = pos_index_attributes
         self.text_tags = text_tags
-        self.model = SentenceTransformer("KBLab/sentence-bert-swedish-cased", tokenizer_kwargs={"clean_up_tokenization_spaces": True})
 
         # state
         self.current_part_tokens = []
@@ -261,9 +258,6 @@ class StrixParser:
 
             current_part["text"] = mappingutil.token_separator.join(
                 map(lambda x: x["token"], self.current_part_tokens)
-            )
-            current_part["sent_vector"] = self.model.encode(
-                " ".join(current_part["dump"]).replace("\n", ""), show_progress_bar=False
             )
 
             for key in self.all_word_level_annotations:
