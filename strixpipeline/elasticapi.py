@@ -4,7 +4,7 @@ from strixpipeline.config import config
 from elasticsearch_dsl import Index
 
 es = elasticsearch.Elasticsearch(
-    config.elastic_hosts, timeout=500, retry_on_timeout=True
+    config.elastic_hosts, request_timeout=500, retry_on_timeout=True
 )
 _logger = logging.getLogger(__name__)
 
