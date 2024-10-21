@@ -2,31 +2,44 @@ import logging
 import strixpipeline.loghelper
 import strixpipeline.pipeline as pipeline
 import strixpipeline.createindex as createindex
-
+import strixpipeline.sparv_decoder as sparv_decoder
+from strixpipeline.config import config
 
 if __name__ == "__main__":
     import argparse
 
     logger = logging.getLogger("strix_pipeline")
 
-    def do_run(args):
-        doc_ids = args.doc_ids if args.doc_ids else []
-        index = args.index
-        limit_to = args.limit_to if hasattr(args, "limit_to") else None
-        strixpipeline.loghelper.setup_pipeline_logging(index + "-run")
-        pipeline.do_run(index, doc_ids, limit_to)
+    def do_add(args):
+        corpus = args.corpus
 
-    def do_recreate(args):
-        indices = args.index
-        if indices:
-            strixpipeline.loghelper.setup_pipeline_logging(
-                "|".join(indices) + "-reindex"
-            )
-            createindex.recreate_indices(indices)
+        # add config file
+        sparv_decoder.main(corpus)
 
-    def do_merge(args):
-        index = args.index
-        pipeline.merge_indices(index)
+        # reload corpus conf
+        config.create_corpus_config()
+
+        # create new index
+        strixpipeline.loghelper.setup_pipeline_logging(f"{corpus}-reindex")
+        createindex.create_index(corpus, delete_previous=args.delete_previous_version)
+
+        # run corpus
+        strixpipeline.loghelper.setup_pipeline_logging(corpus + "-run")
+        pipeline.do_run(corpus)
+
+        # add document vectors
+        vector_generation_type = args.vector_generation_type
+        if vector_generation_type != "none":
+            pipeline.do_vector_generation(corpus, vector_generation_type)
+            pipeline.do_add_vector_data(corpus)
+
+        pipeline.merge_indices(corpus)
+
+
+    def do_generate_vector_data(args):
+        corpus = args.corpus
+        pipeline.do_vector_generation(corpus, args.vector_generation_type)
+
 
     def do_add_vector_data(args):
         corpus = args.corpus
@@ -36,58 +49,15 @@ if __name__ == "__main__":
         corpus = args.corpus
         pipeline.do_delete(corpus)
 
-    def do_all(args):
-        do_recreate(args)
-        do_run(args)
-        do_merge(args)
-
-    # Parse command line arguments
 
     parser = argparse.ArgumentParser(description="Run the pipeline.")
     subparsers = parser.add_subparsers()
 
-    # *** Run parser ***
-    run_parser = subparsers.add_parser("run", help="Run the pipeline with input files.")
-    run_parser.add_argument("--index", required=True, help="Index to run files on")
-
-    run_parser.add_argument(
-        "--limit-to", type=int, help="only process so many of the input urls."
-    )
-
-    run_parser.add_argument(
-        "--doc-ids",
-        nargs="*",
-        help="An optional list of IDs (filenames). Default is to run all files. ",
-    )
-
-    run_parser.set_defaults(func=do_run)
-
-    reset_parser = subparsers.add_parser(
-        "recreate", help="delete all data in given corpora and create index"
-    )
-
-    reset_parser.add_argument(
-        "--index",
-        nargs="+",
-        help="Deletes index and everything in it, then recreates it.",
-    )
-
-    reset_parser.set_defaults(func=do_recreate)
-
-    merge_parser = subparsers.add_parser("merge", help="Run forcemerge on index")
-    merge_parser.add_argument("--index", required=True, help="Index to merge")
-    merge_parser.set_defaults(func=do_merge)
-
-    all_parser = subparsers.add_parser(
-        "all", help="Run recreate, run and merge on index"
-    )
-    all_parser.add_argument("--index", required=True, help="Index to create")
-    all_parser.add_argument(
-        "--doc-ids",
-        nargs="*",
-        help="An optional list of IDs (filenames). Default is to run all files. ",
-    )
-    all_parser.set_defaults(func=do_all)
+    add_parser = subparsers.add_parser("add", help="Add a corpus to Strix.")
+    add_parser.add_argument("corpus", help="Corpus to add")
+    add_parser.add_argument("--delete-previous-version",  action='store_true', help="Set if you want a previous version of corpus to be deleted (if it exists). Alias for corpus is always deleted.")
+    add_parser.add_argument('--vector-generation-type', choices=['remote', 'local', 'none'], default="none", help="Document vectors can be generated on config.vector_server, locally or not at all.")
+    add_parser.set_defaults(func=do_add)
 
     delete_parser = subparsers.add_parser(
         "delete",
@@ -96,12 +66,22 @@ if __name__ == "__main__":
     delete_parser.add_argument("corpus", help="Corpus to delete")
     delete_parser.set_defaults(func=do_delete)
 
-    vector_parser = subparsers.add_parser(
-        "add_vector_data",
-        help="TODO",
+    generate_vector_parser = subparsers.add_parser(
+        "generate-vector-data",
+        help="Either runs vector data generation locally or offloads vector creation to config.transformers_postprocess_server"
     )
-    vector_parser.add_argument("corpus", help="Corpus to update")
-    vector_parser.set_defaults(func=do_add_vector_data)
+    generate_vector_parser.add_argument("corpus", help="Corpus to update")
+    # Same as for add_parser
+    generate_vector_parser.add_argument('--vector-generation-type', choices=['remote', 'local'], default="local", help="Document vectors can be generated on config.vector_server or locally")
+    generate_vector_parser.set_defaults(func=do_generate_vector_data)
+
+    add_vector_parser = subparsers.add_parser(
+        "add-vector-data",
+        help="Inserts precomputed vector data"
+    )
+    add_vector_parser.add_argument("corpus", help="Corpus to update")
+    add_vector_parser.set_defaults(func=do_add_vector_data)
+
 
     args = parser.parse_args()
 

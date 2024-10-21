@@ -82,30 +82,28 @@ class CreateIndex:
 
         return word_attributes, text_attributes
 
-    def create_index(self):
+    def create_indices(self):
         base_index, index_name = self.get_unique_index()
         base_index.create()
+        elasticapi.setup_alias(self.alias, index_name)
         elasticapi.close_index(index_name)
         self.create_text_type(index_name)
         elasticapi.open_index(index_name)
 
-        self.create_term_position_index()
-        return index_name
+        term_index, term_index_name = self.get_unique_index(type="terms")
+        term_index.create()
+        elasticapi.setup_alias(self.alias + "_terms", term_index_name)
+        self.create_term_position_index(term_index_name)
 
-    def get_unique_index(self, suffix=""):
-        index_name = self.alias + "_" + time.strftime("%Y%m%d-%H%M" + suffix)
-        base_index = Index(index_name, using=self.es)
-        if base_index.exists():
-            return self.get_unique_index(suffix + "1" if suffix else "1")
-        self.set_settings(base_index, CreateIndex.number_of_shards)
-        return base_index, index_name
+    def get_unique_index(self, type=None, suffix=""):
+        index_name = self.alias + "_" + (type + "_" if type else "") + time.strftime("%Y%m%d-%H%M" + suffix)
+        index = Index(index_name, using=self.es)
+        if index.exists():
+            return self.get_unique_index(type=type, suffix=suffix + "1" if suffix else "1")
+        self.set_settings(index, CreateIndex.number_of_shards)
+        return index, index_name
 
-    def create_term_position_index(self):
-        terms = Index(self.alias + "_terms", using=self.es)
-        self.set_settings(terms, CreateIndex.terms_number_of_shards)
-        terms.delete(ignore=404)
-        terms.create()
-
+    def create_term_position_index(self, index_name):
         m = Mapping()
         m.meta("dynamic", "strict")
         m.meta("date_detection", False)
@@ -126,7 +124,7 @@ class CreateIndex:
 
         m.field("term", Object(dynamic=True, properties={"attrs": Object()}))
         m.field("doc_id", "keyword")
-        m.save(self.alias + "_terms", using=self.es)
+        m.save(index_name, using=self.es)
 
     @staticmethod
     def set_settings(index, number_shards):
@@ -237,6 +235,7 @@ class CreateIndex:
         self.set_refresh_interval(index_name, "1s")
         self.set_refresh_interval(index_name, -1)
 
+    # TODO kräver faktiskt index namn??
     def set_refresh_interval(self, index_name, interval):
         self.es.indices.put_settings(
             index=(index_name or self.alias) + "," + self.alias + "_terms",
@@ -256,16 +255,15 @@ class DisabledObject(InnerDoc):
         enabled = MetaField(False)
 
 
-def recreate_indices(indices):
-    for index in indices:
-        if config.corpusconf.is_corpus(index):
-            elasticapi.delete_index_by_prefix(index)
-            ci = CreateIndex(index)
-            try:
-                index_name = ci.create_index()
-                elasticapi.setup_alias(index, index_name)
-            except elasticsearch.exceptions.TransportError as e:
-                _logger.exception("transport error")
-                raise e
-        else:
-            _logger.error('"' + index + '" is not a configured corpus')
+def create_index(corpus_id, delete_previous=False):
+    if config.corpusconf.is_corpus(corpus_id):
+        if delete_previous:
+            elasticapi.delete_index_by_corpus_id(corpus_id)
+        ci = CreateIndex(corpus_id)
+        try:
+            ci.create_indices()
+        except elasticsearch.exceptions.TransportError as e:
+            _logger.exception("transport error")
+            raise e
+    else:
+        _logger.error('"' + corpus_id + '" is not a configured corpus')

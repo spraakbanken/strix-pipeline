@@ -2,25 +2,8 @@ import yaml
 from yaml.loader import SafeLoader
 
 import os
-import sys
 
-import argparse
-
-if "--config" in sys.argv:
-    path = sys.argv[sys.argv.index("--config") + 1]
-else:
-    path = "config.yml"
-
-file = open(path)
-# self.logger.info("Config file in use: %s", os.path.realpath(file.name))
-config = yaml.safe_load(file)
-
-parser = argparse.ArgumentParser(description="Strix configuration")
-parser.add_argument("corpus_name", type=str)
-
-args = parser.parse_args()
-corpus_name = args.corpus_name
-
+from strixpipeline.config import config
 
 # create config files using the generated sparv config and update mode structure
 # Files
@@ -33,14 +16,14 @@ def createConfig(data, currentModes):
     if "corpus_id" in data.keys() and ("mode" in data.keys()):
         status = updateModeStructure(data["corpus_id"], data["mode"])
     if status:
-        corpusData = getConfig(data)
+        corpusData = getConfig(data, currentModes)
         if "title" not in corpusData.keys():
             corpusData["title"] = "n/a"
         if "document_id" not in corpusData.keys():
             corpusData["document_id"] = "generated"
 
         with open(
-            config["settings_dir"] + "/corpora/" + data["corpus_id"] + ".yaml", "w"
+            config.settings_dir + "/corpora/" + data["corpus_id"] + ".yaml", "w"
         ) as file:
             yaml.dump(corpusData, file, sort_keys=False)
 
@@ -50,7 +33,7 @@ def createConfig(data, currentModes):
 
 
 # create config data
-def getConfig(data):
+def getConfig(data, currentModes):
     yearExist = False
     corpusTemplate = {}
     corpusTemplate["analyze_config"] = {}
@@ -73,7 +56,7 @@ def getConfig(data):
                         textListX.append(k1.split(":")[1])
         elif key == "struct_attributes":
             corpusTemplate["analyze_config"]["struct_attributes"] = {}
-            with open(config["settings_dir"] + "/attributes/struct_elems.yaml") as file:
+            with open(config.settings_dir + "/attributes/struct_elems.yaml") as file:
                 struct_keys = yaml.safe_load(file).keys()
 
             text_xtra, struct_modified, textAttr = restructure(value, struct_keys)
@@ -287,7 +270,7 @@ def restructure(data, struct_keys):
 def updateModeStructure(corpus, mode):
     for i in mode:
         with open(
-            config["settings_dir"] + "/modeStructure/" + i["name"] + ".yaml", "r"
+            config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "r"
         ) as filename:
             modeData = yaml.safe_load(filename)
             # create path if doesn't exist
@@ -304,7 +287,7 @@ def updateModeStructure(corpus, mode):
         if modeData:
             # update mode structure
             with open(
-                config["settings_dir"] + "/modeStructure/" + i["name"] + ".yaml", "w"
+                config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "w"
             ) as filename:
                 yaml.safe_dump(modeData, filename)
             return True
@@ -381,7 +364,7 @@ def reverseFix(modeData, path, corpus):
 def createMode(newModes, currentModes):
     for i in newModes:
         with open(
-            config["settings_dir"] + "/modeStructure/" + i["name"] + ".yaml", "w"
+            config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "w"
         ) as filename:
             yaml.dump(
                 {"translation_name": {"swe": i["name"], "eng": i["name"]}},
@@ -390,7 +373,7 @@ def createMode(newModes, currentModes):
             )
 
         with open(
-            config["settings_dir"] + "/modes/" + i["name"] + ".yaml", "w"
+            config.settings_dir + "/modes/" + i["name"] + ".yaml", "w"
         ) as filename:
             yaml.dump(
                 {
@@ -410,24 +393,25 @@ def createMode(newModes, currentModes):
         }
 
     if currentModes:
-        with open(config["settings_dir"] + "/all_modes.yaml", "w") as filename:
+        with open(config.settings_dir + "/all_modes.yaml", "w") as filename:
             yaml.safe_dump(currentModes, filename, sort_keys=False)
 
     return (True, currentModes)
 
 
-if __name__ == "__main__":
+def main(corpus_name):
+
     # Mode data ex. {"default" : {"name" : "default", "label" :  {"swe" : Moderna, "eng" :  "Modern"}}}
-    with open(config["settings_dir"] + "/all_modes.yaml", "r") as file:
+    with open(config.settings_dir + "/all_modes.yaml", "r") as file:
         currentModes = yaml.safe_load(file)
 
     # Sparv config file that need to be decode into Strix config format
-    with open(config["settings_dir"] + "/sparv2strix/" + corpus_name + ".yaml") as file:
+    with open(config.settings_dir + "/sparv2strix/" + corpus_name + ".yaml") as file:
         data = yaml.load(file, Loader=SafeLoader)
 
     # Check if the corpud_id.yaml exists in corpora
     if os.path.exists(
-        config["settings_dir"] + "/corpora/" + data["corpus_id"] + ".yaml"
+        config.settings_dir + "/corpora/" + data["corpus_id"] + ".yaml"
     ):
         pass
     else:

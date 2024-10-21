@@ -9,12 +9,27 @@ es = elasticsearch.Elasticsearch(
 _logger = logging.getLogger(__name__)
 
 
-def setup_alias(alias_name, index_name):
-    es.indices.put_alias(index=index_name, name=alias_name)
+def get_index_from_alias(alias_name):
+    response = es.options(ignore_status=[400, 404]).indices.get_alias(name=alias_name)
+    if "status" in response:
+        return None
+    return list(response.keys())[0]
 
 
-def delete_index_by_prefix(prefix):
-    es.options(ignore_status=[400, 404]).indices.delete(index='prefix + "_*"')
+def setup_alias(alias_name, new_index_name):
+    old_index = get_index_from_alias(alias_name)
+    if old_index:
+        es.indices.delete_alias(name=alias_name, index=old_index)
+    es.indices.put_alias(index=new_index_name, name=alias_name)
+
+
+def delete_index_by_corpus_id(corpus):
+    main_index = get_index_from_alias(corpus)
+    if main_index:
+        es.options(ignore_status=[400, 404]).indices.delete(index=main_index)
+    term_index = get_index_from_alias(f"{corpus}_terms")
+    if term_index:
+        es.options(ignore_status=[400, 404]).indices.delete(index=term_index)
 
 
 def create_index(index_name):

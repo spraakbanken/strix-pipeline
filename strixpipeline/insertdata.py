@@ -84,15 +84,14 @@ class InsertData:
             get_id = attribute_id
         return get_id
 
-    def prepare_urls(self, doc_ids):
+    def prepare_urls(self):
         urls = []
         tot_size = 0
         paths = get_paths_for_corpus(self.index)
 
         for text in paths:
             text_id = os.path.splitext(os.path.basename(text))[0]
-            include_doc = not doc_ids or text_id in doc_ids
-            if include_doc and os.path.isfile(text):
+            if os.path.isfile(text):
                 f = open(text)
                 size = os.fstat(f.fileno()).st_size
                 tot_size += size

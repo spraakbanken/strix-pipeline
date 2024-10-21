@@ -7,7 +7,7 @@ import multiprocessing
 import elasticsearch
 import elasticsearch.helpers
 import elasticsearch.exceptions
-from elasticsearch_dsl import UpdateByQuery
+from elasticsearch_dsl import Search, Q
 from pathlib import Path
 from strixpipeline.config import config
 import strixpipeline.insertdata as insert_data_strix
@@ -84,13 +84,11 @@ def process_task(insert_data, task_queue, size, process_args):
         raise
 
 
-def process(task_queue, insert_data, task_data, limit_to=None):
+def process(task_queue, insert_data, task_data):
     executor = futures.ProcessPoolExecutor(
         max_workers=min(multiprocessing.cpu_count(), 16)
     )
 
-    if limit_to:
-        task_data = task_data[:limit_to]
     assert len(task_data)
     _logger.info("Scheduling %s tasks..." % len(task_data))
     for task_type, task_id, size, task in task_data:
@@ -200,17 +198,17 @@ def bulk_insert(tasks):
     return len(tasks), time.time() - insert_t, error_obj
 
 
-def process_corpus(index, limit_to=None, doc_ids=()):
+def process_corpus(index):
     t = time.time()
     insert_data = insert_data_strix.InsertData(index)
 
-    task_data, tot_size = insert_data.prepare_urls(doc_ids)
+    task_data, tot_size = insert_data.prepare_urls()
 
     from multiprocessing import Manager
 
     with Manager() as manager:
         task_queue = manager.Queue(maxsize=QUEUE_SIZE)
-        process(task_queue, insert_data, task_data, limit_to)
+        process(task_queue, insert_data, task_data)
         upload_executor(task_queue, tot_size, len(task_data))
 
     _logger.info(
@@ -219,7 +217,7 @@ def process_corpus(index, limit_to=None, doc_ids=()):
     )
 
 
-def do_run(index, doc_ids=(), limit_to=None):
+def do_run(index):
     strixpipeline.runhistory.create()
     before_t = time.time()
 
@@ -236,7 +234,7 @@ def do_run(index, doc_ids=(), limit_to=None):
 
     ci = create_index_strix.CreateIndex(index)
     ci.enable_insert_settings()
-    process_corpus(index, limit_to=limit_to, doc_ids=doc_ids)
+    process_corpus(index)
     ci.enable_postinsert_settings()
 
     total_t = time.time() - before_t
@@ -244,8 +242,6 @@ def do_run(index, doc_ids=(), limit_to=None):
         {
             "index": index,
             "total_time": total_t,
-            "doc_ids": doc_ids,
-            "limit_to": limit_to,
             "group_size": GROUP_SIZE,
             "queue_size": QUEUE_SIZE,
             "upload_threads": MAX_UPLOAD_WORKERS,
@@ -254,6 +250,29 @@ def do_run(index, doc_ids=(), limit_to=None):
             "timestamp": datetime.datetime.now(),
         }
     )
+
+
+def do_vector_generation(corpus, vector_generation_type):
+    """
+    If "transformers_postprocess_server" is set, pipeline will move files from previous run of <corpus>
+    to "transformers_postprocess_server_dir" on the given server and run a script on the server
+    If "transformers_postprocess_server" is *not* set, it will simply call "./run_transformers.sh" and it is up
+    to the user to create and maintain this file
+    """
+    text_dir = os.path.join(config.transformers_postprocess_dir, f"{corpus}")
+    if vector_generation_type == "remote":
+        if not config.has_attr("transformers_postprocess_server"):
+            raise RuntimeError("Add transformers_postprocess_server and transformers_postprocess_server_dir to run on remote")
+        server = config.transformers_postprocess_server
+        vector_server_data_dir = f"{server}:{config.transformers_postprocess_server_dir}"
+        # move files to server
+        os.system(f"scp -r {text_dir} {vector_server_data_dir}")
+        # run document vector generation
+        os.system(f"ssh {server} ./run_transformers.sh {corpus}")
+        # move files back to source
+        os.system(f"scp -r {os.path.join(vector_server_data_dir, corpus)} {text_dir}")
+    else:
+        os.system(f"./run_transformers.sh {corpus} {text_dir}")
 
 
 def merge_indices(index):
@@ -270,7 +289,7 @@ def _get_indices_from_alias(alias_name):
     alias_exist = False
     index_names = []
     for alias in aliases:
-        if alias["alias"] == alias_name:
+        if alias["alias"] in [alias_name, f"{alias_name}_terms"]:
             alias_exist = True
             index_names.append(alias["index"])
 
@@ -282,7 +301,7 @@ def _get_indices_from_alias(alias_name):
 def do_delete(corpus):
     # We expect that an alias only points to *one* index, but if it points to multiple, just remove all of them
     main_indices = _get_indices_from_alias(corpus)
-    for index in [corpus + "_terms"] + main_indices:
+    for index in main_indices:
         _logger.info(f"Deleting index: {index}")
         es.indices.delete(index=index)
         _logger.info("Done deleting index")
@@ -297,17 +316,15 @@ def do_delete(corpus):
 
 
 def do_add_vector_data(corpus):
-    files = glob.glob(
-        os.path.join(config.transformers_postprocess_dir, f"{corpus}/vectors/*")
-    )
+    files = glob.glob(os.path.join(config.transformers_postprocess_dir, f"{corpus}/vectors/*"))
     for file in files:
         with open(file) as fp:
             for line in fp:
                 [doc_id, vector] = json.loads(line)
-                ubq = (
-                    UpdateByQuery(using=es, index=corpus)
-                    .query("term", doc_id=doc_id)
-                    .script(source=f"ctx._source.sent_vector = {vector}")
-                )
-                ubq.execute()
+                # TODO slow to first get the document and then update it
+                s = Search(index=corpus, using=es)
+                s.query(Q("term", doc_id=doc_id))
+                for hit in s.execute():
+                    es_doc_id = hit.meta.id
+                    es.update(index=corpus, id=es_doc_id, body={"doc": {"sent_vector": vector}})
     merge_indices(corpus)
