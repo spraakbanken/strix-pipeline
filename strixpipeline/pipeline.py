@@ -9,6 +9,8 @@ import elasticsearch.helpers
 import elasticsearch.exceptions
 from elasticsearch_dsl import Search, Q
 from pathlib import Path
+
+from strixpipeline import xmlparser
 from strixpipeline.config import config
 import strixpipeline.insertdata as insert_data_strix
 import strixpipeline.createindex as create_index_strix
@@ -212,11 +214,6 @@ def do_run(index):
         _logger.error('"' + index + " is not a configured corpus.")
         return
 
-    # check that user has set a directory for the transformers data and create directory structure
-    if not config.has_attr("transformers_postprocess_dir"):
-        _logger.error("transformers_postprocess_dir not set in config")
-    Path(os.path.join(config.transformers_postprocess_dir, index, "texts")).mkdir(parents=True, exist_ok=True)
-
     ci = create_index_strix.CreateIndex(index)
     ci.enable_insert_settings()
     process_corpus(index)
@@ -237,13 +234,56 @@ def do_run(index):
     )
 
 
+def check_vector_settings(corpus):
+    """
+    check that user has set a directory for the transformers data and create directory structure
+    """
+    if not config.has_attr("transformers_postprocess_dir"):
+        _logger.error("transformers_postprocess_dir not set in config")
+    Path(os.path.join(config.transformers_postprocess_dir, corpus, "texts")).mkdir(parents=True, exist_ok=True)
+
+
+def check_vectors_exist(corpus):
+    """
+    check that a non-empty vectors directory exists inside transformers_postprocess_dir
+    """
+    check_vector_settings(corpus)
+    path = Path(os.path.join(config.transformers_postprocess_dir, corpus, "vectors"))
+    return path.is_dir() and any(f.is_file() for f in path.iterdir())
+
+
 def do_vector_generation(corpus, vector_generation_type):
     """
+    First parse the XML:s and extract the text, save it into files
+    Then run the document vector generation, either local or remote (vector_generation_type)
     If "transformers_postprocess_server" is set, pipeline will move files from previous run of <corpus>
     to "transformers_postprocess_server_dir" on the given server and run a script on the server
     If "transformers_postprocess_server" is *not* set, it will simply call "./run_transformers.sh" and it is up
     to the user to create and maintain this file
     """
+    check_vector_settings(corpus)
+
+    insert_data = insert_data_strix.InsertData(corpus)
+    task_data, tot_size = insert_data.prepare_urls()
+
+    corpus_conf = config.corpusconf.get_corpus_conf(corpus)
+    split_document = corpus_conf.get("split", "text")
+    text_tags = corpus_conf.get("text_tags")
+
+    text_attributes = {"_id": {}}
+
+    for task_type, task_id, size, task in task_data:
+        transformer_input = []
+        file_path = task["text"]
+        for text in xmlparser.parse_pipeline_xml(
+            file_path, split_document, {}, text_attributes=text_attributes, text_tags=text_tags
+        ):
+            doc_id = text["text_attributes"]["_id"]
+            transformer_input.append([doc_id, " ".join(text["dump"]).replace("\n", "")])
+        with open(os.path.join(config.transformers_postprocess_dir, corpus, f"texts/{task_id}.jsonl"), "w") as fp:
+            for text in transformer_input:
+                fp.write(f"{json.dumps(text, ensure_ascii=False)}\n")
+
     text_dir = os.path.join(config.transformers_postprocess_dir, f"{corpus}")
     if vector_generation_type == "remote":
         if not config.has_attr("transformers_postprocess_server"):
@@ -298,22 +338,3 @@ def do_delete(corpus):
         os.remove(fname)
     else:
         _logger.info(f"Corpus file: '{fname}' does not exist")
-
-
-def do_add_vector_data(corpus):
-    files = glob.glob(os.path.join(config.transformers_postprocess_dir, f"{corpus}/vectors/*"))
-    count = 0
-    for file in files:
-        with open(file) as fp:
-            for line in fp:
-                [doc_id, vector] = json.loads(line)
-                # TODO slow to first get the document and then update it
-                s = Search(index=corpus, using=es)
-                s = s.query(Q("term", doc_id=doc_id))
-                for hit in s.execute():
-                    _logger.info(f"Adding document vectors for {doc_id} ({count})")
-                    es_doc_id = hit.meta.id
-                    es.update(index=corpus, id=es_doc_id, body={"doc": {"sent_vector": vector}})
-                    count += 1
-                    break
-    merge_indices(corpus)

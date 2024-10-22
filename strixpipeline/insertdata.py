@@ -92,6 +92,13 @@ class InsertData:
         file_path = task["text"]
         text_tags = self.corpus_conf.get("text_tags")
 
+        # load preprocessed document vectors
+        transformer_output = {}
+        with open(os.path.join(config.transformers_postprocess_dir, self.index, f"vectors/{task_id}.jsonl")) as fp:
+            for row in fp:
+                [doc_id, doc_vector] = json.loads(row)
+                transformer_output[doc_id] = doc_vector
+
         texts = []
         for text in xmlparser.parse_pipeline_xml(
             file_path,
@@ -111,11 +118,11 @@ class InsertData:
         terms = []
 
         file_name = os.path.basename(file_path)
-        transformer_input = []
         for text in texts:
             text["mode_id"] = self.corpus_conf["mode_id"]
             doc_id = text["text_attributes"]["_id"]
             text["doc_id"] = doc_id
+            text["sent_vector"] = transformer_output.pop(doc_id)
             self.generate_title(text, text_attributes)
             text["corpus_id"] = self.index
             text["original_file"] = file_name
@@ -127,18 +134,6 @@ class InsertData:
                     del text["text_attributes"][attribute]
             tasks.append(task)
             terms.extend(task_terms)
-            transformer_input.append([doc_id, " ".join(text["dump"]).replace("\n", "")])
-
-        with open(
-            os.path.join(
-                config.transformers_postprocess_dir,
-                self.index,
-                f"texts/{file_name}.jsonl",
-            ),
-            "w",
-        ) as fp:
-            for text in transformer_input:
-                fp.write(f"{json.dumps(text, ensure_ascii=False)}\n")
 
         return itertools.chain(tasks, terms or [])
 
