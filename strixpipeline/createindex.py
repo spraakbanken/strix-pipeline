@@ -135,12 +135,14 @@ class CreateIndex:
     def create_text_type(self, index_name):
         m = Mapping()
         m.meta("dynamic", "strict")
+        excludes = ["text", "wid", "sent_vector"]
 
         m.field("text", Text(analyzer=mappingutil.token_analyzer()))
         m.field("wid", Text(analyzer=mappingutil.annotation_analyzer()))
 
         for attr in self.word_attributes:
             annotation_name = attr["name"]
+            excludes.append("pos_" + annotation_name)
             # if annotation_name == "complemgram":
             #     print("----", annotation_name)
             #     m.field("pos_" + annotation_name, Text(analyzer=mappingutil.annotation_analyzer()))
@@ -178,6 +180,9 @@ class CreateIndex:
             else:
                 mapping_type = Keyword()
             m.field("text_" + attr["name"], mapping_type)
+            excludes.append("text_" + attr["name"])
+
+        m.meta("_source", excludes=excludes)
 
         m.field("text_attributes", Object(DisabledObject))
         m.field("dump", Keyword(index=False, doc_values=False))
