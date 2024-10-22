@@ -23,9 +23,7 @@ MAX_UPLOAD_WORKERS = config.concurrency_upload_threads
 GROUP_SIZE = config.concurrency_group_size
 MAX_GROUP_SIZE_KB = 250 * 1024
 
-es = elasticsearch.Elasticsearch(
-    config.elastic_hosts, timeout=500, retry_on_timeout=True
-)
+es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500, retry_on_timeout=True)
 
 _logger = logging.getLogger(__name__)
 
@@ -85,9 +83,7 @@ def process_task(insert_data, task_queue, size, process_args):
 
 
 def process(task_queue, insert_data, task_data):
-    executor = futures.ProcessPoolExecutor(
-        max_workers=min(multiprocessing.cpu_count(), 16)
-    )
+    executor = futures.ProcessPoolExecutor(max_workers=min(multiprocessing.cpu_count(), 16))
 
     assert len(task_data)
     _logger.info("Scheduling %s tasks..." % len(task_data))
@@ -124,10 +120,7 @@ def upload_executor(task_queue, tot_size, num_tasks):
             while True:
                 try:
                     (task, task_size, accu_size) = next(tasks)
-                    if (
-                        current_group_size + task_size > MAX_GROUP_SIZE_KB
-                        or current_group_length == max_group_size
-                    ):
+                    if current_group_size + task_size > MAX_GROUP_SIZE_KB or current_group_length == max_group_size:
                         yield current_group
                         current_group = []
                         current_group_size = 0
@@ -162,10 +155,7 @@ def upload_executor(task_queue, tot_size, num_tasks):
                 if future.exception() is None:
                     chunk_len, t, error_obj = future.result()
                     if not error_obj:
-                        _logger.info(
-                            "Bulk uploaded a chunk of length %s, took %0.1fs"
-                            % (chunk_len, t)
-                        )
+                        _logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (chunk_len, t))
                     else:
                         _logger.error("Failed bulk upload of a chunk.")
                         _logger.error(
@@ -211,10 +201,7 @@ def process_corpus(index):
         process(task_queue, insert_data, task_data)
         upload_executor(task_queue, tot_size, len(task_data))
 
-    _logger.info(
-        index
-        + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60)
-    )
+    _logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))
 
 
 def do_run(index):
@@ -228,9 +215,7 @@ def do_run(index):
     # check that user has set a directory for the transformers data and create directory structure
     if not config.has_attr("transformers_postprocess_dir"):
         _logger.error("transformers_postprocess_dir not set in config")
-    Path(os.path.join(config.transformers_postprocess_dir, index, "texts")).mkdir(
-        parents=True, exist_ok=True
-    )
+    Path(os.path.join(config.transformers_postprocess_dir, index, "texts")).mkdir(parents=True, exist_ok=True)
 
     ci = create_index_strix.CreateIndex(index)
     ci.enable_insert_settings()
@@ -262,7 +247,9 @@ def do_vector_generation(corpus, vector_generation_type):
     text_dir = os.path.join(config.transformers_postprocess_dir, f"{corpus}")
     if vector_generation_type == "remote":
         if not config.has_attr("transformers_postprocess_server"):
-            raise RuntimeError("Add transformers_postprocess_server and transformers_postprocess_server_dir to run on remote")
+            raise RuntimeError(
+                "Add transformers_postprocess_server and transformers_postprocess_server_dir to run on remote"
+            )
         server = config.transformers_postprocess_server
         vector_server_data_dir = f"{server}:{config.transformers_postprocess_server_dir}"
         # move files to server
@@ -277,9 +264,7 @@ def do_vector_generation(corpus, vector_generation_type):
 
 def merge_indices(index):
     _logger.info("Merging segments")
-    es.indices.forcemerge(
-        index=index + "," + index + "_terms", max_num_segments=1, request_timeout=10000
-    )
+    es.indices.forcemerge(index=index + "," + index + "_terms", max_num_segments=1, request_timeout=10000)
     _logger.info("Done merging segments")
 
 

@@ -9,11 +9,7 @@ index_name = ".runhistory"
 def get_git_commit_id():
     base_dir = config.base_dir
     try:
-        output = (
-            subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=base_dir)
-            .decode("UTF-8")
-            .strip()
-        )
+        output = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=base_dir).decode("UTF-8").strip()
     except Exception:
         output = "Revision: N/A"
     return output
@@ -27,9 +23,7 @@ def put(obj):
 def create():
     mappings = {
         "properties": {
-            "elastic_hosts": {
-                "properties": {"host": {"type": "keyword"}, "port": {"type": "long"}}
-            },
+            "elastic_hosts": {"properties": {"host": {"type": "keyword"}, "port": {"type": "long"}}},
             "index": {"type": "keyword"},
             "git_commitid": {"type": "keyword"},
         }

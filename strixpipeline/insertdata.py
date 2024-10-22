@@ -19,9 +19,7 @@ def get_paths_for_corpus(corpus_id):
         texts_dir = os.path.join(config.texts_dir, corpus_dir_name)
     else:
         texts_dir = os.path.join(config.base_dir, config.texts_dir, corpus_dir_name)
-    return glob.glob(os.path.join(texts_dir, "**/*.xml")) + glob.glob(
-        os.path.join(texts_dir, "*.xml")
-    )
+    return glob.glob(os.path.join(texts_dir, "**/*.xml")) + glob.glob(os.path.join(texts_dir, "*.xml"))
 
 
 class InsertData:
@@ -59,15 +57,8 @@ class InsertData:
                     if text_at == id_strategy:
                         found = True
             if not found:
-                raise ValueError(
-                    '"'
-                    + id_strategy
-                    + '" is not a text attribute, not possible to use for IDs'
-                )
-            if (
-                "document_id_hash" in self.corpus_conf
-                and self.corpus_conf["document_id_hash"]
-            ):
+                raise ValueError('"' + id_strategy + '" is not a text attribute, not possible to use for IDs')
+            if "document_id_hash" in self.corpus_conf and self.corpus_conf["document_id_hash"]:
 
                 def attribute_id(_, text):
                     m = hashlib.md5()
@@ -119,9 +110,7 @@ class InsertData:
         word_annotations = {"token": word_attrs}
 
         struct_annotations = {}
-        for node_name, attr_names in self.corpus_conf["analyze_config"][
-            "struct_attributes"
-        ].items():
+        for node_name, attr_names in self.corpus_conf["analyze_config"]["struct_attributes"].items():
             structs = []
             for attr_name in attr_names:
                 for attr_type, attr in attr_name.items():
@@ -140,9 +129,7 @@ class InsertData:
         for attr_name in self.corpus_conf["analyze_config"]["text_attributes"]:
             for attr_type, text_attribute in attr_name.items():
                 if type(text_attribute) is str:
-                    text_attribute = config.corpusconf.get_text_attributeX(
-                        text_attribute
-                    )
+                    text_attribute = config.corpusconf.get_text_attributeX(text_attribute)
                 # text_attribute = config.corpusconf.get_text_attribute(attr_name)
                 if text_attribute.get("parse", True):
                     text_attributes[attr_type] = text_attribute

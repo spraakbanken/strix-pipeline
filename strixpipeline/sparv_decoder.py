@@ -5,6 +5,7 @@ import os
 
 from strixpipeline.config import config
 
+
 # create config files using the generated sparv config and update mode structure
 # Files
 ## word attributes
@@ -22,9 +23,7 @@ def createConfig(data, currentModes):
         if "document_id" not in corpusData.keys():
             corpusData["document_id"] = "generated"
 
-        with open(
-            config.settings_dir + "/corpora/" + data["corpus_id"] + ".yaml", "w"
-        ) as file:
+        with open(config.settings_dir + "/corpora/" + data["corpus_id"] + ".yaml", "w") as file:
             yaml.dump(corpusData, file, sort_keys=False)
 
         return "Config files successfully created and updated"
@@ -50,9 +49,7 @@ def getConfig(data, currentModes):
                         textList.append({k1.split(":")[1]: v1.replace("text_", "")})
                         textListX.append(k1.split(":")[1])
                     else:
-                        textList.append(
-                            {k1.split(":")[1]: replaceKeyText(v1, k1.split(":")[1])}
-                        )
+                        textList.append({k1.split(":")[1]: replaceKeyText(v1, k1.split(":")[1])})
                         textListX.append(k1.split(":")[1])
         elif key == "struct_attributes":
             corpusTemplate["analyze_config"]["struct_attributes"] = {}
@@ -70,9 +67,7 @@ def getConfig(data, currentModes):
                                 tempDict1.append({k1: v1})
                             else:
                                 tempDict1.append({k1: replaceKeyStruct(v1, k1)})
-                    corpusTemplate["analyze_config"]["struct_attributes"][key1] = (
-                        tempDict1
-                    )
+                    corpusTemplate["analyze_config"]["struct_attributes"][key1] = tempDict1
                 else:
                     for x in value1:
                         for k1, v1 in x.items():
@@ -99,9 +94,7 @@ def getConfig(data, currentModes):
                 corpusTemplate["folderName"] = value[0]["folder"].capitalize()
             else:
                 corpusTemplate["folderName"] = ""
-            corpusTemplate["mode_name"] = currentModes[value[0]["name"]][
-                "translation_name"
-            ]
+            corpusTemplate["mode_name"] = currentModes[value[0]["name"]]["translation_name"]
         elif key == "text_annotation":
             corpusTemplate["split"] = value
         elif key == "corpus_name":
@@ -158,19 +151,11 @@ def createDict(item):
 def replaceKey(item, item_name):
     itemX = {}
     for key, value in item.items():
-        if (
-            key == "label"
-            and type(value) is str
-            or (key == "preset" and type(value) is str)
-        ):
+        if key == "label" and type(value) is str or (key == "preset" and type(value) is str):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value.replace("_", " ").capitalize()
             itemX["translation_name"]["eng"] = value.replace("_", " ").capitalize()
-        elif (
-            key == "label"
-            and type(value) is dict
-            or (key == "preset" and type(value) is dict)
-        ):
+        elif key == "label" and type(value) is dict or (key == "preset" and type(value) is dict):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value["swe"].capitalize()
             itemX["translation_name"]["eng"] = value["eng"].capitalize()
@@ -184,19 +169,11 @@ def replaceKey(item, item_name):
 def replaceKeyText(item, item_name):
     itemX = {}
     for key, value in item.items():
-        if (
-            key == "label"
-            and type(value) is str
-            or (key == "preset" and type(value) is str)
-        ):
+        if key == "label" and type(value) is str or (key == "preset" and type(value) is str):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value.replace("_", " ").capitalize()
             itemX["translation_name"]["eng"] = value.replace("_", " ").capitalize()
-        elif (
-            key == "label"
-            and type(value) is dict
-            or (key == "preset" and type(value) is dict)
-        ):
+        elif key == "label" and type(value) is dict or (key == "preset" and type(value) is dict):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value["swe"].capitalize()
             itemX["translation_name"]["eng"] = value["eng"].capitalize()
@@ -210,19 +187,11 @@ def replaceKeyText(item, item_name):
 def replaceKeyStruct(item, item_name):
     itemX = {}
     for key, value in item.items():
-        if (
-            key == "label"
-            and type(value) is str
-            or (key == "preset" and type(value) is str)
-        ):
+        if key == "label" and type(value) is str or (key == "preset" and type(value) is str):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value.replace("_", " ").capitalize()
             itemX["translation_name"]["eng"] = value.replace("_", " ").capitalize()
-        elif (
-            key == "label"
-            and type(value) is dict
-            or (key == "preset" and type(value) is dict)
-        ):
+        elif key == "label" and type(value) is dict or (key == "preset" and type(value) is dict):
             itemX["translation_name"] = {}
             itemX["translation_name"]["swe"] = value["swe"].capitalize()
             itemX["translation_name"]["eng"] = value["eng"].capitalize()
@@ -241,22 +210,14 @@ def restructure(data, struct_keys):
             if ":" in item_key:
                 if item_key.split(":")[0] in reCreate.keys():
                     if type(item_value) is str:
-                        reCreate[item_key.split(":")[0]].append(
-                            {item_key.replace(":", "_"): item_value}
-                        )
+                        reCreate[item_key.split(":")[0]].append({item_key.replace(":", "_"): item_value})
                     else:
-                        reCreate[item_key.split(":")[0]].append(
-                            {item_key.replace(":", "_"): item_value}
-                        )
+                        reCreate[item_key.split(":")[0]].append({item_key.replace(":", "_"): item_value})
                 else:
                     if type(item_value) is str:
-                        reCreate[item_key.split(":")[0]] = [
-                            {item_key.replace(":", "_"): item_value}
-                        ]
+                        reCreate[item_key.split(":")[0]] = [{item_key.replace(":", "_"): item_value}]
                     else:
-                        reCreate[item_key.split(":")[0]] = [
-                            {item_key.replace(":", "_"): item_value}
-                        ]
+                        reCreate[item_key.split(":")[0]] = [{item_key.replace(":", "_"): item_value}]
                 if item_key.split(":")[0] not in struct_keys:
                     text_elements.append(item_key.split(":")[0])
                     textAttr.append(item_key.replace(":", "_"))
@@ -269,9 +230,7 @@ def restructure(data, struct_keys):
 # Add corpus and update mode structure
 def updateModeStructure(corpus, mode):
     for i in mode:
-        with open(
-            config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "r"
-        ) as filename:
+        with open(config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "r") as filename:
             modeData = yaml.safe_load(filename)
             # create path if doesn't exist
         if "folder" in i.keys():
@@ -286,9 +245,7 @@ def updateModeStructure(corpus, mode):
 
         if modeData:
             # update mode structure
-            with open(
-                config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "w"
-            ) as filename:
+            with open(config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "w") as filename:
                 yaml.safe_dump(modeData, filename)
             return True
 
@@ -363,18 +320,14 @@ def reverseFix(modeData, path, corpus):
 
 def createMode(newModes, currentModes):
     for i in newModes:
-        with open(
-            config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "w"
-        ) as filename:
+        with open(config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "w") as filename:
             yaml.dump(
                 {"translation_name": {"swe": i["name"], "eng": i["name"]}},
                 filename,
                 sort_keys=False,
             )
 
-        with open(
-            config.settings_dir + "/modes/" + i["name"] + ".yaml", "w"
-        ) as filename:
+        with open(config.settings_dir + "/modes/" + i["name"] + ".yaml", "w") as filename:
             yaml.dump(
                 {
                     i["name"]: {
@@ -400,7 +353,6 @@ def createMode(newModes, currentModes):
 
 
 def main(corpus_name):
-
     # Mode data ex. {"default" : {"name" : "default", "label" :  {"swe" : Moderna, "eng" :  "Modern"}}}
     with open(config.settings_dir + "/all_modes.yaml", "r") as file:
         currentModes = yaml.safe_load(file)
@@ -410,9 +362,7 @@ def main(corpus_name):
         data = yaml.load(file, Loader=SafeLoader)
 
     # Check if the corpud_id.yaml exists in corpora
-    if os.path.exists(
-        config.settings_dir + "/corpora/" + data["corpus_id"] + ".yaml"
-    ):
+    if os.path.exists(config.settings_dir + "/corpora/" + data["corpus_id"] + ".yaml"):
         pass
     else:
         xyz = ""

@@ -55,9 +55,7 @@ class CreateIndex:
                     word_attributes.append(attr)
         # print(word_attributes)
 
-        for node_name, attributes in corpus_config["analyze_config"][
-            "struct_attributes"
-        ].items():
+        for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
             for attr_name in attributes:
                 for attr_type, attr in attr_name.items():
                     if type(attr) is str:
@@ -224,9 +222,7 @@ class CreateIndex:
                 "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
             },
         )
-        self.es.indices.forcemerge(
-            index=(index_name or self.alias) + "," + self.alias + "_terms"
-        )
+        self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")
         self.set_refresh_interval(index_name, "1s")
         self.set_refresh_interval(index_name, -1)
 

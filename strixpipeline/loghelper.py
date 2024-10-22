@@ -69,15 +69,11 @@ def setup_pipeline_logging(task_name):
 
     file_name = task_name + "__" + datetime.now().strftime(date_format)
 
-    fh = logging.FileHandler(
-        "logs/pipeline-" + file_name, mode="w", encoding="UTF-8", delay=True
-    )
+    fh = logging.FileHandler("logs/pipeline-" + file_name, mode="w", encoding="UTF-8", delay=True)
     fh.setLevel(log_level)
     fh.setFormatter(formatter)
 
-    errh = logging.FileHandler(
-        "logs/pipeline-err-" + file_name, mode="w", encoding="UTF-8", delay=True
-    )
+    errh = logging.FileHandler("logs/pipeline-err-" + file_name, mode="w", encoding="UTF-8", delay=True)
     errh.setLevel(logging.ERROR)
 
     logging.root.addHandler(fh)

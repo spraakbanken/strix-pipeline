@@ -125,15 +125,9 @@ class StrixParser:
                         if self.text_attributes[new_name].get("set", False) or (
                             text_attr_value[0] == "|" and text_attr_value[-1] == "|"
                         ):
-                            text_attr_value = list(
-                                filter(bool, text_attr_value.split("|"))
-                            )
+                            text_attr_value = list(filter(bool, text_attr_value.split("|")))
                         if self.text_attributes[new_name].get("type", "") == "double":
-                            text_attr_value = (
-                                "Infinity"
-                                if text_attr_value == "inf"
-                                else text_attr_value
-                            )
+                            text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
                         self.part_attributes[new_name] = text_attr_value
                 for key, value in self.upper_level.items():
                     self.part_attributes[key] = value
@@ -143,9 +137,7 @@ class StrixParser:
                         if tag + "_" + attribute == text_attr:
                             node_name = attribute
                             new_name = text_attr
-                        elif tag + "_" + attribute == text_attr_obj.get(
-                            "nodeName", None
-                        ):
+                        elif tag + "_" + attribute == text_attr_obj.get("nodeName", None):
                             node_name = attribute
                             new_name = text_attr
                         else:
@@ -155,15 +147,9 @@ class StrixParser:
                         if self.text_attributes[new_name].get("set", False) or (
                             text_attr_value[0] == "|" and text_attr_value[-1] == "|"
                         ):
-                            text_attr_value = list(
-                                filter(bool, text_attr_value.split("|"))
-                            )
+                            text_attr_value = list(filter(bool, text_attr_value.split("|")))
                         if self.text_attributes[new_name].get("type", "") == "double":
-                            text_attr_value = (
-                                "Infinity"
-                                if text_attr_value == "inf"
-                                else text_attr_value
-                            )
+                            text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
                         self.upper_level[new_name] = text_attr_value
         elif tag == "token":
             self.in_word = True
@@ -241,9 +227,7 @@ class StrixParser:
                         self.part_attributes["year"] = date_from + ", " + date_to
 
                 for key, val in self.part_attributes.items():
-                    if key in self.text_attributes and self.text_attributes[key].get(
-                        "index", True
-                    ):
+                    if key in self.text_attributes and self.text_attributes[key].get("index", True):
                         current_part["text_" + key] = val
                 current_part["text_attributes"] = self.part_attributes
 
@@ -256,9 +240,7 @@ class StrixParser:
 
             current_part["word_count"] = len(self.current_part_tokens)
 
-            current_part["text"] = mappingutil.token_separator.join(
-                map(lambda x: x["token"], self.current_part_tokens)
-            )
+            current_part["text"] = mappingutil.token_separator.join(map(lambda x: x["token"], self.current_part_tokens))
 
             for key in self.all_word_level_annotations:
                 res = mappingutil.token_separator.join(
@@ -277,9 +259,7 @@ class StrixParser:
                     [
                         key + " (" + str(value) + ")"
                         for key, value in dict(
-                            Counter(
-                                [i for i in self.ner_tags if len(i) > 3]
-                            ).most_common(10)
+                            Counter([i for i in self.ner_tags if len(i) > 3]).most_common(10)
                         ).items()
                     ]
                 )
@@ -292,9 +272,7 @@ class StrixParser:
                     [
                         key + " (" + str(value) + ")"
                         for key, value in dict(
-                            Counter(
-                                [i for i in self.most_common_words if len(i) > 3]
-                            ).most_common(20)
+                            Counter([i for i in self.most_common_words if len(i) > 3]).most_common(20)
                         ).items()
                     ]
                 )
@@ -313,15 +291,8 @@ class StrixParser:
             self.all_word_level_annotations = set()
             # self.start_tag = ""
         elif tag in self.struct_annotations:
-            if (
-                tag == "sentence"
-                and self.current_struct_annotations[tag]["attrs"]["_geocontext"] != "|"
-            ):
-                self.geo_locations.extend(
-                    self.current_struct_annotations[tag]["attrs"]["_geocontext"].split(
-                        "|"
-                    )[1:-1]
-                )
+            if tag == "sentence" and self.current_struct_annotations[tag]["attrs"]["_geocontext"] != "|":
+                self.geo_locations.extend(self.current_struct_annotations[tag]["attrs"]["_geocontext"].split("|")[1:-1])
             # at close we go thorugh each <w>-tag in the structural element and
             # assign the length (which can't be known until the element closes)
             # TODO do this once for ALL structural elements to avoid editing each token more than one
@@ -339,9 +310,7 @@ class StrixParser:
                     annotation_name = annotation["name"]
                     if "nodeName" in annotation:
                         annotation_value = []
-                        for lemma in self.word_attrs.get(annotation["nodeName"]).split(
-                            "|"
-                        ):
+                        for lemma in self.word_attrs.get(annotation["nodeName"]).split("|"):
                             if lemma and (":" not in lemma):
                                 annotation_value.append(lemma)
                             elif lemma and (":" in lemma):
@@ -355,9 +324,7 @@ class StrixParser:
                     else:
                         annotation_value = self.word_attrs.get(annotation_name)
                     if annotation.get("set", False) or annotation.get("ranked", False):
-                        annotation_value = list(
-                            filter(bool, annotation_value.split("|"))
-                        )
+                        annotation_value = list(filter(bool, annotation_value.split("|")))
                     if annotation.get("ranked", False):
                         values = [v.split(":")[0] for v in annotation_value]
                         annotation_value = values[0] if values else None
@@ -377,9 +344,7 @@ class StrixParser:
                         annotations["start_pos"] = self.token_count
                         struct_annotations[tag_name]["is_start"] = True
                     struct_annotations[tag_name]["start_wid"] = annotations["start_wid"]
-                    annotations["length"] = (
-                        self.token_count - annotations["start_pos"] + 1
-                    )
+                    annotations["length"] = self.token_count - annotations["start_pos"] + 1
 
                     if "attrs" in annotations:
                         for annotation_name, v in annotations["attrs"].items():
@@ -392,18 +357,14 @@ class StrixParser:
                 all_data.update(struct_data)
 
                 if "ne_name" in struct_data.keys():
-                    if struct_data["ne_type"] != "MSR" and (
-                        struct_data["ne_type"] != "TME"
-                    ):
+                    if struct_data["ne_type"] != "MSR" and (struct_data["ne_type"] != "TME"):
                         self.ner_tags.append(struct_data["ne_name"])
 
                 str_attrs = {}
                 for attr, v in sorted(all_data.items()):
                     if isinstance(v, list):
                         v = (
-                            mappingutil.set_delimiter
-                            + mappingutil.set_delimiter.join(v)
-                            + mappingutil.set_delimiter
+                            mappingutil.set_delimiter + mappingutil.set_delimiter.join(v) + mappingutil.set_delimiter
                             if len(v) > 0
                             else mappingutil.set_delimiter
                         )
@@ -430,9 +391,7 @@ class StrixParser:
                 if self.add_most_common_words and token_data["pos"] == "NN":
                     if "lemma" in token_data:
                         annotation_value = [
-                            lemma
-                            for lemma in token_data["lemma"]
-                            if ":" not in lemma and ("--" not in lemma)
+                            lemma for lemma in token_data["lemma"] if ":" not in lemma and ("--" not in lemma)
                         ]
                     else:
                         annotation_value = [
@@ -452,10 +411,7 @@ class StrixParser:
         else:
             if tag_value == "token":
                 whitespaces = (
-                    self.word_attrs.get("_tail", "")
-                    .replace("\\s", " ")
-                    .replace("\\n", "y")
-                    .replace("\\t", "x")
+                    self.word_attrs.get("_tail", "").replace("\\s", " ").replace("\\n", "y").replace("\\t", "x")
                 )
                 whitespaces = whitespaces.replace("x", "").replace("y", "\n")
                 for ws in whitespaces:
