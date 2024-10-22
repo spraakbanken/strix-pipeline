@@ -257,7 +257,7 @@ def do_vector_generation(corpus, vector_generation_type):
         # run document vector generation
         os.system(f"ssh {server} ./run_transformers.sh {corpus}")
         # move files back to source
-        os.system(f"scp -r {os.path.join(vector_server_data_dir, corpus)} {text_dir}")
+        os.system(f"scp -r {os.path.join(vector_server_data_dir, corpus, 'vectors')} {text_dir}")
     else:
         os.system(f"./run_transformers.sh {corpus} {text_dir}")
 
