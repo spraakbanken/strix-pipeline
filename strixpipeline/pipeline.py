@@ -302,14 +302,18 @@ def do_delete(corpus):
 
 def do_add_vector_data(corpus):
     files = glob.glob(os.path.join(config.transformers_postprocess_dir, f"{corpus}/vectors/*"))
+    count = 0
     for file in files:
         with open(file) as fp:
             for line in fp:
                 [doc_id, vector] = json.loads(line)
                 # TODO slow to first get the document and then update it
                 s = Search(index=corpus, using=es)
-                s.query(Q("term", doc_id=doc_id))
+                s = s.query(Q("term", doc_id=doc_id))
                 for hit in s.execute():
+                    _logger.info(f"Adding document vectors for {doc_id} ({count})")
                     es_doc_id = hit.meta.id
                     es.update(index=corpus, id=es_doc_id, body={"doc": {"sent_vector": vector}})
+                    count += 1
+                    break
     merge_indices(corpus)
