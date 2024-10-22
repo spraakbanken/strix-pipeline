@@ -27,54 +27,6 @@ class InsertData:
         self.index = index
         self.corpus_conf = config.corpusconf.get_corpus_conf(self.index)
 
-    def get_id_func(self):
-        """
-        the supported strategies for "document_id" are:
-        - "filename" - use the filename / task id. Each file must contain only
-          one document for this to work.
-        - "generated" - generate a new id for each document, this will be removed when
-          all texts have IDs
-        - attribute name - Use an attribute in the document s.a. "title" or "_id"
-          The attribute must be a configured text-attribute, but can be ignored for insertion.
-        """
-        id_strategy = self.corpus_conf["document_id"]
-        if id_strategy == "filename":
-
-            def task_id_fun(task_id, _):
-                return task_id
-
-            get_id = task_id_fun
-        elif id_strategy == "generated":
-
-            def generated_id(_, __):
-                return uuid.uuid4()
-
-            get_id = generated_id
-        else:
-            found = False
-            for text_attr in self.corpus_conf["analyze_config"]["text_attributes"]:
-                for text_att, text_at in text_attr.items():
-                    if text_at == id_strategy:
-                        found = True
-            if not found:
-                raise ValueError('"' + id_strategy + '" is not a text attribute, not possible to use for IDs')
-            if "document_id_hash" in self.corpus_conf and self.corpus_conf["document_id_hash"]:
-
-                def attribute_id(_, text):
-                    m = hashlib.md5()
-                    m.update(text["text_attributes"][id_strategy].encode("utf-8"))
-                    return str(int(m.hexdigest(), 16))[0:12]
-            else:
-
-                def attribute_id(_, text):
-                    if "_id" in text["text_attributes"]:
-                        return text["text_attributes"][id_strategy]
-                    else:
-                        return uuid.uuid4()
-
-            get_id = attribute_id
-        return get_id
-
     def prepare_urls(self):
         urls = []
         tot_size = 0
@@ -157,13 +109,12 @@ class InsertData:
 
         tasks = []
         terms = []
-        get_id = self.get_id_func()
 
         file_name = os.path.basename(file_path)
         transformer_input = []
         for text in texts:
             text["mode_id"] = self.corpus_conf["mode_id"]
-            doc_id = get_id(task_id, text)
+            doc_id = text["text_attributes"]["_id"]
             text["doc_id"] = doc_id
             self.generate_title(text, text_attributes)
             text["corpus_id"] = self.index
