@@ -331,6 +331,10 @@ def do_delete(corpus):
         es.indices.delete(index=index)
         _logger.info("Done deleting index")
 
+    remove_config_file(corpus)
+
+
+def remove_config_file(corpus):
     settings_dir = config.settings_dir
     fname = os.path.join(settings_dir, f"corpora/{corpus}.yaml")
     if os.path.isfile(fname):

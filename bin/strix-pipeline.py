@@ -39,7 +39,18 @@ if __name__ == "__main__":
 
     def do_generate_vector_data(args):
         corpus = args.corpus
+
+        # if corpus do not already exist, add config file and reload config for parsing code to work
+        remove_after = False
+        if not config.corpusconf.is_corpus(corpus):
+            sparv_decoder.main(corpus)
+            config.create_corpus_config()
+            remove_after = True
         pipeline.do_vector_generation(corpus, args.vector_generation_type)
+
+        if remove_after:
+            # if corpus did not exist before generate vectors, remove it again
+            pipeline.remove_config_file(corpus)
 
     def do_delete(args):
         corpus = args.corpus
