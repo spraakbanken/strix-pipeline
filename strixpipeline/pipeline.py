@@ -7,6 +7,7 @@ import multiprocessing
 import elasticsearch
 import elasticsearch.helpers
 import elasticsearch.exceptions
+from elasticsearch import serializer, exceptions
 from pathlib import Path
 
 from strixpipeline import xmlparser
@@ -17,8 +18,33 @@ import strixpipeline.runhistory
 import logging
 import datetime
 import os
+import orjson
 
-es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500, retry_on_timeout=True)
+
+class ORJSONSerializer(serializer.JSONSerializer):
+    """Custom serializer using orjson."""
+
+    def dumps(self, data):
+        """Serialize data using orjson."""
+        if not isinstance(data, (dict, list)):
+            raise exceptions.SerializationError(f"Cannot serialize {type(data)}. Must be dict or list.")
+        try:
+            return orjson.dumps(data).decode("utf-8")
+        except Exception as e:
+            raise exceptions.SerializationError(f"Orjson serialization error: {e}")
+
+    def loads(self, s):
+        """Deserialize data using orjson."""
+        try:
+            return orjson.loads(s)
+        except Exception as e:
+            raise exceptions.SerializationError(f"Orjson deserialization error: {e}")
+
+
+es = elasticsearch.Elasticsearch(
+    config.elastic_hosts, timeout=500, retry_on_timeout=True, serializer=ORJSONSerializer()
+)
+
 
 _logger = logging.getLogger(__name__)
 
