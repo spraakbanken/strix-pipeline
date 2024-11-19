@@ -1,5 +1,5 @@
-import glob
 import json
+import sys
 import time
 from concurrent import futures
 import multiprocessing
@@ -7,7 +7,6 @@ import multiprocessing
 import elasticsearch
 import elasticsearch.helpers
 import elasticsearch.exceptions
-from elasticsearch_dsl import Search, Q
 from pathlib import Path
 
 from strixpipeline import xmlparser
@@ -16,14 +15,8 @@ import strixpipeline.insertdata as insert_data_strix
 import strixpipeline.createindex as create_index_strix
 import strixpipeline.runhistory
 import logging
-import queue
 import datetime
 import os
-
-QUEUE_SIZE = config.concurrency_queue_size
-MAX_UPLOAD_WORKERS = config.concurrency_upload_threads
-GROUP_SIZE = config.concurrency_group_size
-MAX_GROUP_SIZE_KB = 250 * 1024
 
 es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500, retry_on_timeout=True)
 
@@ -62,146 +55,39 @@ def partition_tasks(task_queue, num_tasks):
         yield (current_tasks, current_size, work_size_accu)
 
 
-def process_task(insert_data, task_queue, size, process_args):
+def process_task(insert_data, size, process_args):
     _task_id = process_args[1]
 
     try:
         (tasks, delta_t) = insert_data.process(*process_args)
     except Exception:
         _logger.exception("Failed to process %s" % _task_id)
-        tasks = []
-        delta_t = -1
+        sys.exit()
 
     try:
-        task_queue.put((tasks, delta_t, size), block=True)
-
-        if tasks:
-            _logger.info("Processed id: %s, took %0.1fs" % (_task_id, delta_t))
-        else:
-            _logger.error("Did not process id: %s" % _task_id)
-    except queue.Full:
-        _logger.exception("queue.put exception")
-        raise
-
-
-def process(task_queue, insert_data, task_data):
-    executor = futures.ProcessPoolExecutor(max_workers=min(multiprocessing.cpu_count(), 16))
-
-    assert len(task_data)
-    _logger.info("Scheduling %s tasks..." % len(task_data))
-    for task_type, task_id, size, task in task_data:
-        task_args = (task_type, task_id, task)
-        executor.submit(process_task, insert_data, task_queue, size, task_args)
-
-
-def get_content_of_bulk(task_chunk):
-    docs = set()
-    for task in task_chunk:
-        if task["_index"].endswith("_terms"):
-            doc_id = task["doc_id"]
-        else:
-            if "_source" in task and "doc_id" in task["_source"]:
-                doc_id = task["_source"]["doc_id"]
-            elif "_id" in task:
-                doc_id = task["_id"]
-            else:
-                doc_id = "unknown"
-
-        docs.add(doc_id)
-    return docs
-
-
-def upload_executor(task_queue, tot_size, num_tasks):
-    _logger.info("Starting upload executor process")
-    with futures.ThreadPoolExecutor(max_workers=MAX_UPLOAD_WORKERS) as executor:
-
-        def grouper(max_group_size, tasks):
-            current_group_length = 0
-            current_group_size = 0
-            current_group = []
-            while True:
-                try:
-                    (task, task_size, accu_size) = next(tasks)
-                    if current_group_size + task_size > MAX_GROUP_SIZE_KB or current_group_length == max_group_size:
-                        yield current_group
-                        current_group = []
-                        current_group_size = 0
-                        current_group_length = 0
-
-                    current_group.append((task, accu_size))
-                    current_group_length += 1
-                    current_group_size += task_size
-                except StopIteration:
-                    yield current_group
-                    break
-
-        chunk_iter = partition_tasks(task_queue, num_tasks)
-
-        grouped_chunks = grouper(GROUP_SIZE, chunk_iter)
-
-        for chunks in grouped_chunks:
-            future_map = {}
-            chunks = filter(bool, chunks)
-
-            for task_chunk, size in chunks:
-                if not task_chunk:
-                    continue
-                # TODO: this bulk_insert should be replaced with
-                # elasticsearch.helpers.streaming_bulk which should allow for getting
-                # rid of the rather complex bulk packet size calculations in this method.
-                future = executor.submit(bulk_insert, task_chunk)
-                future_map[future] = size
-            _logger.info("------------------")
-            for future in futures.as_completed(future_map):
-                size_accu = future_map.pop(future)
-                if future.exception() is None:
-                    chunk_len, t, error_obj = future.result()
-                    if not error_obj:
-                        _logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (chunk_len, t))
-                    else:
-                        _logger.error("Failed bulk upload of a chunk.")
-                        _logger.error(
-                            "The following documents need to be deleted and added again (terms and document):"
-                        )
-                        docs, exception = error_obj
-                        for doc_id in docs:
-                            _logger.error(doc_id)
-                        _logger.error(exception)
-                else:
-                    try:
-                        raise future.exception() from None
-                    except Exception:
-                        _logger.exception("Failed bulk upload of a chunk.")
-                if tot_size > 0:
-                    _logger.info("%.1f%%" % (100 * (size_accu / tot_size)))
-                    _logger.info("------------------")
-
-
-def bulk_insert(tasks):
-    insert_t = time.time()
-    error_obj = None
-    try:
-        size = len(tasks)
-        _logger.info(f"Doing bulk insert on {size} documents")
-        elasticsearch.helpers.bulk(es, tasks)
+        count = 0
+        res = elasticsearch.helpers.streaming_bulk(es, tasks)
+        for _ in res:
+            count += 1
+        _logger.info(f"Added {count} documents to index")
     except Exception as e:
-        _logger.exception("Error in bulk upload")
-        error_obj = get_content_of_bulk(tasks), e
-    return len(tasks), time.time() - insert_t, error_obj
+        _logger.exception(e)
+        sys.exit()
+
+    _logger.info("Processed id: %s, took %0.1fs" % (_task_id, delta_t))
 
 
 def process_corpus(index):
     t = time.time()
     insert_data = insert_data_strix.InsertData(index)
-
     task_data, tot_size = insert_data.prepare_urls()
 
-    from multiprocessing import Manager
-
-    with Manager() as manager:
-        task_queue = manager.Queue(maxsize=QUEUE_SIZE)
-        process(task_queue, insert_data, task_data)
-        upload_executor(task_queue, tot_size, len(task_data))
+    with futures.ProcessPoolExecutor(max_workers=min(multiprocessing.cpu_count(), 16)) as executor:
+        assert len(task_data)
+        _logger.info("Scheduling %s tasks..." % len(task_data))
+        for task_type, task_id, size, task in task_data:
+            task_args = (task_type, task_id, task)
+            executor.submit(process_task, insert_data, size, task_args)
 
     _logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))
 
@@ -224,10 +110,6 @@ def do_run(index):
         {
             "index": index,
             "total_time": total_t,
-            "group_size": GROUP_SIZE,
-            "queue_size": QUEUE_SIZE,
-            "upload_threads": MAX_UPLOAD_WORKERS,
-            "max_group_size": MAX_GROUP_SIZE_KB,
             "elastic_hosts": config.elastic_hosts,
             "timestamp": datetime.datetime.now(),
         }

@@ -8,10 +8,6 @@ base_dir: .
 # transformers_postprocess_dir: "/home/strix/transformers_data"
 # transformers_postprocess_server_dir: "/var/tmp/strix/data"
 
-# concurrency settings
-concurrency_upload_threads: 10
-concurrency_queue_size: 20
-concurrency_group_size: 20
 
 # index settings
 number_of_shards: 1
