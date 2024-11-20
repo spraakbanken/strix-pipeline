@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+import json
+import sys
 import time
 from concurrent import futures
 import multiprocessing
@@ -6,20 +7,44 @@ import multiprocessing
 import elasticsearch
 import elasticsearch.helpers
 import elasticsearch.exceptions
+from elasticsearch import serializer, exceptions
+from pathlib import Path
+
+from strixpipeline import xmlparser
 from strixpipeline.config import config
 import strixpipeline.insertdata as insert_data_strix
 import strixpipeline.createindex as create_index_strix
 import strixpipeline.runhistory
 import logging
-import queue
 import datetime
+import os
+import orjson
 
-QUEUE_SIZE = config.concurrency_queue_size
-MAX_UPLOAD_WORKERS = config.concurrency_upload_threads
-GROUP_SIZE = config.concurrency_group_size
-MAX_GROUP_SIZE_KB = 250 * 1024
 
-es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=500, retry_on_timeout=True)
+class ORJSONSerializer(serializer.JSONSerializer):
+    """Custom serializer using orjson."""
+
+    def dumps(self, data):
+        """Serialize data using orjson."""
+        if not isinstance(data, (dict, list)):
+            raise exceptions.SerializationError(f"Cannot serialize {type(data)}. Must be dict or list.")
+        try:
+            return orjson.dumps(data).decode("utf-8")
+        except Exception as e:
+            raise exceptions.SerializationError(f"Orjson serialization error: {e}")
+
+    def loads(self, s):
+        """Deserialize data using orjson."""
+        try:
+            return orjson.loads(s)
+        except Exception as e:
+            raise exceptions.SerializationError(f"Orjson deserialization error: {e}")
+
+
+es = elasticsearch.Elasticsearch(
+    config.elastic_hosts, timeout=500, retry_on_timeout=True, serializer=ORJSONSerializer()
+)
+
 
 _logger = logging.getLogger(__name__)
 
@@ -56,238 +81,172 @@ def partition_tasks(task_queue, num_tasks):
         yield (current_tasks, current_size, work_size_accu)
 
 
-def process_task(insert_data, task_queue, size, process_args):
+def process_task(insert_data, size, process_args):
     _task_id = process_args[1]
 
     try:
         (tasks, delta_t) = insert_data.process(*process_args)
     except Exception:
         _logger.exception("Failed to process %s" % _task_id)
-        tasks = []
-        delta_t = -1
+        sys.exit()
 
     try:
-        task_queue.put((tasks, delta_t, size), block=True)
-
-        if tasks:
-            _logger.info("Processed id: %s, took %0.1fs" % (_task_id, delta_t))
-        else:
-            _logger.error("Did not process id: %s" % _task_id)
-    except queue.Full:
-        _logger.exception("queue.put exception")
-        raise
-
-
-def process(task_queue, insert_data, task_data, corpus_data, limit_to=None):
-    executor = futures.ProcessPoolExecutor(max_workers=min(multiprocessing.cpu_count(), 16))
-    number_of_task = 1
-    if limit_to:
-        task_data = task_data[:limit_to]
-    assert number_of_task
-    _logger.info("Scheduling %s tasks..." % number_of_task)
-    task_type = task_data[0]
-    task_id = task_data[1]
-    size = task_data[2]
-    task = task_data[3]
-    task_args = (task_type, task_id, task, corpus_data)
-    executor.submit(process_task, insert_data, task_queue, size, task_args)
-    # for (task_type, task_id, size, task) in task_data:
-    #     task_args = (task_type, task_id, task, corpus_data)
-    #     executor.submit(process_task, insert_data, task_queue, size, task_args)
-
-
-def get_content_of_bulk(task_chunk):
-    docs = {}
-    files = set()
-    for task in task_chunk:
-        if task["_index"].endswith("_terms"):
-            doc_type = task["doc_type"]
-            doc_id = task["doc_id"]
-        else:
-            doc_type = "text"
-            if "_source" in task and "doc_id" in task["_source"]:
-                doc_id = task["_source"]["doc_id"]
-            elif "_id" in task:
-                doc_id = task["_id"]
-            else:
-                doc_id = "unknown"
-
-        if doc_type not in docs:
-            docs[doc_type] = set()
-
-        docs[doc_type].add(doc_id)
-
-    return docs, files
-
-
-def upload_executor(task_queue, tot_size, num_tasks):
-
-    with futures.ThreadPoolExecutor(max_workers=MAX_UPLOAD_WORKERS) as executor:
-
-        def grouper(max_group_size, tasks):
-            current_group_length = 0
-            current_group_size = 0
-            current_group = []
-            while True:
-                try:
-                    (task, task_size, accu_size) = next(tasks)
-                    if current_group_size + task_size > MAX_GROUP_SIZE_KB or current_group_length == max_group_size:
-                        yield current_group
-                        current_group = []
-                        current_group_size = 0
-                        current_group_length = 0
-
-                    current_group.append((task, accu_size))
-                    current_group_length += 1
-                    current_group_size += task_size
-                except StopIteration:
-                    yield current_group
-                    break
-
-        chunk_iter = partition_tasks(task_queue, num_tasks)
-
-        grouped_chunks = grouper(GROUP_SIZE, chunk_iter)
-
-        for chunks in grouped_chunks:
-            future_map = {}
-            chunks = filter(bool, chunks)
-
-            for (task_chunk, size) in chunks:
-                if not task_chunk:
-                    continue
-                # TODO: this bulk_insert should be replaced with
-                # elasticsearch.helpers.streaming_bulk which should allow for getting
-                # rid of the rather complex bulk packet size calculations in this method.
-                future = executor.submit(bulk_insert, task_chunk)
-                future_map[future] = size
-            _logger.info("------------------")
-            for future in futures.as_completed(future_map):
-                size_accu = future_map.pop(future)
-                if future.exception() is None:
-                    chunk_len, t, error_obj = future.result()
-                    if not error_obj:
-                        _logger.info("Bulk uploaded a chunk of length %s, took %0.1fs" % (chunk_len, t))
-                    else:
-                        _logger.error("Failed bulk upload of a chunk.")
-                        (docs, files) = error_obj
-                        if files:
-                            _logger.error("The following files need to be rerun:")
-                            for file_name in files:
-                                _logger.error(file_name)
-                        if docs:
-                            _logger.error("The following documents need to be deleted and added again (terms and document):")
-                            for doc_type, doc_ids in docs.items():
-                                for doc_id in doc_ids:
-                                    type_output = doc_type + "-" if doc_type != "text" else ""
-                                    _logger.error(type_output + doc_id)
-                else:
-                    try:
-                        raise future.exception() from None
-                    except Exception:
-                        _logger.exception("Failed bulk upload of a chunk.")
-                if tot_size > 0:
-                    _logger.info("%.1f%%" % (100 * (size_accu / tot_size)))
-                    _logger.info("------------------")
-
-
-def bulk_insert(tasks):
-    insert_t = time.time()
-    error_obj = None
-    try:
-        elasticsearch.helpers.bulk(es, tasks)
+        count = 0
+        res = elasticsearch.helpers.streaming_bulk(es, tasks)
+        for _ in res:
+            count += 1
+        _logger.info(f"Added {count} documents to index")
     except Exception as e:
-        _logger.exception("Error in bulk upload")
-        error_obj = get_content_of_bulk(tasks)
+        _logger.exception(e)
+        sys.exit()
 
-    return len(tasks), time.time() - insert_t, error_obj
+    _logger.info("Processed id: %s, took %0.1fs" % (_task_id, delta_t))
 
 
-def process_corpus(index, limit_to=None, doc_ids=()):
+def process_corpus(index):
     t = time.time()
     insert_data = insert_data_strix.InsertData(index)
+    task_data, tot_size = insert_data.prepare_urls()
 
-    task_data, tot_size = insert_data.prepare_urls(doc_ids)
+    with futures.ProcessPoolExecutor(max_workers=min(multiprocessing.cpu_count(), 16)) as executor:
+        assert len(task_data)
+        _logger.info("Scheduling %s tasks..." % len(task_data))
+        for task_type, task_id, size, task in task_data:
+            task_args = (task_type, task_id, task)
+            executor.submit(process_task, insert_data, size, task_args)
 
-    from multiprocessing import Manager
-    for i in range(len(task_data)):
-        with Manager() as manager:
-            task_queue = manager.Queue(maxsize=QUEUE_SIZE)
-            process(task_queue, insert_data, task_data[i], {}, limit_to)
-            upload_executor(task_queue, tot_size[i], 1)
-
-        _logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))
+    _logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))
 
 
-def do_run(index, doc_ids=(), limit_to=None):
+def do_run(index):
     strixpipeline.runhistory.create()
     before_t = time.time()
 
     if not config.corpusconf.is_corpus(index):
-        _logger.error("\"" + index + " is not a configured corpus.")
+        _logger.error('"' + index + " is not a configured corpus.")
         return
 
     ci = create_index_strix.CreateIndex(index)
     ci.enable_insert_settings()
-    process_corpus(index, limit_to=limit_to, doc_ids=doc_ids)
+    process_corpus(index)
     ci.enable_postinsert_settings()
 
     total_t = time.time() - before_t
-    strixpipeline.runhistory.put({
-        "index": index,
-        "total_time": total_t,
-        "doc_ids": doc_ids,
-        "limit_to": limit_to,
-        "group_size": GROUP_SIZE,
-        "queue_size": QUEUE_SIZE,
-        "upload_threads": MAX_UPLOAD_WORKERS,
-        "max_group_size": MAX_GROUP_SIZE_KB,
-        "elastic_hosts": config.elastic_hosts,
-        "timestamp": datetime.datetime.now()
-    })
-
-
-def remove_by_filename(index, filenames):
-    """
-    Assumes texts have type "text" and fields "original_file" and "doc_id"
-    """
-    query = {
-        "query": {
-            "terms": {
-                "original_file": filenames
-            }
+    strixpipeline.runhistory.put(
+        {
+            "index": index,
+            "total_time": total_t,
+            "elastic_hosts": config.elastic_hosts,
+            "timestamp": datetime.datetime.now(),
         }
-    }
-
-    delete_texts_ids = set()
-    for doc in elasticsearch.helpers.scan(es, index=index, doc_type="text", query=query, _source_include=["doc_id"]):
-        doc_id = doc["_source"]["doc_id"]
-        delete_texts_ids.add(doc_id)
-    remove_by_doc_id(index, list(delete_texts_ids))
+    )
 
 
-def remove_by_doc_id(index, doc_ids):
+def check_vector_settings(corpus):
     """
-    Assumes texts have typ "text" and field "doc_id"
+    check that user has set a directory for the transformers data and create directory structure
     """
-    if not doc_ids:
-        _logger.info("Nothing to delete")
-        return
+    if not config.has_attr("transformers_postprocess_dir"):
+        _logger.error("transformers_postprocess_dir not set in config")
+    Path(os.path.join(config.transformers_postprocess_dir, corpus, "texts")).mkdir(parents=True, exist_ok=True)
 
-    query = {
-        "query": {
-            "terms": {
-                "doc_id": doc_ids
-            }
-        }
-    }
 
-    _logger.info("Deleting doc_ids: " + ",".join(doc_ids))
-    es.delete_by_query(index=index, doc_type="text", body=query, conflicts="proceed")
-    es.delete_by_query(index=index + "_terms", doc_type="term", body=query, conflicts="proceed")
-    es.indices.forcemerge(index=index + "," + index + "_terms")
+def check_vectors_exist(corpus):
+    """
+    check that a non-empty vectors directory exists inside transformers_postprocess_dir
+    """
+    check_vector_settings(corpus)
+    path = Path(os.path.join(config.transformers_postprocess_dir, corpus, "vectors"))
+    return path.is_dir() and any(f.is_file() for f in path.iterdir())
+
+
+def do_vector_generation(corpus, vector_generation_type):
+    """
+    First parse the XML:s and extract the text, save it into files
+    Then run the document vector generation, either local or remote (vector_generation_type)
+    If "transformers_postprocess_server" is set, pipeline will move files from previous run of <corpus>
+    to "transformers_postprocess_server_dir" on the given server and run a script on the server
+    If "transformers_postprocess_server" is *not* set, it will simply call "./run_transformers.sh" and it is up
+    to the user to create and maintain this file
+    """
+    check_vector_settings(corpus)
+
+    insert_data = insert_data_strix.InsertData(corpus)
+    task_data, tot_size = insert_data.prepare_urls()
+
+    corpus_conf = config.corpusconf.get_corpus_conf(corpus)
+    split_document = corpus_conf.get("split", "text")
+    text_tags = corpus_conf.get("text_tags")
+
+    text_attributes = {"_id": {}}
+
+    for task_type, task_id, size, task in task_data:
+        transformer_input = []
+        file_path = task["text"]
+        for text in xmlparser.parse_pipeline_xml(
+            file_path, split_document, {}, text_attributes=text_attributes, text_tags=text_tags
+        ):
+            doc_id = text["text_attributes"]["_id"]
+            transformer_input.append([doc_id, " ".join(text["dump"]).replace("\n", "")])
+        with open(os.path.join(config.transformers_postprocess_dir, corpus, f"texts/{task_id}.jsonl"), "w") as fp:
+            for text in transformer_input:
+                fp.write(f"{json.dumps(text, ensure_ascii=False)}\n")
+
+    text_dir = os.path.join(config.transformers_postprocess_dir, f"{corpus}")
+    if vector_generation_type == "remote":
+        if not config.has_attr("transformers_postprocess_server"):
+            raise RuntimeError(
+                "Add transformers_postprocess_server and transformers_postprocess_server_dir to run on remote"
+            )
+        server = config.transformers_postprocess_server
+        vector_server_data_dir = f"{server}:{config.transformers_postprocess_server_dir}"
+        # move files to server
+        os.system(f"scp -r {text_dir} {vector_server_data_dir}")
+        # run document vector generation
+        os.system(f"ssh {server} ./run_transformers.sh {corpus}")
+        # move files back to source
+        os.system(f"scp -r {os.path.join(vector_server_data_dir, corpus, 'vectors')} {text_dir}")
+    else:
+        os.system(f"./run_transformers.sh {corpus} {text_dir}")
 
 
 def merge_indices(index):
     _logger.info("Merging segments")
     es.indices.forcemerge(index=index + "," + index + "_terms", max_num_segments=1, request_timeout=10000)
     _logger.info("Done merging segments")
+
+
+def _get_indices_from_alias(alias_name):
+    aliases = es.cat.aliases(name=[alias_name + "*"], format="json")
+
+    alias_exist = False
+    index_names = []
+    for alias in aliases:
+        if alias["alias"] in [alias_name, f"{alias_name}_terms"]:
+            alias_exist = True
+            index_names.append(alias["index"])
+
+    if not alias_exist:
+        _logger.info(f'Alias "{alias_name}", does not exist')
+    return index_names
+
+
+def do_delete(corpus):
+    # We expect that an alias only points to *one* index, but if it points to multiple, just remove all of them
+    main_indices = _get_indices_from_alias(corpus)
+    for index in main_indices:
+        _logger.info(f"Deleting index: {index}")
+        es.indices.delete(index=index)
+        _logger.info("Done deleting index")
+
+    remove_config_file(corpus)
+
+
+def remove_config_file(corpus):
+    settings_dir = config.settings_dir
+    fname = os.path.join(settings_dir, f"corpora/{corpus}.yaml")
+    if os.path.isfile(fname):
+        _logger.info(f"Deleting configuration file: {fname}")
+        os.remove(fname)
+    else:
+        _logger.info(f"Corpus file: '{fname}' does not exist")

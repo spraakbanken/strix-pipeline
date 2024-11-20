@@ -10,7 +10,7 @@ Strix uses virtuals envs for python version and virtual environment management. 
 1. `pip install --upgrade pip` 
 2. `pip install -e .`
 3. `cd ..`
-4. `git clone git@github.com:spraakbanken/strix-config-configurer.git`
+4. `git clone git@github.com:spraakbanken/strix-config-reader.git`
 5. `git clone git@github.com:spraakbanken/strix-settings-sb.git`
 6. cd strix-pipeline
 7. Update `settings_dir` in `config.yml`

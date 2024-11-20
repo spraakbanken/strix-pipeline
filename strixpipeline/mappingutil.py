@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 from elasticsearch_dsl import analysis, analyzer
 
-token_separator = "\u241D"
-set_delimiter = "\u241F"
+token_separator = "\u241d"
+set_delimiter = "\u241f"
 empty_set = "\u2205"
 
 
@@ -23,12 +22,7 @@ def get_standard_analyzer():
 
 
 def token_analyzer():
-    return analyzer("word",  tokenizer=pattern_tokenizer(), filter=["lowercase"])
-
-
-def as_you_type_analyzer():
-    as_you_type_filter = analysis.token_filter("as_you_type_filter", "edge_ngram", min_gram=1, max_gram=20)
-    return analysis.analyzer("as_you_type_analyzer", tokenizer="standard", filter=["lowercase", as_you_type_filter])
+    return analyzer("word", tokenizer=pattern_tokenizer(), filter=["lowercase"])
 
 
 def pattern_tokenizer():
@@ -37,11 +31,7 @@ def pattern_tokenizer():
 
 def get_swedish_analyzer():
     stemmer = analysis.token_filter("swedish_stemmer", type="stemmer_override", rules_path="stems.txt")
-    return analyzer("swedish",  tokenizer="standard", filter=["lowercase", stemmer])
-
-
-def similarity_tags_analyzer():
-    return analysis.analyzer("similarity_tags", tokenizer="whitespace", filter=["lowercase"])
+    return analyzer("swedish", tokenizer="standard", filter=["lowercase", stemmer])
 
 
 def ranked_text_analyzer(annotation_name):

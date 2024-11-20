@@ -17,40 +17,22 @@ def get_git_commit_id():
 
 def put(obj):
     obj["git_commitid"] = get_git_commit_id()
-    es.index(index_name, obj)
+    es.index(index=index_name, document=obj)
 
 
 def create():
     mappings = {
         "properties": {
-            "elastic_hosts": {
-                "properties": {
-                    "host": {
-                        "type": "keyword"
-                    },
-                    "port": {
-                        "type": "long"
-                    }
-                }
-            },
-            "index": {
-                "type": "keyword"
-            },
-            "git_commitid": {
-                "type": "keyword"
-            }
+            "elastic_hosts": {"properties": {"host": {"type": "keyword"}, "port": {"type": "long"}}},
+            "index": {"type": "keyword"},
+            "git_commitid": {"type": "keyword"},
         }
     }
     settings = {
-        "settings": {
-            "index": {
-                "number_of_shards": 1,
-                "number_of_replicas": 1
-            }
-        },
-        "mappings": mappings
+        "settings": {"index": {"number_of_shards": 1, "number_of_replicas": 1}},
+        "mappings": mappings,
     }
-    if es.indices.exists(index_name):
+    if es.indices.exists(index=index_name):
         es.indices.put_mapping(index=index_name, body=mappings)
     else:
-        es.indices.create(index_name, body=settings)
+        es.indices.create(index=index_name, body=settings)

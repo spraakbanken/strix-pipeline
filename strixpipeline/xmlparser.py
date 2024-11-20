@@ -1,28 +1,22 @@
-# xmlparser
-# coding=utf-8
-import os
 import re
 import xml.etree.cElementTree as etree
-from strixpipeline.config import config
 import strixpipeline.mappingutil as mappingutil
 from collections import Counter
-import json
-
-os.environ["PYTHONIOENCODING"] = "utf_8"
 
 
-def parse_pipeline_xml(file_name,
-                       split_document,
-                       word_annotations,
-                       struct_annotations=(),
-                       token_count_id=False,
-                       text_attributes=None,
-                       process_token=lambda x: None,
-                       add_similarity_tags=False,
-                       save_whitespace_per_token=False,
-                       plugin=None,
-                       pos_index_attributes=(),
-                       text_tags=None):
+def parse_pipeline_xml(
+    file_name,
+    split_document,
+    word_annotations,
+    struct_annotations=(),
+    token_count_id=False,
+    text_attributes=None,
+    process_token=lambda x: None,
+    add_most_common_words=False,
+    save_whitespace_per_token=False,
+    pos_index_attributes=(),
+    text_tags=None,
+):
     """
     split_document: everything under this node will go into separate documents
     word_annotations: a map of tag names and the attributes of those tags that
@@ -32,7 +26,18 @@ def parse_pipeline_xml(file_name,
         text_attributes = {}
     if text_tags is None:
         text_tags = []
-    strix_parser = StrixParser(split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin, pos_index_attributes, text_tags)
+    strix_parser = StrixParser(
+        split_document,
+        word_annotations,
+        struct_annotations,
+        token_count_id,
+        text_attributes,
+        process_token,
+        add_most_common_words,
+        save_whitespace_per_token,
+        pos_index_attributes,
+        text_tags,
+    )
     iterparse_parser(file_name, strix_parser)
     res = strix_parser.get_result()
     return res
@@ -49,22 +54,32 @@ def parse_properties(annotation, in_value):
 
 
 class StrixParser:
-
-    def __init__(self, split_document, word_annotations, struct_annotations, token_count_id, text_attributes, process_token, add_similarity_tags, save_whitespace_per_token, plugin, pos_index_attributes, text_tags):
-        #input
+    def __init__(
+        self,
+        split_document,
+        word_annotations,
+        struct_annotations,
+        token_count_id,
+        text_attributes,
+        process_token,
+        add_most_common_words,
+        save_whitespace_per_token,
+        pos_index_attributes,
+        text_tags,
+    ):
+        # input
         self.split_document = split_document
         self.word_annotations = word_annotations
         self.struct_annotations = struct_annotations
         self.token_count_id = token_count_id
         self.text_attributes = text_attributes
         self.process_token = process_token
-        self.add_similarity_tags = add_similarity_tags
+        self.add_most_common_words = add_most_common_words
         self.save_whitespace_per_token = save_whitespace_per_token
-        self.plugin = plugin
         self.pos_index_attributes = pos_index_attributes
         self.text_tags = text_tags
 
-        #state
+        # state
         self.current_part_tokens = []
         self.current_word_annotations = {}
         self.all_word_level_annotations = set()
@@ -74,8 +89,9 @@ class StrixParser:
         self.dump = [""]
         self.token_count = 0
         self.lines = [[0]]
-        self.similarity_tags = []
+        self.most_common_words = []
         self.ner_tags = []
+        self.geo_locations = []
 
         self.in_word = False
         self.word_attrs = {}
@@ -88,79 +104,53 @@ class StrixParser:
         return self.current_parts
 
     def handle_starttag(self, tag, attrs):
-        if self.text_attributes and tag in self.text_tags: # tag == self.split_document:
+        if self.text_attributes and tag in self.text_tags:
             if not self.start_tag:
                 self.start_tag = tag
                 self.upper_level = {}
-            if tag == "text":
+            if tag == self.split_document:
                 self.part_attributes = {}
                 for text_attr, text_attr_obj in self.text_attributes.items():
                     for attribute in attrs:
                         if attribute == text_attr:
-                            nodeName = attribute
-                            newName = attribute
+                            node_name = attribute
+                            new_name = attribute
                         elif attribute == text_attr_obj.get("nodeName", None):
-                            nodeName = attribute
-                            newName = text_attr
+                            node_name = attribute
+                            new_name = text_attr
                         else:
                             continue
-                    
-                        text_attr_value = attrs[nodeName]
-                        if self.text_attributes[newName].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
+
+                        text_attr_value = attrs[node_name]
+                        if self.text_attributes[new_name].get("set", False) or (
+                            text_attr_value[0] == "|" and text_attr_value[-1] == "|"
+                        ):
                             text_attr_value = list(filter(bool, text_attr_value.split("|")))
-                        if self.text_attributes[newName].get("type", "") == "double":
+                        if self.text_attributes[new_name].get("type", "") == "double":
                             text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
-                        self.part_attributes[newName] = text_attr_value
+                        self.part_attributes[new_name] = text_attr_value
                 for key, value in self.upper_level.items():
                     self.part_attributes[key] = value
-            if tag != "text":
+            if tag != self.split_document:
                 for text_attr, text_attr_obj in self.text_attributes.items():
                     for attribute in attrs:
-                        if tag+"_"+attribute == text_attr:
-                            nodeName = attribute
-                            newName = text_attr
-                        elif tag+"_"+attribute == text_attr_obj.get("nodeName", None):
-                            nodeName = attribute
-                            newName = text_attr
+                        if tag + "_" + attribute == text_attr:
+                            node_name = attribute
+                            new_name = text_attr
+                        elif tag + "_" + attribute == text_attr_obj.get("nodeName", None):
+                            node_name = attribute
+                            new_name = text_attr
                         else:
                             continue
-                    
-                        text_attr_value = attrs[nodeName]
-                        if self.text_attributes[newName].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
+
+                        text_attr_value = attrs[node_name]
+                        if self.text_attributes[new_name].get("set", False) or (
+                            text_attr_value[0] == "|" and text_attr_value[-1] == "|"
+                        ):
                             text_attr_value = list(filter(bool, text_attr_value.split("|")))
-                        if self.text_attributes[newName].get("type", "") == "double":
+                        if self.text_attributes[new_name].get("type", "") == "double":
                             text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
-                        self.upper_level[newName] = text_attr_value
-
-            # # TODO: don't loop through both text attributes and XML-node attributes
-            # for text_attr, text_attr_obj in self.text_attributes.items():
-            #     for attribute in attrs:
-            #         if tag == "text":
-            #             if attribute == text_attr:
-            #                 nodeName = attribute
-            #                 newName = attribute
-            #             elif attribute == text_attr_obj.get("nodeName", None):
-            #                 nodeName = attribute
-            #                 newName = text_attr
-            #             else:
-            #                 continue
-            #         else:
-            #             if tag+"_"+attribute == text_attr:
-            #                 nodeName = attribute
-            #                 newName = text_attr
-            #             elif tag+"_"+attribute == text_attr_obj.get("nodeName", None):
-            #                 nodeName = attribute
-            #                 newName = text_attr
-            #             else:
-            #                 continue
-
-            #         text_attr_value = attrs[nodeName]
-            #         if self.text_attributes[newName].get("set", False) or (text_attr_value[0] == "|" and text_attr_value[-1] == "|"):
-            #             text_attr_value = list(filter(bool, text_attr_value.split("|")))
-            #         if self.text_attributes[newName].get("type", "") == "double":
-            #             text_attr_value = "Infinity" if text_attr_value == "inf" else text_attr_value
-            #         self.part_attributes[newName] = text_attr_value
-
+                        self.upper_level[new_name] = text_attr_value
         elif tag == "token":
             self.in_word = True
             self.word_attrs = attrs
@@ -202,40 +192,40 @@ class StrixParser:
                 self.current_word_annotations[annotation_name] = a_value
 
     def handle_endtag(self, tag):
-        if tag == "text": # self.start_tag: # self.split_document:
+        if tag == self.split_document:
             current_part = {}
             if self.text_attributes:
-                dateFrom = ''
-                dateTo = ''
-                givenDate = ''
-                if 'year' not in self.part_attributes.keys():
-                    if 'datefrom' in self.part_attributes.keys():
-                        dateFrom = self.part_attributes['datefrom'][0:4]
-                    if 'dateto' in self.part_attributes.keys():
-                        dateTo = self.part_attributes['dateto'][0:4]
-                    if 'date' in self.part_attributes.keys():
-                        givenDate = self.part_attributes['date'][0:4]
-                    elif 'datum' in self.part_attributes.keys():
-                        givenDate = self.part_attributes['datum'][0:4]
-                    elif 'topic_year' in self.part_attributes.keys():
-                        givenDate = self.part_attributes['topic_year']
-                    if not dateFrom and (not dateTo and (not givenDate)):
-                        self.part_attributes['year'] = '2050'
-                    elif givenDate:
-                        self.part_attributes['year'] = givenDate
-                    elif dateTo and not dateFrom:
-                        self.part_attributes['year'] = dateTo
-                    elif dateFrom and not dateTo:
-                        self.part_attributes['year'] = dateFrom
-                    elif dateFrom == dateTo:
-                        self.part_attributes['year'] = dateFrom
-                    elif dateFrom != dateTo and (dateFrom and (dateTo)):
-                        self.part_attributes['year'] = dateFrom + ', ' + dateTo
-                    else:
-                        pass
-                        
-                if self.plugin:
-                    self.plugin.process_text_attributes(self.part_attributes)
+                if "year" not in self.part_attributes.keys():
+                    # TODO do not augment data inside XML-parser
+                    date_from = ""
+                    date_to = ""
+                    given_date = ""
+                    if "datefrom" in self.part_attributes.keys():
+                        date_from = self.part_attributes["datefrom"][0:4]
+                    if "dateto" in self.part_attributes.keys():
+                        date_to = self.part_attributes["dateto"][0:4]
+
+                    if "date" in self.part_attributes.keys():
+                        given_date = self.part_attributes["date"][0:4]
+                    elif "datum" in self.part_attributes.keys():
+                        given_date = self.part_attributes["datum"][0:4]
+                    elif "topic_year" in self.part_attributes.keys():
+                        given_date = self.part_attributes["topic_year"]
+
+                    # TODO find permanent solution
+                    if not date_from and (not date_to and (not given_date)):
+                        self.part_attributes["year"] = "2050"
+                    elif given_date:
+                        self.part_attributes["year"] = given_date
+                    elif date_to and not date_from:
+                        self.part_attributes["year"] = date_to
+                    elif date_from and not date_to:
+                        self.part_attributes["year"] = date_from
+                    elif date_from == date_to:
+                        self.part_attributes["year"] = date_from
+                    elif date_from != date_to:
+                        self.part_attributes["year"] = date_from + ", " + date_to
+
                 for key, val in self.part_attributes.items():
                     if key in self.text_attributes and self.text_attributes[key].get("index", True):
                         current_part["text_" + key] = val
@@ -251,20 +241,41 @@ class StrixParser:
             current_part["word_count"] = len(self.current_part_tokens)
 
             current_part["text"] = mappingutil.token_separator.join(map(lambda x: x["token"], self.current_part_tokens))
+
             for key in self.all_word_level_annotations:
-                res = mappingutil.token_separator.join(map(lambda x: x.get(key, mappingutil.empty_set), self.current_part_tokens))
+                res = mappingutil.token_separator.join(
+                    map(
+                        lambda x: x.get(key, mappingutil.empty_set),
+                        self.current_part_tokens,
+                    )
+                )
                 if key == "wid":
                     current_part["wid"] = res
                 elif key in self.pos_index_attributes:
                     current_part["pos_" + key] = res
 
             if self.ner_tags:
-                current_part["ner_tags"] = ", ".join([key+" ("+str(value)+")" for key, value in dict(Counter([i for i in self.ner_tags if len(i) > 3]).most_common(10)).items()])
+                current_part["ner_tags"] = ", ".join(
+                    [
+                        key + " (" + str(value) + ")"
+                        for key, value in dict(
+                            Counter([i for i in self.ner_tags if len(i) > 3]).most_common(10)
+                        ).items()
+                    ]
+                )
 
-            if self.add_similarity_tags:
-                current_part["similarity_tags"] = " ".join(self.similarity_tags)
-                current_part["most_common_words"] = ", ".join([key+" ("+str(value)+")" for key, value in dict(Counter([i for i in self.similarity_tags if len(i) > 3]).most_common(20)).items()])
-                # current_part["most_common_words"] = " ".join(list(dict(Counter([i for i in self.similarity_tags if len(i) > 3]).most_common(50)).keys()))
+            if self.geo_locations:
+                current_part["geo_location"] = self.geo_locations
+
+            if self.add_most_common_words:
+                current_part["most_common_words"] = ", ".join(
+                    [
+                        key + " (" + str(value) + ")"
+                        for key, value in dict(
+                            Counter([i for i in self.most_common_words if len(i) > 3]).most_common(20)
+                        ).items()
+                    ]
+                )
             self.current_parts.append(current_part)
 
             self.token_count = 0
@@ -274,11 +285,19 @@ class StrixParser:
             self.current_struct_annotations = {}
             self.dump = [""]
             self.lines = [[0]]
-            self.similarity_tags = []
+            self.most_common_words = []
             self.ner_tags = []
+            self.geo_locations = []
             self.all_word_level_annotations = set()
             # self.start_tag = ""
         elif tag in self.struct_annotations:
+            # TODO _geocontext does not need to have special treatment, just add it in text_attributes if available
+            if (
+                tag == "sentence"
+                and "_geocontext" in self.current_struct_annotations[tag]["attrs"]
+                and self.current_struct_annotations[tag]["attrs"]["_geocontext"] != "|"
+            ):
+                self.geo_locations.extend(self.current_struct_annotations[tag]["attrs"]["_geocontext"].split("|")[1:-1])
             # at close we go thorugh each <w>-tag in the structural element and
             # assign the length (which can't be known until the element closes)
             # TODO do this once for ALL structural elements to avoid editing each token more than one
@@ -295,10 +314,16 @@ class StrixParser:
                 for annotation in self.word_annotations.get("token", []):
                     annotation_name = annotation["name"]
                     if "nodeName" in annotation:
-                        # annotation_value = self.word_attrs.get(annotation["nodeName"])
-                        annotation_value = [lemma for lemma in self.word_attrs.get(annotation["nodeName"]).split("|") if lemma and (":" not in lemma and ("--" not in lemma))]
+                        annotation_value = []
+                        for lemma in self.word_attrs.get(annotation["nodeName"]).split("|"):
+                            if lemma and (":" not in lemma):
+                                annotation_value.append(lemma)
+                            elif lemma and (":" in lemma):
+                                annotation_value.append(lemma.split(":")[0])
+                            else:
+                                pass
                         if annotation_value:
-                            annotation_value = annotation_value[0]
+                            annotation_value = "|".join(annotation_value)
                         else:
                             annotation_value = ""
                     else:
@@ -343,7 +368,11 @@ class StrixParser:
                 str_attrs = {}
                 for attr, v in sorted(all_data.items()):
                     if isinstance(v, list):
-                        v = mappingutil.set_delimiter + mappingutil.set_delimiter.join(v) + mappingutil.set_delimiter if len(v) > 0 else mappingutil.set_delimiter
+                        v = (
+                            mappingutil.set_delimiter + mappingutil.set_delimiter.join(v) + mappingutil.set_delimiter
+                            if len(v) > 0
+                            else mappingutil.set_delimiter
+                        )
                     if v is None:
                         v = mappingutil.empty_set
                     str_attrs[attr] = str(v)
@@ -354,19 +383,30 @@ class StrixParser:
 
                 token_lookup_data = dict(token_data)
                 token_lookup_data.update(struct_annotations)
-                self.current_token_lookup.append({"word": token, "attrs": token_lookup_data, "position": self.token_count})
+                self.current_token_lookup.append(
+                    {
+                        "word": token,
+                        "attrs": token_lookup_data,
+                        "position": self.token_count,
+                    }
+                )
 
                 self.token_count += 1
 
-                if self.add_similarity_tags and token_data["pos"] == "NN":
+                if self.add_most_common_words and token_data["pos"] == "NN":
                     if "lemma" in token_data:
-                        annotation_value = [lemma for lemma in token_data["lemma"] if ":" not in lemma and ("--" not in lemma)]
-                        # annotation_value = token_data["lemma"]
+                        annotation_value = [
+                            lemma for lemma in token_data["lemma"] if ":" not in lemma and ("--" not in lemma)
+                        ]
                     else:
-                        annotation_value = [lemma for lemma in self.word_attrs.get("lemma", "").split("|") if lemma and (":" not in lemma and ("--" not in lemma))]
+                        annotation_value = [
+                            lemma
+                            for lemma in self.word_attrs.get("lemma", "").split("|")
+                            if lemma and (":" not in lemma and ("--" not in lemma))
+                        ]
                     if not annotation_value:
                         annotation_value = [token]
-                    self.similarity_tags.extend(annotation_value)
+                    self.most_common_words.extend(annotation_value)
             self.in_word = False
             self.current_word_content = ""
 
@@ -375,7 +415,9 @@ class StrixParser:
             self.current_word_content += data.strip()
         else:
             if tag_value == "token":
-                whitespaces = self.word_attrs.get("_tail", "").replace("\\s", " ").replace("\\n", "y").replace("\\t", "x")
+                whitespaces = (
+                    self.word_attrs.get("_tail", "").replace("\\s", " ").replace("\\n", "y").replace("\\t", "x")
+                )
                 whitespaces = whitespaces.replace("x", "").replace("y", "\n")
                 for ws in whitespaces:
                     self.dump[-1] += ws
@@ -394,6 +436,7 @@ class StrixParser:
                             self.lines[-1] = [begin, current_token]
                         self.lines.append([current_token + 1])
 
+
 def iterparse_parser(file_name, strix_parser):
     book_iter = etree.iterparse(file_name, events=("start", "end"))
 
@@ -411,7 +454,6 @@ def iterparse_parser(file_name, strix_parser):
     _, root = next(book_iter)
     strix_parser.handle_starttag(root.tag, root.attrib)
     for event, element in book_iter:
-
         if event == "end":
             if element.text:
                 strix_parser.handle_data(element.text, element.tag)
