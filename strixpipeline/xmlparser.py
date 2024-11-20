@@ -291,7 +291,12 @@ class StrixParser:
             self.all_word_level_annotations = set()
             # self.start_tag = ""
         elif tag in self.struct_annotations:
-            if tag == "sentence" and self.current_struct_annotations[tag]["attrs"]["_geocontext"] != "|":
+            # TODO _geocontext does not need to have special treatment, just add it in text_attributes if available
+            if (
+                tag == "sentence"
+                and "_geocontext" in self.current_struct_annotations[tag]["attrs"]
+                and self.current_struct_annotations[tag]["attrs"]["_geocontext"] != "|"
+            ):
                 self.geo_locations.extend(self.current_struct_annotations[tag]["attrs"]["_geocontext"].split("|")[1:-1])
             # at close we go thorugh each <w>-tag in the structural element and
             # assign the length (which can't be known until the element closes)
