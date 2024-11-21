@@ -13,14 +13,14 @@ Strix uses virtuals envs for python version and virtual environment management. 
 4. `git clone git@github.com:spraakbanken/strix-config-reader.git`
 5. `git clone git@github.com:spraakbanken/strix-settings-sb.git`
 6. cd strix-pipeline
-7. Update `settings_dir` in `config.yml`
+7. Update `settings_dir` in `config.yaml`
 8. pip install -e ../strix-config-configurer
 
 
 ## Configuration
 
-Copy config.yml.example to config.yml and make your changes. This file will be picked up by 
-default, but it is also possible to run script with `--config path/to/config.yml`.
+Copy config.yaml.example to config.yaml and make your changes. This file will be picked up by 
+default, but it is also possible to run script with `--config path/to/config.yaml`.
 
 Make sure that the text and settings directories are properly configured:
 

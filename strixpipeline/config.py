@@ -11,7 +11,7 @@ class StrixConfig:
         if "--config" in sys.argv:
             path = sys.argv[sys.argv.index("--config") + 1]
         else:
-            path = "config.yml"
+            path = "config.yaml"
 
         file = open(path)
         self.logger.info("Config file in use: %s", os.path.realpath(file.name))
