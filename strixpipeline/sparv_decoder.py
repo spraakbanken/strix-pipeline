@@ -1,19 +1,12 @@
 import yaml
 from yaml.loader import SafeLoader
 
-import os
-
 from strixpipeline.config import config
 
 
 # create config files using the generated sparv config
-# Files
-## word attributes
-## text attributes
-## corpus_name.yaml
-## update mode_name.yaml
-def createConfig(data, currentModes):
-    corpusData = getConfig(data, currentModes)
+def createConfig(data):
+    corpusData = getConfig(data)
     if "title" not in corpusData.keys():
         corpusData["title"] = "n/a"
     if "document_id" not in corpusData.keys():
@@ -26,7 +19,7 @@ def createConfig(data, currentModes):
 
 
 # create config data
-def getConfig(data, currentModes):
+def getConfig(data):
     yearExist = False
     corpusTemplate = {}
     corpusTemplate["analyze_config"] = {}
@@ -43,7 +36,7 @@ def getConfig(data, currentModes):
                         textList.append({k1.split(":")[1]: v1.replace("text_", "")})
                         textListX.append(k1.split(":")[1])
                     else:
-                        textList.append({k1.split(":")[1]: replaceKeyText(v1, k1.split(":")[1])})
+                        textList.append({k1.split(":")[1]: replaceKey(v1, k1.split(":")[1])})
                         textListX.append(k1.split(":")[1])
         elif key == "struct_attributes":
             corpusTemplate["analyze_config"]["struct_attributes"] = {}
@@ -84,7 +77,6 @@ def getConfig(data, currentModes):
             corpusTemplate["analyze_config"]["word_attributes"] = wordList
         elif key == "mode":
             corpusTemplate["mode_id"] = value[0]["name"]
-            corpusTemplate["mode_name"] = currentModes[value[0]["name"]]["translation_name"]
         elif key == "text_annotation":
             corpusTemplate["split"] = value
         elif key == "corpus_name":
@@ -156,39 +148,8 @@ def replaceKey(item, item_name):
 
 
 # replace key
-def replaceKeyText(item, item_name):
-    itemX = {}
-    for key, value in item.items():
-        if key == "label" and type(value) is str or (key == "preset" and type(value) is str):
-            itemX["translation_name"] = {}
-            itemX["translation_name"]["swe"] = value.replace("_", " ").capitalize()
-            itemX["translation_name"]["eng"] = value.replace("_", " ").capitalize()
-        elif key == "label" and type(value) is dict or (key == "preset" and type(value) is dict):
-            itemX["translation_name"] = {}
-            itemX["translation_name"]["swe"] = value["swe"].capitalize()
-            itemX["translation_name"]["eng"] = value["eng"].capitalize()
-        else:
-            itemX[key] = value
-    itemX["name"] = item_name
-    return itemX
-
-
-# replace key
 def replaceKeyStruct(item, item_name):
-    itemX = {}
-    for key, value in item.items():
-        if key == "label" and type(value) is str or (key == "preset" and type(value) is str):
-            itemX["translation_name"] = {}
-            itemX["translation_name"]["swe"] = value.replace("_", " ").capitalize()
-            itemX["translation_name"]["eng"] = value.replace("_", " ").capitalize()
-        elif key == "label" and type(value) is dict or (key == "preset" and type(value) is dict):
-            itemX["translation_name"] = {}
-            itemX["translation_name"]["swe"] = value["swe"].capitalize()
-            itemX["translation_name"]["eng"] = value["eng"].capitalize()
-        else:
-            itemX[key] = value
-    itemX["name"] = item_name.split("_")[1]
-    return itemX
+    return replaceKey(item, item_name.split("_")[1])
 
 
 def restructure(data, struct_keys):
@@ -216,73 +177,9 @@ def restructure(data, struct_keys):
 
     return list(set(text_elements)), reCreate, list(set(textAttr))
 
-
-
-
-
-
-
-def createMode(newModes, currentModes):
-    for i in newModes:
-        with open(config.settings_dir + "/modes/" + i["name"] + ".yaml", "w") as filename:
-            yaml.dump(
-                {
-                    i["name"]: {
-                        "name": i["name"],
-                        "translation_name": {"swe": i["name"], "eng": i["name"]},
-                    }
-                },
-                filename,
-                sort_keys=False,
-            )
-
-        currentModes[i["name"]] = {
-            "name": i["name"],
-            "translation_name": {"swe": i["name"], "eng": i["name"]},
-            "available": False,
-        }
-
-    if currentModes:
-        with open(config.settings_dir + "/all_modes.yaml", "w") as filename:
-            yaml.safe_dump(currentModes, filename, sort_keys=False)
-
-    return (True, currentModes)
-
-
 def main(corpus_name):
-    # Mode data ex. {"default" : {"name" : "default", "label" :  {"swe" : Moderna, "eng" :  "Modern"}}}
-    with open(config.settings_dir + "/all_modes.yaml", "r") as file:
-        currentModes = yaml.safe_load(file)
-
     # Sparv config file that need to be decode into Strix config format
     with open(config.settings_dir + "/sparv2strix/" + corpus_name + ".yaml") as file:
         data = yaml.load(file, Loader=SafeLoader)
 
-    # Check if the corpud_id.yaml exists in corpora
-    if os.path.exists(config.settings_dir + "/corpora/" + data["corpus_id"] + ".yaml"):
-        pass
-    else:
-        xyz = ""
-        if len(data["mode"]) == 1:
-            # Check if the mode in the Sparv config file exist in all_modes.yaml
-            if data["mode"][0]["name"] in currentModes.keys():
-                # If exist then create corpus_name.yaml in corpora folder
-                ## Update word and text attributes
-                xyz = createConfig(data, currentModes)
-            else:
-                # Add new mode to all_mode.yaml
-                status, currentModes = createMode(data["mode"], currentModes)
-                if status:
-                    # Create corpus_name.yaml in corpora folder
-                    ## Update word and text attributes
-                    xyz = createConfig(data, currentModes)
-        else:
-            tempList = []
-            for item in range(len(data["mode"])):
-                if data["mode"]["item"]["name"] not in currentModes.keys():
-                    tempList.append(data["mode"]["item"])
-            # Add modes to the all_modes.yaml
-            status, currentModes = createMode(tempList, currentModes)
-            if status:
-                # Create single corpus_id.yaml file even there are more than one modes
-                xyz = createConfig(data, currentModes)
+    createConfig(data)
