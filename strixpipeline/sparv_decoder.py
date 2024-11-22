@@ -6,29 +6,23 @@ import os
 from strixpipeline.config import config
 
 
-# create config files using the generated sparv config and update mode structure
+# create config files using the generated sparv config
 # Files
 ## word attributes
 ## text attributes
 ## corpus_name.yaml
 ## update mode_name.yaml
 def createConfig(data, currentModes):
-    status = False
-    if "corpus_id" in data.keys() and ("mode" in data.keys()):
-        status = updateModeStructure(data["corpus_id"], data["mode"])
-    if status:
-        corpusData = getConfig(data, currentModes)
-        if "title" not in corpusData.keys():
-            corpusData["title"] = "n/a"
-        if "document_id" not in corpusData.keys():
-            corpusData["document_id"] = "generated"
+    corpusData = getConfig(data, currentModes)
+    if "title" not in corpusData.keys():
+        corpusData["title"] = "n/a"
+    if "document_id" not in corpusData.keys():
+        corpusData["document_id"] = "generated"
 
-        with open(config.settings_dir + "/corpora/" + data["corpus_id"] + ".yaml", "w") as file:
-            yaml.dump(corpusData, file, sort_keys=False)
+    with open(config.settings_dir + "/corpora/" + data["corpus_id"] + ".yaml", "w") as file:
+        yaml.dump(corpusData, file, sort_keys=False)
 
-        return "Config files successfully created and updated"
-    else:
-        return "Error in updating mode structure"
+    return "Config files successfully created and updated"
 
 
 # create config data
@@ -90,10 +84,6 @@ def getConfig(data, currentModes):
             corpusTemplate["analyze_config"]["word_attributes"] = wordList
         elif key == "mode":
             corpusTemplate["mode_id"] = value[0]["name"]
-            if "folder" in value[0].keys():
-                corpusTemplate["folderName"] = value[0]["folder"].capitalize()
-            else:
-                corpusTemplate["folderName"] = ""
             corpusTemplate["mode_name"] = currentModes[value[0]["name"]]["translation_name"]
         elif key == "text_annotation":
             corpusTemplate["split"] = value
@@ -227,27 +217,7 @@ def restructure(data, struct_keys):
     return list(set(text_elements)), reCreate, list(set(textAttr))
 
 
-# Add corpus and update mode structure
-def updateModeStructure(corpus, mode):
-    for i in mode:
-        with open(config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "r") as filename:
-            modeData = yaml.safe_load(filename)
-            # create path if doesn't exist
-        if "folder" in i.keys():
-            newData = checkPath(i["folder"], modeData)
-        else:
-            newData = checkPath("", modeData)
-        # add corpus to the folder name
-        if "folder" in i.keys():
-            modeData = reverseFix(newData, i["folder"], corpus)
-        else:
-            modeData = reverseFix(newData, "", corpus)
 
-        if modeData:
-            # update mode structure
-            with open(config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "w") as filename:
-                yaml.safe_dump(modeData, filename)
-            return True
 
 
 # Check if the path exist in the dict else create the missing path
@@ -320,13 +290,6 @@ def reverseFix(modeData, path, corpus):
 
 def createMode(newModes, currentModes):
     for i in newModes:
-        with open(config.settings_dir + "/modeStructure/" + i["name"] + ".yaml", "w") as filename:
-            yaml.dump(
-                {"translation_name": {"swe": i["name"], "eng": i["name"]}},
-                filename,
-                sort_keys=False,
-            )
-
         with open(config.settings_dir + "/modes/" + i["name"] + ".yaml", "w") as filename:
             yaml.dump(
                 {
@@ -369,14 +332,14 @@ def main(corpus_name):
         if len(data["mode"]) == 1:
             # Check if the mode in the Sparv config file exist in all_modes.yaml
             if data["mode"][0]["name"] in currentModes.keys():
-                # If exist then create corpus_name.yaml in corpora folder, create or update mode_name.yaml in modeStructure
+                # If exist then create corpus_name.yaml in corpora folder
                 ## Update word and text attributes
                 xyz = createConfig(data, currentModes)
             else:
-                # Add new mode to all_mode.yaml, create mode_name.yaml in modeStructure
+                # Add new mode to all_mode.yaml
                 status, currentModes = createMode(data["mode"], currentModes)
                 if status:
-                    # Create corpus_name.yaml in corpora folder, update mode_name.yaml in modeStructure
+                    # Create corpus_name.yaml in corpora folder
                     ## Update word and text attributes
                     xyz = createConfig(data, currentModes)
         else:
@@ -384,7 +347,7 @@ def main(corpus_name):
             for item in range(len(data["mode"])):
                 if data["mode"]["item"]["name"] not in currentModes.keys():
                     tempList.append(data["mode"]["item"])
-            # Add modes to the all_modes.yaml and create mode_name.yaml's in modeStructure
+            # Add modes to the all_modes.yaml
             status, currentModes = createMode(tempList, currentModes)
             if status:
                 # Create single corpus_id.yaml file even there are more than one modes
