@@ -80,6 +80,8 @@ def getConfig(data):
             corpusTemplate["analyze_config"]["word_attributes"] = wordList
         elif key == "mode":
             corpusTemplate["mode_id"] = value[0]["name"]
+            corpusTemplate["mode_name"] = config.corpusconf.get_modes()[value[0]["name"]]["translation_name"]
+            corpusTemplate["folderName"] = ""
         elif key == "text_annotation":
             corpusTemplate["split"] = value
         elif key == "corpus_name":
