@@ -1,5 +1,5 @@
 .idea
-config.yml
+config.yaml
 virtual_env
 *egg-info
 logs

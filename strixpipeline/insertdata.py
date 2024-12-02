@@ -53,7 +53,7 @@ class InsertData:
         for attr_name in self.corpus_conf["analyze_config"]["word_attributes"]:
             for attr_type, attr in attr_name.items():
                 if type(attr) is str:
-                    attr = config.corpusconf.get_word_attributeX(attr)
+                    attr = config.corpusconf.get_word_attribute(attr)
                 # attr = config.corpusconf.get_word_attribute(attr_name)
                 if attr.get("parse", True):
                     word_attrs.append(attr)
@@ -67,8 +67,7 @@ class InsertData:
             for attr_name in attr_names:
                 for attr_type, attr in attr_name.items():
                     if type(attr) is str:
-                        attr = config.corpusconf.get_struct_attributeX(attr)
-                    # attr = config.corpusconf.get_struct_attribute(attr_name)
+                        attr = config.corpusconf.get_struct_attribute(attr)
                     if attr.get("parse", True):
                         structs.append(attr)
                     if attr.get("pos_index", False):
@@ -81,8 +80,7 @@ class InsertData:
         for attr_name in self.corpus_conf["analyze_config"]["text_attributes"]:
             for attr_type, text_attribute in attr_name.items():
                 if type(text_attribute) is str:
-                    text_attribute = config.corpusconf.get_text_attributeX(text_attribute)
-                # text_attribute = config.corpusconf.get_text_attribute(attr_name)
+                    text_attribute = config.corpusconf.get_struct_attribute(text_attribute)
                 if text_attribute.get("parse", True):
                     text_attributes[attr_type] = text_attribute
                     if not text_attribute.get("save", True):

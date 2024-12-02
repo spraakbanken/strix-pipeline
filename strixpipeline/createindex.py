@@ -42,25 +42,21 @@ class CreateIndex:
     def set_attributes(self, index):
         corpus_config = config.corpusconf.get_corpus_conf(index)
         word_attributes = []
-        # print(corpus_config["analyze_config"]["word_attributes"])
         for attr_name in corpus_config["analyze_config"]["word_attributes"]:
             for attr_type, attr in attr_name.items():
                 if type(attr) is str:
-                    attr = config.corpusconf.get_word_attributeX(attr)
-                # attr = config.corpusconf.get_word_attribute(attr_name)
+                    attr = config.corpusconf.get_word_attribute(attr)
                 if attr.get("index", True):
                     # TODO map these in _terms index
                     pass
                 if attr.get("pos_index", False):
                     word_attributes.append(attr)
-        # print(word_attributes)
 
         for node_name, attributes in corpus_config["analyze_config"]["struct_attributes"].items():
             for attr_name in attributes:
                 for attr_type, attr in attr_name.items():
                     if type(attr) is str:
-                        attr = config.corpusconf.get_struct_attributeX(attr)
-                    # attr = config.corpusconf.get_struct_attribute(attr_name)
+                        attr = config.corpusconf.get_struct_attribute(attr)
                     if attr.get("index", True):
                         # TODO map these in _terms index
                         pass
@@ -73,8 +69,7 @@ class CreateIndex:
         for attr_name in corpus_config["analyze_config"]["text_attributes"]:
             for attr_type, attr in attr_name.items():
                 if type(attr) is str:
-                    attr = config.corpusconf.get_text_attributeX(attr)
-                # attr = config.corpusconf.get_text_attribute(attr_name)
+                    attr = config.corpusconf.get_struct_attribute(attr)
                 if attr.get("index", True):
                     text_attributes.append(attr)
 
@@ -143,9 +138,6 @@ class CreateIndex:
         for attr in self.word_attributes:
             annotation_name = attr["name"]
             excludes.append("pos_" + annotation_name)
-            # if annotation_name == "complemgram":
-            #     print("----", annotation_name)
-            #     m.field("pos_" + annotation_name, Text(analyzer=mappingutil.annotation_analyzer()))
             if attr.get("set", False):
                 m.field(
                     "pos_" + annotation_name,
