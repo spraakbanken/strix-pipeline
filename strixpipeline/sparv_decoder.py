@@ -1,5 +1,6 @@
 import yaml
 from yaml.loader import SafeLoader
+import time
 
 from strixpipeline.config import config
 
@@ -11,6 +12,8 @@ def createConfig(data):
         corpusData["title"] = "n/a"
     if "document_id" not in corpusData.keys():
         corpusData["document_id"] = "generated"
+
+    corpusData["updated_at"] = int(time.time())
 
     with open(config.settings_dir + "/corpora/" + data["corpus_id"] + ".yaml", "w") as file:
         yaml.dump(corpusData, file, sort_keys=False)
@@ -160,15 +163,9 @@ def restructure(data, struct_keys):
         for item_key, item_value in item.items():
             if ":" in item_key:
                 if item_key.split(":")[0] in reCreate.keys():
-                    if type(item_value) is str:
-                        reCreate[item_key.split(":")[0]].append({item_key.replace(":", "_"): item_value})
-                    else:
-                        reCreate[item_key.split(":")[0]].append({item_key.replace(":", "_"): item_value})
+                    reCreate[item_key.split(":")[0]].append({item_key.replace(":", "_"): item_value})
                 else:
-                    if type(item_value) is str:
-                        reCreate[item_key.split(":")[0]] = [{item_key.replace(":", "_"): item_value}]
-                    else:
-                        reCreate[item_key.split(":")[0]] = [{item_key.replace(":", "_"): item_value}]
+                    reCreate[item_key.split(":")[0]] = [{item_key.replace(":", "_"): item_value}]
                 if item_key.split(":")[0] not in struct_keys:
                     text_elements.append(item_key.split(":")[0])
                     textAttr.append(item_key.replace(":", "_"))
