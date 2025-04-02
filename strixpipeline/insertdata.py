@@ -121,7 +121,7 @@ class InsertData:
             doc_id = text["text_attributes"]["_id"]
             text["doc_id"] = doc_id
             text["sent_vector"] = transformer_output.pop(doc_id)
-            self.generate_title(text, text_attributes)
+            text["title"] = self.generate_title(text)
             text["corpus_id"] = self.index
             text["original_file"] = file_name
             task = self.get_doc_task(text)
@@ -135,18 +135,13 @@ class InsertData:
 
         return itertools.chain(tasks, terms or [])
 
-    def generate_title(self, text, text_attributes):
-        if self.corpus_conf["title"] == "n/a":
-            text["title"] = "N/A"
+    def generate_title(self, text):
+        title_attr = self.corpus_conf.get("title")
+        title = text["text_attributes"].get(title_attr)
+        if title:
+            return title
         else:
-            title = text["text_attributes"].get(self.corpus_conf["title"])
-            if title:
-                text["title"] = title
-            else:
-                text["title"] = "Title missing"
-
-        if "title" not in text:
-            raise RuntimeError('Configure "title" for corpus')
+            return "N/A"
 
     def get_doc_task(self, text):
         return {"_index": self.index, "_source": text}
