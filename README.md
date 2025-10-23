@@ -1,23 +1,19 @@
 ## Installation
 
-Strix uses virtuals envs for python version and virtual environment management. To get running:
-
-1. Create the virtual environment using `python -m venv .venv`.
-2. Activate the virtual environment with `source .venv/bin/activate`.
+We recommend using virtualenv.
 
 ## Installation of dependencies
 
-1. `pip install --upgrade pip` 
-2. `pip install -e .`
-3. `cd ..`
-4. `git clone git@github.com:spraakbanken/strix-config-reader.git`
-5. `cd strix-config-reader`
-6. `git checkout v2.0`
-7. `cd ..`
-8. `git clone git@github.com:spraakbanken/strix-settings-sb.git`
-9. cd strix-pipeline
+1. `pip install -e .`
+2. `cd ..`
+3. `git clone git@github.com:spraakbanken/strix-config-reader.git`
+4. `cd strix-config-reader`
+5. `git checkout v2.0`
+6. `cd ..`
+7. `git clone git@github.com:spraakbanken/strix-settings-sb.git`
+8. cd strix-pipeline
+9. pip install -e ../strix-config-configurer
 10. Update `settings_dir` in `config.yaml`
-11. pip install -e ../strix-config-configurer
 
 
 ## Configuration

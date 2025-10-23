@@ -1,16 +1,15 @@
-import logging
-import strixpipeline.loghelper
-import strixpipeline.pipeline as pipeline
-import strixpipeline.createindex as createindex
-import strixpipeline.sparv_decoder as sparv_decoder
-from strixpipeline.config import config
+import argparse
 
-if __name__ == "__main__":
-    import argparse
+def cli():
 
-    logger = logging.getLogger("strix_pipeline")
+    
 
     def do_add(args):
+        import strixpipeline.loghelper
+        import strixpipeline.pipeline as pipeline
+        import strixpipeline.createindex as createindex
+        import strixpipeline.sparv_decoder as sparv_decoder
+        from strixpipeline.config import config
         corpus = args.corpus
 
         # add config file
@@ -38,6 +37,9 @@ if __name__ == "__main__":
         pipeline.merge_indices(corpus)
 
     def do_generate_vector_data(args):
+        import strixpipeline.pipeline as pipeline
+        import strixpipeline.sparv_decoder as sparv_decoder
+        from strixpipeline.config import config
         corpus = args.corpus
 
         # if corpus do not already exist, add config file and reload config for parsing code to work
@@ -53,6 +55,7 @@ if __name__ == "__main__":
             pipeline.remove_config_file(corpus)
 
     def do_delete(args):
+        import strixpipeline.pipeline as pipeline
         corpus = args.corpus
         pipeline.do_delete(corpus)
 

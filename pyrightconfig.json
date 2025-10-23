@@ -1,0 +1,18 @@
+{
+    "include": [
+        "strixpipeline",
+    ],
+    "reportMissingImports": "information",
+    "reportUndefinedVariable": "warning",
+    "reportInvalidTypeForm": "error",
+    "reportGeneralTypeIssues": "none",
+    "typeCheckingMode": "off",
+    "executionEnvironments": [
+        {
+            "root": ".",
+            "extraPaths": [
+                "../strix-config-reader"
+            ]
+        }
+    ]
+}
