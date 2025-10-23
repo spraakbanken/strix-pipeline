@@ -87,7 +87,7 @@ def process_task(insert_data, size, process_args):
     try:
         (tasks, delta_t) = insert_data.process(*process_args)
     except Exception:
-        _logger.exception("Failed to process %s" % _task_id)
+        _logger.exception(f"Failed to process {_task_id}")
         sys.exit()
 
     try:
@@ -100,7 +100,7 @@ def process_task(insert_data, size, process_args):
         _logger.exception(e)
         sys.exit()
 
-    _logger.info("Processed id: %s, took %0.1fs" % (_task_id, delta_t))
+    _logger.info(f"Processed id: {_task_id}, took {delta_t:0.1f}s")
 
 
 def process_corpus(index):
@@ -110,7 +110,7 @@ def process_corpus(index):
 
     with futures.ProcessPoolExecutor(max_workers=min(multiprocessing.cpu_count(), 16)) as executor:
         assert len(task_data)
-        _logger.info("Scheduling %s tasks..." % len(task_data))
+        _logger.info(f"Scheduling {len(task_data)} tasks...")
         for task_type, task_id, size, task in task_data:
             task_args = (task_type, task_id, task)
             executor.submit(process_task, insert_data, size, task_args)

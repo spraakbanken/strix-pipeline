@@ -176,6 +176,7 @@ def restructure(data, struct_keys):
 
     return list(set(text_elements)), reCreate, list(set(textAttr))
 
+
 def main(corpus_name):
     # Sparv config file that need to be decode into Strix config format
     with open(config.settings_dir + "/sparv2strix/" + corpus_name + ".yaml") as file:

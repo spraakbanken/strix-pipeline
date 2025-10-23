@@ -2,9 +2,7 @@ import json
 import os
 import logging
 import itertools
-import hashlib
 import time
-import uuid
 import glob
 import strixpipeline.xmlparser as xmlparser
 from strixpipeline.config import config
