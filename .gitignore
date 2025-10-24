@@ -10,3 +10,4 @@ config
 venv/
 .DS_Store
 run_transformers.sh
+.snakemake

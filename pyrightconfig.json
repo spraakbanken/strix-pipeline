@@ -1,6 +1,10 @@
 {
     "include": [
         "strixpipeline",
+        "scripts"
+    ],
+    "ignore": [
+        "**/Snakefile"
     ],
     "reportMissingImports": "information",
     "reportUndefinedVariable": "warning",

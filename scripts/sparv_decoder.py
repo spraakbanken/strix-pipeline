@@ -1,13 +1,16 @@
-import yaml
-from yaml.loader import SafeLoader
 import time
+from pathlib import Path
 
-from strixpipeline.config import config
+import yaml
+from snakemake.script import snakemake
+from yaml.loader import SafeLoader
+
+from strixpipeline.config import StrixConfig
 
 
 # create config files using the generated sparv config
-def createConfig(data):
-    corpusData = getConfig(data)
+def createConfig(config, data):
+    corpusData = getConfig(config, data)
     if "title" not in corpusData.keys():
         corpusData["title"] = "n/a"
     if "document_id" not in corpusData.keys():
@@ -15,14 +18,11 @@ def createConfig(data):
 
     corpusData["updated_at"] = int(time.time())
 
-    with open(config.settings_dir + "/corpora/" + data["corpus_id"] + ".yaml", "w") as file:
-        yaml.dump(corpusData, file, sort_keys=False)
-
-    return "Config files successfully created and updated"
+    return corpusData
 
 
 # create config data
-def getConfig(data):
+def getConfig(config, data):
     yearExist = False
     corpusTemplate = {}
     corpusTemplate["analyze_config"] = {}
@@ -177,9 +177,17 @@ def restructure(data, struct_keys):
     return list(set(text_elements)), reCreate, list(set(textAttr))
 
 
-def main(corpus_name):
-    # Sparv config file that need to be decode into Strix config format
-    with open(config.settings_dir + "/sparv2strix/" + corpus_name + ".yaml") as file:
-        data = yaml.load(file, Loader=SafeLoader)
+config = StrixConfig()
 
-    createConfig(data)
+corpus = snakemake.config.get("corpus")
+
+input_file = Path(snakemake.input[0])
+output_file = Path(snakemake.output[0])
+
+
+# Sparv config file that need to be decode into Strix config format
+with open(input_file) as file:
+    data = yaml.load(file, Loader=SafeLoader)
+corpusData = createConfig(config, data)
+with open(output_file, "w") as file:
+    yaml.dump(corpusData, file, sort_keys=False)

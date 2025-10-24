@@ -14,6 +14,7 @@ dependencies = [
   "elasticsearch-dsl==8.12.0",
   "PyYAML==6.0.1",
   "orjson==3.11.3",
+  "snakemake==9.13.4",
 ]
 
 [project.optional-dependencies]

@@ -1,3 +1,8 @@
+lint.select = ["A", "B", "BLE", "C4", "E", "F401", "I", "RUF", "YTT"]
+
+lint.ignore = ["A002", "B904", "B007", "BLE001", "C417", "E501", "RUF015"]
+
+builtins = ["snakemake"]
 
 line-length = 120
 

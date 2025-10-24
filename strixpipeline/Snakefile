@@ -1,0 +1,102 @@
+import os, json
+import time
+from pathlib import Path
+
+from elasticsearch_dsl.query import Script
+
+from strixpipeline.config import StrixConfig
+
+corpus = config.get("corpus")
+OUTPUT = Path("output") / corpus
+
+
+strix_config = StrixConfig()
+
+xml_dir = Path(strix_config.base_dir, strix_config.texts_dir, corpus)
+
+transformers_dir = Path(strix_config.transformers_dir) / corpus
+transformers_input = transformers_dir / "texts"
+transformers_output = transformers_dir / "vectors"
+
+names = glob_wildcards(xml_dir / "{name}.xml").name
+
+
+rule all:
+    """
+    When all data is processed and added to Elasticsearch, finalize.py will update the index
+    in Elasticsearch to optimal values for read-only.
+    """
+    input:
+        [f"{OUTPUT}/{name}.done" for name in names]
+    script:
+        "../scripts/finalize.py"
+
+rule create_config_from_sparv:
+    """
+    Create the Strix corpus config file from the Strix Sparv plugin corpus config file
+    """
+    input:
+        f"{strix_config.settings_dir}/sparv2strix/{corpus}.yaml"
+    output:
+        f"{strix_config.settings_dir}/corpora/{corpus}.yaml"
+    script:
+        "../scripts/sparv_decoder.py"
+
+rule parse_xml:
+    """
+    Parse the XML:s and generate:
+    - JSON-objects for documents
+    - JSON-objects for terms
+    - Input for sentence_transformers step
+
+    TODO Terms CAN be inserted directly into Elasticsearch, but documents need to
+    wait for run_transformers rule to finish, since document vectors are needed.
+    """
+    input:
+        f"{strix_config.settings_dir}/corpora/{corpus}.yaml",
+        f"{xml_dir}/{{name}}.xml"
+    output:
+        f"{OUTPUT}/parsed/{{name}}.json",
+        transformers_input / "{name}.jsonl"
+    script:
+        "../scripts/parse_xml.py"
+
+
+rule run_transformers:
+    """
+    Generate document vectors, run_transformers.py will run remote or local
+    depending on strix-pipeline CLI invocation.
+    """
+    input:
+        ancient([transformers_input / f"{name}.jsonl" for name in names])
+    output:
+        [transformers_output / f"{name}.jsonl" for name in names]
+    params:
+        transformers_dir=transformers_dir
+    script:
+        "../scripts/run_transformers.py"
+
+rule ensure_es_index:
+    """
+    Makes sure the needed indices exist and update the settings into a 
+    state optimal for adding lots of data, but not reading.
+    """
+    output:
+        touch(f"{OUTPUT}/.es_index_ready")
+    script:
+        "../scripts/setup_elasticsearch.py"
+
+rule add_to_elasticsearch:
+    """
+    Adds all the data to Elasticsearch
+    """
+    input:
+        f"{OUTPUT}/.es_index_ready",
+        f"{OUTPUT}/parsed/{{name}}.json",
+        transformers_output / "{name}.jsonl"
+    # TODO make sure that no documents or terms are duplicated
+    # retries: 3
+    output:
+        f"{OUTPUT}/{{name}}.done"
+    script:
+        "../scripts/add_to_elasticsearch.py"

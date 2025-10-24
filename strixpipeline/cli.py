@@ -1,63 +1,57 @@
 import argparse
 
+from snakemake.api import ConfigSettings, DAGSettings, StorageSettings
+
+
+def invoke_snakemake(*, target, params, notemp=False):
+    from pathlib import Path
+
+    from snakemake.api import (
+        ExecutionSettings,
+        ResourceSettings,
+        SnakemakeApi,
+    )
+    from snakemake.utils import available_cpu_count
+
+    with SnakemakeApi() as snakemake_api:
+        api = snakemake_api.workflow(
+            resource_settings=ResourceSettings(cores=available_cpu_count()),
+            workdir=Path("."),
+            snakefile=Path("strixpipeline/Snakefile"),
+            config_settings=ConfigSettings(config=params),
+            # mark all output files as temporary
+            storage_settings=StorageSettings(notemp=notemp, all_temp=True),
+        )
+        dag_api = api.dag(DAGSettings(targets=[target], force_incomplete=True))
+        dag_api.execute_workflow(
+            executor="local",
+            execution_settings=ExecutionSettings(),
+        )
+
+        # if there where no errors, remove the done-files
+        if not notemp:
+            output_dir = Path("output") / params["corpus"]
+            for f in output_dir.glob("*.done"):
+                f.unlink()
+            output_dir.rmdir()
+
+
 def cli():
-
-    
-
     def do_add(args):
-        import strixpipeline.loghelper
-        import strixpipeline.pipeline as pipeline
-        import strixpipeline.createindex as createindex
-        import strixpipeline.sparv_decoder as sparv_decoder
-        from strixpipeline.config import config
-        corpus = args.corpus
-
-        # add config file
-        sparv_decoder.main(corpus)
-
-        # reload corpus conf
-        config.create_corpus_config()
-
-        # add document vectors
-        vector_generation_type = args.vector_generation_type
-        if vector_generation_type != "none":
-            pipeline.do_vector_generation(corpus, vector_generation_type)
-        else:
-            if not pipeline.check_vectors_exist(corpus):
-                raise RuntimeError("Must generate vectors first or use --vector-generation-type local/remote")
-
-        # create new index
-        strixpipeline.loghelper.setup_pipeline_logging(f"{corpus}-reindex")
-        createindex.create_index(corpus, delete_previous=args.delete_previous_version)
-
-        # run corpus
-        strixpipeline.loghelper.setup_pipeline_logging(corpus + "-run")
-        pipeline.do_run(corpus)
-
-        pipeline.merge_indices(corpus)
+        params = vars(args)
+        del params["func"]
+        invoke_snakemake(target="all", params=params, notemp=args.notemp)
 
     def do_generate_vector_data(args):
-        import strixpipeline.pipeline as pipeline
-        import strixpipeline.sparv_decoder as sparv_decoder
-        from strixpipeline.config import config
-        corpus = args.corpus
-
-        # if corpus do not already exist, add config file and reload config for parsing code to work
-        remove_after = False
-        if not config.corpusconf.is_corpus(corpus):
-            sparv_decoder.main(corpus)
-            config.create_corpus_config()
-            remove_after = True
-        pipeline.do_vector_generation(corpus, args.vector_generation_type)
-
-        if remove_after:
-            # if corpus did not exist before generate vectors, remove it again
-            pipeline.remove_config_file(corpus)
+        params = vars(args)
+        del params["func"]
+        invoke_snakemake(target="run_transformers", params=params)
 
     def do_delete(args):
-        import strixpipeline.pipeline as pipeline
+        import strixpipeline.delete as delete
+
         corpus = args.corpus
-        pipeline.do_delete(corpus)
+        delete.do_delete(corpus)
 
     parser = argparse.ArgumentParser(description="Run the pipeline.")
     subparsers = parser.add_subparsers()
@@ -74,6 +68,11 @@ def cli():
         choices=["remote", "local", "none"],
         default="none",
         help="Document vectors can be generated on config.vector_server, locally or not at all.",
+    )
+    add_parser.add_argument(
+        "--notemp",
+        action="store_true",
+        help="Keep temporary Snakemake files after corpus is added. Default: they are removed.",
     )
     add_parser.set_defaults(func=do_add)
 

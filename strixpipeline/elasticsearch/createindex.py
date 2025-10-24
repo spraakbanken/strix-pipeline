@@ -1,39 +1,40 @@
-import time
 import logging
+import time
 
-from elasticsearch_dsl import (
-    Text,
-    Keyword,
-    Index,
-    Object,
-    Integer,
-    Mapping,
-    Date,
-    Double,
-    MetaField,
-    InnerDoc,
-    DenseVector,
-)
-import strixpipeline.mappingutil as mappingutil
-from strixpipeline.config import config
-import strixpipeline.elasticapi as elasticapi
 import elasticsearch
+from elasticsearch_dsl import (
+    Date,
+    DenseVector,
+    Double,
+    Index,
+    InnerDoc,
+    Integer,
+    Keyword,
+    Mapping,
+    MetaField,
+    Object,
+    Text,
+)
 
+import strixpipeline.elasticsearch.elasticapi as elasticapi
+import strixpipeline.elasticsearch.mappingutil as mappingutil
+from strixpipeline.config import StrixConfig
 
 _logger = logging.getLogger(__name__)
+
+config = StrixConfig()
 
 
 class CreateIndex:
     number_of_shards = config.number_of_shards
-    number_of_replicas = config.number_of_replicas
+    # TODO was this used before Snakemaking it?
     terms_number_of_shards = config.terms_number_of_shards
-    terms_number_of_replicas = config.terms_number_of_replicas
 
-    def __init__(self, index):
+    def __init__(self, es, index):
         """
         :param index: name of index (alias name, date and time will be appended)
         """
-        self.es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
+        self.es = es
         w, t = self.set_attributes(index)
         self.word_attributes = w
         self.text_attributes = t
@@ -78,14 +79,14 @@ class CreateIndex:
     def create_indices(self):
         base_index, index_name = self.get_unique_index()
         base_index.create()
-        elasticapi.setup_alias(self.alias, index_name)
-        elasticapi.close_index(index_name)
+        elasticapi.setup_alias(self.es, self.alias, index_name)
+        elasticapi.close_index(self.es, index_name)
         self.create_text_type(index_name)
-        elasticapi.open_index(index_name)
+        elasticapi.open_index(self.es, index_name)
 
         term_index, term_index_name = self.get_unique_index(type="terms")
         term_index.create()
-        elasticapi.setup_alias(self.alias + "_terms", term_index_name)
+        elasticapi.setup_alias(self.es, self.alias + "_terms", term_index_name)
         self.create_term_position_index(term_index_name)
 
     def get_unique_index(self, type=None, suffix=""):
@@ -201,37 +202,6 @@ class CreateIndex:
 
         m.save(index_name, using=self.es)
 
-    def enable_insert_settings(self, index_name=None):
-        # set refresh_interval to -1 to speed up indexing
-        self.set_refresh_interval(index_name, -1)
-
-    def enable_postinsert_settings(self, index_name=None):
-        self.es.indices.put_settings(
-            index=index_name or self.alias,
-            body={
-                "index.number_of_replicas": CreateIndex.number_of_replicas,
-            },
-        )
-
-        self.es.indices.put_settings(
-            index=self.alias + "_terms",
-            body={
-                "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
-            },
-        )
-        self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")
-        self.set_refresh_interval(index_name, "1s")
-        self.set_refresh_interval(index_name, -1)
-
-    # TODO kräver faktiskt index namn??
-    def set_refresh_interval(self, index_name, interval):
-        self.es.indices.put_settings(
-            index=(index_name or self.alias) + "," + self.alias + "_terms",
-            body={
-                "index.refresh_interval": interval,
-            },
-        )
-
 
 class DisabledObject(InnerDoc):
     """
@@ -243,11 +213,11 @@ class DisabledObject(InnerDoc):
         enabled = MetaField(False)
 
 
-def create_index(corpus_id, delete_previous=False):
+def create_index(es, corpus_id, delete_previous=False):
     if config.corpusconf.is_corpus(corpus_id):
         if delete_previous:
-            elasticapi.delete_index_by_corpus_id(corpus_id)
-        ci = CreateIndex(corpus_id)
+            elasticapi.delete_index_by_corpus_id(es, corpus_id)
+        ci = CreateIndex(es, corpus_id)
         try:
             ci.create_indices()
         except elasticsearch.exceptions.TransportError as e:
