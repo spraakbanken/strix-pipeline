@@ -5,7 +5,7 @@ import logging
 import os
 import time
 
-import strixpipeline.xmlparser as xmlparser
+from strixpipeline import xmlparser
 from strixpipeline.config import config
 
 _logger = logging.getLogger(__name__)

@@ -1,8 +1,8 @@
 import re
-import xml.etree.cElementTree as etree
+import xml.etree.ElementTree as etree
 from collections import Counter
 
-import strixpipeline.mappingutil as mappingutil
+from strixpipeline import mappingutil
 
 
 def parse_pipeline_xml(
