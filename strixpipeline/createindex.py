@@ -1,24 +1,23 @@
-import time
 import logging
+import time
 
-from elasticsearch_dsl import (
-    Text,
-    Keyword,
-    Index,
-    Object,
-    Integer,
-    Mapping,
-    Date,
-    Double,
-    MetaField,
-    InnerDoc,
-    DenseVector,
-)
-import strixpipeline.mappingutil as mappingutil
-from strixpipeline.config import config
-import strixpipeline.elasticapi as elasticapi
 import elasticsearch
+from elasticsearch_dsl import (
+    Date,
+    DenseVector,
+    Double,
+    Index,
+    InnerDoc,
+    Integer,
+    Keyword,
+    Mapping,
+    MetaField,
+    Object,
+    Text,
+)
 
+from strixpipeline import elasticapi, mappingutil
+from strixpipeline.config import config
 
 _logger = logging.getLogger(__name__)
 
@@ -33,7 +32,6 @@ class CreateIndex:
         """
         :param index: name of index (alias name, date and time will be appended)
         """
-        self.es = elasticsearch.Elasticsearch(config.elastic_hosts, timeout=120)
         w, t = self.set_attributes(index)
         self.word_attributes = w
         self.text_attributes = t
@@ -90,9 +88,9 @@ class CreateIndex:
 
     def get_unique_index(self, type=None, suffix=""):
         index_name = self.alias + "_" + (type + "_" if type else "") + time.strftime("%Y%m%d-%H%M" + suffix)
-        index = Index(index_name, using=self.es)
+        index = Index(index_name, using=elasticapi.es)
         if index.exists():
-            return self.get_unique_index(type=type, suffix=suffix + "1" if suffix else "1")
+            return self.get_unique_index(type=type, suffix=str(int(suffix) + 1) if suffix else "1")
         self.set_settings(index, CreateIndex.number_of_shards)
         return index, index_name
 
@@ -117,7 +115,7 @@ class CreateIndex:
 
         m.field("term", Object(dynamic=True, properties={"attrs": Object()}))
         m.field("doc_id", "keyword")
-        m.save(index_name, using=self.es)
+        m.save(index_name, using=elasticapi.es)
 
     @staticmethod
     def set_settings(index, number_shards):
@@ -199,33 +197,33 @@ class CreateIndex:
         m.field("corpus_id", Keyword())
         m.field("mode_id", Keyword())
 
-        m.save(index_name, using=self.es)
+        m.save(index_name, using=elasticapi.es)
 
     def enable_insert_settings(self, index_name=None):
         # set refresh_interval to -1 to speed up indexing
         self.set_refresh_interval(index_name, -1)
 
     def enable_postinsert_settings(self, index_name=None):
-        self.es.indices.put_settings(
+        elasticapi.es.indices.put_settings(
             index=index_name or self.alias,
             body={
                 "index.number_of_replicas": CreateIndex.number_of_replicas,
             },
         )
 
-        self.es.indices.put_settings(
+        elasticapi.es.indices.put_settings(
             index=self.alias + "_terms",
             body={
                 "index.number_of_replicas": CreateIndex.terms_number_of_replicas,
             },
         )
-        self.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")
+        elasticapi.es.indices.forcemerge(index=(index_name or self.alias) + "," + self.alias + "_terms")
         self.set_refresh_interval(index_name, "1s")
         self.set_refresh_interval(index_name, -1)
 
     # TODO kräver faktiskt index namn??
     def set_refresh_interval(self, index_name, interval):
-        self.es.indices.put_settings(
+        elasticapi.es.indices.put_settings(
             index=(index_name or self.alias) + "," + self.alias + "_terms",
             body={
                 "index.refresh_interval": interval,

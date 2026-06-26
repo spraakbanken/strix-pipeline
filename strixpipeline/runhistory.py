@@ -1,8 +1,8 @@
-import elasticsearch
 import subprocess
+
+from strixpipeline import elasticapi
 from strixpipeline.config import config
 
-es = elasticsearch.Elasticsearch(config.elastic_hosts)
 index_name = ".runhistory"
 
 
@@ -17,7 +17,7 @@ def get_git_commit_id():
 
 def put(obj):
     obj["git_commitid"] = get_git_commit_id()
-    es.index(index=index_name, document=obj)
+    elasticapi.es.index(index=index_name, document=obj)
 
 
 def create():
@@ -32,7 +32,7 @@ def create():
         "settings": {"index": {"number_of_shards": 1, "number_of_replicas": 1}},
         "mappings": mappings,
     }
-    if es.indices.exists(index=index_name):
-        es.indices.put_mapping(index=index_name, body=mappings)
+    if elasticapi.es.indices.exists(index=index_name):
+        elasticapi.es.indices.put_mapping(index=index_name, body=mappings)
     else:
-        es.indices.create(index=index_name, body=settings)
+        elasticapi.es.indices.create(index=index_name, body=settings)

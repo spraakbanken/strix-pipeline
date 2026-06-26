@@ -11,40 +11,12 @@ from pathlib import Path
 import elasticsearch
 import elasticsearch.exceptions
 import elasticsearch.helpers
-import orjson
-from elasticsearch import exceptions, serializer
 
-import strixpipeline.createindex as create_index_strix
-import strixpipeline.insertdata as insert_data_strix
 import strixpipeline.runhistory
-from strixpipeline import xmlparser
+from strixpipeline import createindex as create_index_strix
+from strixpipeline import elasticapi, xmlparser
+from strixpipeline import insertdata as insert_data_strix
 from strixpipeline.config import config
-
-
-class ORJSONSerializer(serializer.JSONSerializer):
-    """Custom serializer using orjson."""
-
-    def dumps(self, data):
-        """Serialize data using orjson."""
-        if not isinstance(data, (dict, list)):
-            raise exceptions.SerializationError(f"Cannot serialize {type(data)}. Must be dict or list.")
-        try:
-            return orjson.dumps(data).decode("utf-8")
-        except Exception as e:
-            raise exceptions.SerializationError(f"Orjson serialization error: {e}")
-
-    def loads(self, s):
-        """Deserialize data using orjson."""
-        try:
-            return orjson.loads(s)
-        except Exception as e:
-            raise exceptions.SerializationError(f"Orjson deserialization error: {e}")
-
-
-es = elasticsearch.Elasticsearch(
-    config.elastic_hosts, timeout=500, retry_on_timeout=True, serializer=ORJSONSerializer()
-)
-
 
 _logger = logging.getLogger(__name__)
 
@@ -93,7 +65,7 @@ def process_task(insert_data: insert_data_strix.InsertData, size, process_args):
 
     try:
         count = 0
-        res = elasticsearch.helpers.streaming_bulk(es, tasks)
+        res = elasticsearch.helpers.streaming_bulk(elasticapi.es, tasks)
         for _ in res:
             count += 1
         _logger.info("Added %d documents to index", count)
@@ -214,12 +186,12 @@ def do_vector_generation(corpus, vector_generation_type):
 
 def merge_indices(index):
     _logger.info("Merging segments")
-    es.indices.forcemerge(index=index + "," + index + "_terms", max_num_segments=1, request_timeout=10000)
+    elasticapi.es.indices.forcemerge(index=index + "," + index + "_terms", max_num_segments=1, request_timeout=10000)
     _logger.info("Done merging segments")
 
 
 def _get_indices_from_alias(alias_name):
-    aliases = es.cat.aliases(name=[alias_name + "*"], format="json")
+    aliases = elasticapi.es.cat.aliases(name=[alias_name + "*"], format="json")
 
     alias_exist = False
     index_names = []
@@ -238,7 +210,7 @@ def do_delete(corpus):
     main_indices = _get_indices_from_alias(corpus)
     for index in main_indices:
         _logger.info("Deleting index: %s", index)
-        es.indices.delete(index=index)
+        elasticapi.es.indices.delete(index=index)
         _logger.info("Done deleting index")
 
     remove_config_file(corpus)
