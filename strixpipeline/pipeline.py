@@ -1,24 +1,24 @@
+import datetime
 import json
+import logging
+import multiprocessing
+import os
 import sys
 import time
 from concurrent import futures
-import multiprocessing
-
-import elasticsearch
-import elasticsearch.helpers
-import elasticsearch.exceptions
-from elasticsearch import serializer, exceptions
 from pathlib import Path
 
+import elasticsearch
+import elasticsearch.exceptions
+import elasticsearch.helpers
+import orjson
+from elasticsearch import exceptions, serializer
+
+import strixpipeline.createindex as create_index_strix
+import strixpipeline.insertdata as insert_data_strix
+import strixpipeline.runhistory
 from strixpipeline import xmlparser
 from strixpipeline.config import config
-import strixpipeline.insertdata as insert_data_strix
-import strixpipeline.createindex as create_index_strix
-import strixpipeline.runhistory
-import logging
-import datetime
-import os
-import orjson
 
 
 class ORJSONSerializer(serializer.JSONSerializer):
@@ -81,8 +81,9 @@ def partition_tasks(task_queue, num_tasks):
         yield (current_tasks, current_size, work_size_accu)
 
 
-def process_task(insert_data, size, process_args):
+def process_task(insert_data: insert_data_strix.InsertData, size, process_args):
     _task_id = process_args[1]
+    _logger.info("Processing id: %s", _task_id)
 
     try:
         (tasks, delta_t) = insert_data.process(*process_args)
@@ -95,12 +96,13 @@ def process_task(insert_data, size, process_args):
         res = elasticsearch.helpers.streaming_bulk(es, tasks)
         for _ in res:
             count += 1
-        _logger.info(f"Added {count} documents to index")
+        _logger.info("Added %d documents to index", count)
     except Exception as e:
+        _logger.error("Streaming to ElasticSearch failed, count=%d", count)
         _logger.exception(e)
         sys.exit()
 
-    _logger.info(f"Processed id: {_task_id}, took {delta_t:0.1f}s")
+    _logger.info("Processed id: %s, took %0.1fs", _task_id, delta_t)
 
 
 def process_corpus(index):
@@ -110,12 +112,12 @@ def process_corpus(index):
 
     with futures.ProcessPoolExecutor(max_workers=min(multiprocessing.cpu_count(), 16)) as executor:
         assert len(task_data)
-        _logger.info(f"Scheduling {len(task_data)} tasks...")
+        _logger.info("Scheduling %d tasks...", len(task_data))
         for task_type, task_id, size, task in task_data:
             task_args = (task_type, task_id, task)
             executor.submit(process_task, insert_data, size, task_args)
 
-    _logger.info(index + " pipeline complete, took %i min and %i sec. " % divmod(time.time() - t, 60))
+    _logger.info("%s pipeline complete, took %i min and %i sec. ", index, *divmod(time.time() - t, 60))
 
 
 def do_run(index):
@@ -227,7 +229,7 @@ def _get_indices_from_alias(alias_name):
             index_names.append(alias["index"])
 
     if not alias_exist:
-        _logger.info(f'Alias "{alias_name}", does not exist')
+        _logger.info('Alias "%s", does not exist', alias_name)
     return index_names
 
 
@@ -235,7 +237,7 @@ def do_delete(corpus):
     # We expect that an alias only points to *one* index, but if it points to multiple, just remove all of them
     main_indices = _get_indices_from_alias(corpus)
     for index in main_indices:
-        _logger.info(f"Deleting index: {index}")
+        _logger.info("Deleting index: %s", index)
         es.indices.delete(index=index)
         _logger.info("Done deleting index")
 
@@ -246,7 +248,7 @@ def remove_config_file(corpus):
     settings_dir = config.settings_dir
     fname = os.path.join(settings_dir, f"corpora/{corpus}.yaml")
     if os.path.isfile(fname):
-        _logger.info(f"Deleting configuration file: {fname}")
+        _logger.info("Deleting configuration file: %s", fname)
         os.remove(fname)
     else:
-        _logger.info(f"Corpus file: '{fname}' does not exist")
+        _logger.info("Corpus file: '%s' does not exist", fname)

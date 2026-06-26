@@ -3,38 +3,33 @@ name = "strixpipeline"
 version = "2.0.0-dev"
 description = ""
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 license = "MIT"
-authors = [
-  { name = "Språkbanken", email = "sb-info@svenska.gu.se" }
-]
+authors = [{ name = "Språkbanken", email = "sb-info@svenska.gu.se" }]
 
 dependencies = [
+  "PyYAML==6.0.1",
   "elasticsearch==8.15.1",
   "elasticsearch-dsl==8.12.0",
-  "PyYAML==6.0.1",
   "orjson==3.11.3",
 ]
-
-[project.optional-dependencies]
-dev = [
-  "ruff==0.5.7",
-  "basedpyright"
-]
-
 
 [project.scripts]
 strix-pipeline = "strixpipeline.cli:cli"
 
+[dependency-groups]
+dev = ["basedpyright", "ruff>=0.5.7", "ty"]
+
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["strixpipeline"]
-
-[tool.ruff]
-target-version = "py314"
+requires = ["uv_build>=0.11,<0.12"]
+build-backend = "uv_build"
 
 [tool.basedpyright]
-pythonVersion = "3.14"
+pythonVersion = "3.10"
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.uv.build-backend]
+module-name = "strixpipeline"
+module-root = ""

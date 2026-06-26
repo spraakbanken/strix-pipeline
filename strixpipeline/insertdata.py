@@ -1,9 +1,10 @@
-import json
-import os
-import logging
-import itertools
-import time
 import glob
+import itertools
+import json
+import logging
+import os
+import time
+
 import strixpipeline.xmlparser as xmlparser
 from strixpipeline.config import config
 
@@ -37,7 +38,7 @@ class InsertData:
                 size = os.fstat(f.fileno()).st_size
                 tot_size += size
                 urls.append(("text", text_id, size, {"text": text}))
-                _logger.info(f"Adding file: {text}")
+                _logger.info("Adding file: %s", text)
         return urls, tot_size
 
     def process(self, _, task_id, task_data):
