@@ -1,10 +1,34 @@
 import logging
+
 import elasticsearch
-from strixpipeline.config import config
+import orjson
+from elasticsearch import exceptions, serializer
 from elasticsearch_dsl import Index
+
+from strixpipeline.config import config
 
 es = elasticsearch.Elasticsearch(config.elastic_hosts, request_timeout=500, retry_on_timeout=True)
 _logger = logging.getLogger(__name__)
+
+
+class ORJSONSerializer(serializer.JSONSerializer):
+    """Custom serializer using orjson."""
+
+    def dumps(self, data):
+        """Serialize data using orjson."""
+        if not isinstance(data, (dict, list)):
+            raise exceptions.SerializationError(f"Cannot serialize {type(data)}. Must be dict or list.")
+        try:
+            return orjson.dumps(data).decode("utf-8")
+        except Exception as e:
+            raise exceptions.SerializationError(f"Orjson serialization error: {e}")
+
+    def loads(self, s):
+        """Deserialize data using orjson."""
+        try:
+            return orjson.loads(s)
+        except Exception as e:
+            raise exceptions.SerializationError(f"Orjson deserialization error: {e}")
 
 
 def get_index_from_alias(alias_name):

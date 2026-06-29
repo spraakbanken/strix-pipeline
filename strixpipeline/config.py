@@ -1,21 +1,23 @@
-import yaml
-import sys
-import os
 import logging
+import os
+import sys
+
+import yaml
+
+logger = logging.getLogger(__name__)
 
 
 class StrixConfig:
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
 
         if "--config" in sys.argv:
             path = sys.argv[sys.argv.index("--config") + 1]
         else:
             path = "config.yaml"
 
-        file = open(path)
-        self.logger.info("Config file in use: %s", os.path.realpath(file.name))
-        self.config = yaml.safe_load(file)
+        with open(path) as file:
+            logger.info("Config file in use: %s", os.path.realpath(file.name))
+            self.config = yaml.safe_load(file)
         self.set_defaults()
         self.create_corpus_config()
 
@@ -23,8 +25,8 @@ class StrixConfig:
         try:
             return self.config[item]
         except KeyError:
-            self.logger.error('Key: "%s" missing from config-file', item)
-            raise RuntimeError('Key: "' + item + '" missing from config-file')
+            logger.error('Key: "%s" missing from config-file', item)
+            raise RuntimeError(f'Key: "{item}" missing from config-file')
 
     def has_attr(self, item):
         return item in self.config

@@ -1,7 +1,8 @@
 import re
-import xml.etree.cElementTree as etree
-import strixpipeline.mappingutil as mappingutil
+import xml.etree.ElementTree as etree
 from collections import Counter
+
+from strixpipeline import mappingutil
 
 
 def parse_pipeline_xml(
@@ -155,7 +156,7 @@ class StrixParser:
             self.in_word = True
             self.word_attrs = attrs
 
-        elif tag in self.struct_annotations:
+        elif tag in self.struct_annotations and tag != "document":
             self.current_struct_annotations[tag] = {"attrs": {}}
             annotations = self.struct_annotations[tag]
 
