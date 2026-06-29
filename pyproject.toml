@@ -3,12 +3,12 @@ name = "strixpipeline"
 version = "2.0.0-dev"
 description = ""
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 license = "MIT"
 authors = [{ name = "Språkbanken", email = "sb-info@svenska.gu.se" }]
 
 dependencies = [
-  "PyYAML==6.0.1",
+  "PyYAML>=6.0.1",
   "elasticsearch==8.15.1",
   "elasticsearch-dsl==8.12.0",
   "orjson==3.11.3",
@@ -29,10 +29,10 @@ requires = ["uv_build>=0.11,<0.12"]
 build-backend = "uv_build"
 
 [tool.basedpyright]
-pythonVersion = "3.10"
+pythonVersion = "3.9"
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py39"
 
 [tool.uv]
 exclude-newer = "P7D"
@@ -42,4 +42,4 @@ module-name = "strixpipeline"
 module-root = ""
 
 [tool.uv.sources]
-strixconfigurer = { git = "https://github.com/spraakbanken/strix-config-reader" }
+strixconfigurer = { git = "https://github.com/spraakbanken/strix-config-reader", tag = "v2.0" }
